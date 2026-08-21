@@ -23,6 +23,7 @@ Four layers, in dependency order:
 
 ## Conventions
 
+- **Branching:** `main` is the stable branch. All day-to-day work happens on `dev` — agents and contributors branch from and merge into `dev` by default. `dev` merges into `main` via PR at meaningful milestones. Never commit directly to `main`.
 - **Schema documents:** JSON, validated against the spec; files use the `.muse.json` extension (once examples/tooling land).
 - **Spec edits:** keep the changelog discipline — `muse_version` is semver; v0.x may break, v1+ additive only.
 - **Code style:** minimal comments; comment only non-obvious invariants or deliberate tradeoffs. Keep changes focused and small.
