@@ -24,6 +24,8 @@ Four layers, in dependency order:
 ## Conventions
 
 - **Branching:** `main` is the stable branch. All day-to-day work happens on `dev` — agents and contributors branch from and merge into `dev` by default. `dev` merges into `main` via PR at meaningful milestones. Never commit directly to `main`.
+- **Task coordination:** Work is claimed and tracked per [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — one task per GitHub issue, label-based states, commit directly to `dev`. Read it before picking up any task.
+- **Blockers:** If you can't start or finish a task, don't guess — write `blockers/open_<datetime>_<slug>.md` per the protocol in `TASK_WORKFLOW.md` and move on to other work.
 - **Schema documents:** JSON, validated against the spec; files use the `.muse.json` extension (once examples/tooling land).
 - **Spec edits:** keep the changelog discipline — `muse_version` is semver; v0.x may break, v1+ additive only.
 - **Code style:** minimal comments; comment only non-obvious invariants or deliberate tradeoffs. Keep changes focused and small.
@@ -43,7 +45,9 @@ Update this section as tooling is added; do not leave it stale.
 ```
 SCHEMA_SPEC.md        # normative spec (this is the source of truth)
 PRIOR_ART_REVIEW.md   # landscape research
+TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
 README.md             # vision + architecture
+blockers/             # open_/closed_ blocker reports needing human input
 examples/             # example .muse.json documents (planned)
 schema/               # JSON Schema validation files (planned)
 composer/             # node-based authoring UI (planned)
