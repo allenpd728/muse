@@ -2,11 +2,15 @@
 // Single entry point, per docs/scope-batch3.md. Default expansion is the
 // offline deterministic expander (no API key needed); set MUSE_PROVIDER +
 // MUSE_MODEL + provider key to use a live LLM via interpreter/expand.mjs.
+// The document is validated schema-refs-semantics before any artifact is
+// written — a guard that exists at the CLI seam, not only in npm test.
 // Usage: node tools/play.mjs <doc.muse.json> [rendition-id] [--out dir]
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { expandOffline } from "../interpreter/offline.mjs";
 import { renderWav } from "../player/render.mjs";
+import { danglingRefs } from "./refs.mjs";
+import { checkSemantics } from "./semantics.mjs";
 
 const [docPath, renditionIdRaw, ...rest] = process.argv.slice(2);
 if (!docPath) {
@@ -42,6 +46,16 @@ const rendition = renditionId
   : renditions.length === 1 ? renditions[0] : renditions.find((r) => r.id === "r.default") ?? renditions[0] ?? implicitDefault;
 if (!rendition) {
   console.error(`rendition "${renditionId}" not found`);
+  process.exit(1);
+}
+
+// Guard the seam: dangling refs and semantic lint abort before any artifact
+// is written (same channels as the harness lint, but at the CLI boundary).
+const dangles = danglingRefs(doc);
+const semantic = checkSemantics(doc);
+if (dangles.length || semantic.length) {
+  for (const d of dangles) console.error(`refs: ${d.path} → unresolved "${d.ref}"`);
+  for (const s of semantic) console.error(`semantics: ${s}`);
   process.exit(1);
 }
 
