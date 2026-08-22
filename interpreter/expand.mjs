@@ -228,17 +228,38 @@ export const defaultModelConfig = (env = process.env) => {
 // --- CLI ---
 const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname;
 if (invokedDirectly) {
-  const [docPath, renditionId, outPath] = process.argv.slice(2);
+  const argv = process.argv.slice(2).filter((a) => a !== "--manual");
+  const [docPath, renditionId, outPath] = argv;
+  const manual = process.env.MUSE_MANUAL === "1" || process.argv.includes("--manual");
   if (!docPath) {
-    console.error("usage: node interpreter/expand.mjs <doc.muse.json> [rendition-id] [out.muse.perf.json]");
+    console.error("usage: node interpreter/expand.mjs <doc.muse.json> [rendition-id] [out.muse.perf.json] [--manual]");
     process.exit(1);
   }
   const doc = await readJson(docPath);
-  const { callModel, model } = defaultModelConfig();
+  let callModel, model;
+  if (manual) {
+    model = "manual";
+    callModel = manualCall;
+  } else {
+    ({ callModel, model } = defaultModelConfig());
+  }
   const { perf, attempts } = await expand({ doc, renditionId, callModel, model });
   const { writeFile } = await import("node:fs/promises");
   const text = JSON.stringify(perf, null, 2) + "\n";
   if (outPath) await writeFile(outPath, text);
   else process.stdout.write(text);
   console.error(`expanded ${docPath} (rendition ${perf.metadata.source.rendition_id}) in ${attempts} attempt(s)`);
+}
+
+// Manual paste mode (--manual or MUSE_MANUAL=1): print the prompt to stderr,
+// read the model's response from stdin, feed it through the same
+// validate→feedback→retry loop. The transport is the human clipboard — works
+// with any chat UI, zero API key.
+async function manualCall(prompt) {
+  const { createInterface } = await import("node:readline");
+  console.error("=== SYSTEM ===\n" + prompt.system + "\n=== USER ===\n" + prompt.user + "\n=== PASTE THE MODEL'S JSON RESPONSE, THEN CTRL-D ===");
+  const rl = createInterface({ input: process.stdin });
+  let buf = "";
+  for await (const line of rl) buf += line + "\n";
+  return buf;
 }
