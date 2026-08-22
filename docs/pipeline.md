@@ -23,8 +23,8 @@ TASK_WORKFLOW.md: status sweep is a session duty). Status values:
 |---|---|---|---|
 | 1. Author | external DAW/notation (MusicXML/MIDI out) | ✅ done | any tool with MusicXML/MIDI export works |
 | 2. Import | `importer/` (MIDI/MusicXML → IR → schema) | ✅ done | Batch 2; large scores need `--max-old-space-size` |
-| 3. Refine | manual JSON edit + explorer inspection | ⚠️ partial | composer tool scoped (#74); MVP chain starts at #79 |
-| 4. Validate | `tools/validate.mjs`, `schema/`, semantics lint | ✅ done | Batch 1; 48 suite groups green |
+| 3. Refine | manual JSON edit + explorer inspection | ⚠️ partial | composer tool scoped (#74); MVP graph model + lossless round-trip done (#79), shell next (#80) |
+| 4. Validate | `tools/validate.mjs`, `schema/`, semantics lint | ✅ done | Batch 1; 48 suite groups green; v0.3 adds tempo_shapes, structured instrumentation, mix topology (#75–#77) |
 | 5. Interpret | `interpreter/offline.mjs` / `expand.mjs` | ⚠️ partial | hand-authored examples render; imported corpus → 0 notes (#88) |
 | 6. Play | `player/render.mjs` → WAV | ✅ done | deterministic synthesis placeholder; demo WAVs in `docs/demo/` |
 | 7. Listen | — | ❌ not built | scope task #89 available |
@@ -35,7 +35,7 @@ TASK_WORKFLOW.md: status sweep is a session duty). Status values:
 |---|---|---|
 | Explorer (`dev--muse-qa-58fd708e.netlify.app`) | ✅ done | read-only browse/validate; QA preview only |
 | Benchmark corpus (10 public-domain imports) | ⚠️ partial | validates; audible pending #88 |
-| Conformance metrics harness | 🔄 in progress | #72 |
+| Conformance metrics harness | ✅ done | #72 landed (154e10e); test follow-up #90 available |
 | CI (GitHub Actions) | 🚫 blocked | account billing lock — #42, needs human |
 
 ## Update rule
