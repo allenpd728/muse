@@ -94,8 +94,8 @@ check("adapter surfaces the text for the parse/retry loop", out === "{\"muse_per
 
 // Model default (reconciled): gemini falls back to the free-tier flash model
 // per the README; other providers still require explicit MUSE_MODEL.
-check("gemini without MUSE_MODEL defaults to gemini-2.0-flash",
-  defaultModelConfig({ MUSE_PROVIDER: "gemini", GEMINI_API_KEY: "k" }).model === "gemini-2.0-flash");
+check("gemini without MUSE_MODEL defaults to the current free-tier flash",
+  defaultModelConfig({ MUSE_PROVIDER: "gemini", GEMINI_API_KEY: "k" }).model === "gemini-3.6-flash");
 check("MUSE_MODEL wins over the gemini default",
   defaultModelConfig({ MUSE_PROVIDER: "gemini", MUSE_MODEL: "gemini-2.5-pro", GEMINI_API_KEY: "k" }).model === "gemini-2.5-pro");
 check("anthropic without MUSE_MODEL still errors (no hard-coded default)",
