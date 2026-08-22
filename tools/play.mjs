@@ -8,11 +8,14 @@ import path from "node:path";
 import { expandOffline } from "../interpreter/offline.mjs";
 import { renderWav } from "../player/render.mjs";
 
-const [docPath, renditionId, ...rest] = process.argv.slice(2);
+const [docPath, renditionIdRaw, ...rest] = process.argv.slice(2);
 if (!docPath) {
-  console.error("usage: node tools/play.mjs <doc.muse.json> [rendition-id] [--out dir]");
+  console.error("usage: node tools/play.mjs <doc.muse.json> [rendition-id] [--out dir] [--bars n]");
   process.exit(1);
 }
+// Flags start with "--"; a rendition id never does.
+const renditionId = renditionIdRaw?.startsWith("--") ? undefined : renditionIdRaw;
+if (renditionIdRaw?.startsWith("--")) rest.unshift(renditionIdRaw);
 const outIdx = rest.indexOf("--out");
 const outDir = outIdx >= 0 ? rest[outIdx + 1] : "out";
 const barsIdx = rest.indexOf("--bars");
@@ -31,11 +34,14 @@ if (Number.isFinite(maxBars)) {
   doc.form.order = kept;
 }
 const renditions = doc.renditions ?? [];
+// Rendition-less documents play through an implicit default — the offline
+// expander handles zero-form docs; a live model would need an explicit id.
+const implicitDefault = { id: "r.default", name: "Default", params: {} };
 const rendition = renditionId
   ? renditions.find((r) => r.id === renditionId)
-  : renditions.length === 1 ? renditions[0] : renditions.find((r) => r.id === "r.default") ?? renditions[0];
+  : renditions.length === 1 ? renditions[0] : renditions.find((r) => r.id === "r.default") ?? renditions[0] ?? implicitDefault;
 if (!rendition) {
-  console.error(renditionId ? `rendition "${renditionId}" not found` : "no renditions in document");
+  console.error(`rendition "${renditionId}" not found`);
   process.exit(1);
 }
 
