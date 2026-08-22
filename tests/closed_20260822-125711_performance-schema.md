@@ -31,3 +31,16 @@ This spec is for what remains.
 ## How to run
 
 `npm test`; new suites as `tests/*.test.mjs`.
+
+## Resolution
+
+Residual coverage landed in `tests/performance-residual.test.mjs` (issue #62):
+§7-example conformance pin, tempo_map ordering pinned as schema-agnostic
+(interpolation is player-side, #24), controller set sealed (unknown names
+rejected), and the harness perf-channel decision made — `tools/test.mjs` now
+lints `examples/performance/*.muse.perf.json` via `checkPerfRefs`, mirroring
+the `.muse.json` danglingRefs channel. The supplementary fixture
+`examples/performance/full.muse.perf.json` was updated to the final schema
+shape (required beat clocks, controllers as number arrays). 4/4 standalone;
+npm test 44/44 green. The two items the spec defers (clock-consistency
+semantics, renderer-declared controllers) stay with #23/#24 as written.

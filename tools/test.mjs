@@ -133,6 +133,23 @@ const mustReject = async (dir) => {
 if (existsSync(examplesDir)) {
   await mustPass(examplesDir);
   if (existsSync(path.join(examplesDir, "invalid"))) await mustReject(path.join(examplesDir, "invalid"));
+  // Perf channel (issue #62): examples/performance/*.muse.perf.json are
+  // validated against schema/performance.schema.json + checkPerfRefs,
+  // mirroring the .muse.json danglingRefs channel.
+  const perfDir = path.join(examplesDir, "performance");
+  if (existsSync(perfDir)) {
+    const { checkPerfRefs } = await import("./semantics.mjs");
+    const { spawnSync: spawn } = await import("node:child_process");
+    for (const f of (await readdir(perfDir)).filter((f) => f.endsWith(".muse.perf.json")).sort()) {
+      const p = path.join(perfDir, f);
+      const doc = await readJson(p);
+      const cli = spawn(process.execPath, ["tools/validate.mjs", p, "schema/performance.schema.json"], { encoding: "utf8" });
+      const refs = doc ? checkPerfRefs(doc) : [];
+      cli.status === 0 && refs.length === 0
+        ? ok(`${p} valid`)
+        : bad(`${p} valid`, cli.stderr || refs.join("\n"));
+    }
+  }
 } else {
   console.log("# examples/ not present yet — fixture checks only");
 }

@@ -69,12 +69,15 @@
     {
       "part": "part.2",
       "pitch": 36,
+      "pitch_name": "C2",
       "onset": 0.0,
       "duration": 1.2,
+      "onset_beat": 0,
+      "duration_beats": 2,
       "velocity": 127,
       "controllers": {
-        "pitch_bend": 0.5,
-        "pressure": 0.4
+        "pitch_bend": [0, 0.5, 0],
+        "pressure": [0.4]
       }
     }
   ],
