@@ -247,6 +247,7 @@ A renderer is **Muse-conforming** if it:
 
 **Changelog**
 
+- **v0.3 (2026-08-22):** §7 `instrument` gains `divisi`, `doubles`, `techniques` — orchestral writing depth beyond GM programs; honor-or-drop conformance rule with recorded decisions in `extensions` (issue #76).
 - **v0.3 (2026-08-22):** `constraints.tempo_shapes` added — per-section ritardando/accelerando/rubato constraints with bounded spans; conformance relation to §7 `tempo_map` stated (issue #75).
 - **v0.3 (2026-08-22):** structured instrumentation entries in `renditions[].params.instrumentation` (issue #76): GM program fallback, `doubles`, and a controlled technique vocabulary (`divisi`, mutes, bowing, breath/attack, production), with the honored-or-dropped-with-recording rule for performance-layer mapping.
 - **v0.2 (2026-08-22):** `form.sections[].role` enum broadened from pop-song vocabulary to a tradition-spanning taxonomy (universal / song form / classical / film / production roles), with pass-through semantics stated (issue #67).
@@ -292,7 +293,9 @@ conformance harness measures motif recall and structure fidelity in beat space.
   "tempo_map": [ { "time": 0.0, "beat": 0, "bpm": 96 } ],
   "parts": [
     { "id": "p.lead", "name": "Lead",
-      "instrument": { "name": "violin", "program": 40, "sample_set": "vsco2-ce" },
+      "instrument": { "name": "violin", "program": 40, "sample_set": "vsco2-ce",
+                      "divisi": 2, "doubles": ["piccolo"],
+                      "techniques": ["pizzicato", "sul_ponticello"] },
       "mix": { "gain": 0.8, "pan": 0.0, "reverb_send": 0.3 } }
   ],
   "notes": [
@@ -308,3 +311,19 @@ conformance harness measures motif recall and structure fidelity in beat space.
 `pitch_name` reuses the §2.3 pitch grammar — one pitch language across schema,
 importer IR, and performance layer. Reference integrity: `notes[].part` and
 `dynamics[].part` resolve against `parts[].id`.
+
+**Instrumentation depth (v0.3).** Beyond the GM-program/sample-set mapping,
+`instrument` optionally carries:
+
+- `divisi` — count of divided sub-parts (≥ 2; omit for unison/tutti). Players
+  without sampled divisi render the full part on the base instrument and
+  record the drop.
+- `doubles` — instrument names the player switches to mid-part (flute →
+  piccolo). Which doubles are *sanctioned* is a schema/rendition decision;
+  the performance document records what was realized.
+- `techniques` — active performance/extended techniques: `muted`,
+  `sul_ponticello`, `sul_tasto`, `pizzicato`, `arco`, `col_legno`,
+  `harmonics`, `flutter_tongue`, `tremolo`, `trill`. A player honors what it
+  can (techniques map to sample-set switches or controller patterns); it
+  must drop what it can't and record the drop in
+  `extensions.<player>.dropped` — never fail on an unsupported technique.

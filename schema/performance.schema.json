@@ -68,7 +68,18 @@
             "properties": {
               "name": { "type": "string", "minLength": 1 },
               "program": { "type": "integer", "minimum": 0, "maximum": 127, "description": "General MIDI program (free tier)." },
-              "sample_set": { "type": "string", "minLength": 1, "description": "Mid-tier sample library mapping." }
+              "sample_set": { "type": "string", "minLength": 1, "description": "Mid-tier sample library mapping." },
+              "divisi": { "type": "integer", "minimum": 2, "description": "Number of divided sub-parts (e.g. 2 = div. a 2). Omit for unison/tutti." },
+              "doubles": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 },
+                "description": "Doubling instruments the player switches to (e.g. flute → piccolo), as names; the schema-level rendition governs sanctioned doubles."
+              },
+              "techniques": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/technique" },
+                "description": "Extended/performance techniques active for the part (v0.3): muted, sul_ponticello, sul_tasto, pizzicato, arco, col_legno, harmonics, flutter_tongue, tremolo, trill."
+              }
             }
           },
           "mix": {
@@ -127,6 +138,16 @@
           "level": { "type": "number", "minimum": 0, "maximum": 1 }
         }
       }
+    }
+  },
+  "$defs": {
+    "technique": {
+      "type": "string",
+      "enum": [
+        "muted", "sul_ponticello", "sul_tasto", "pizzicato", "arco",
+        "col_legno", "harmonics", "flutter_tongue", "tremolo", "trill"
+      ],
+      "description": "Performance/extended techniques (v0.3). Players honor what they can; unsupported techniques are dropped with a recorded decision in extensions."
     }
   }
 }
