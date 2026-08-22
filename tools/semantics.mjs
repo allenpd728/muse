@@ -45,3 +45,37 @@ export const checkPerfRefs = (doc) => {
       errors.push(`dynamics[${i}].part: dangling ref "${d.part}"`);
   return errors;
 };
+
+// Clock consistency (spec §7, "two clocks"): seconds must agree with beats
+// under the tempo_map. Beats are converted to seconds via linear interpolation
+// between map points (constant bpm within a segment). Tolerance 1e-3s absorbs
+// float dust from the interpolation; a musically meaningful mismatch is far
+// larger.
+export const checkClockConsistency = (doc, { tolerance = 1e-3 } = {}) => {
+  const errors = [];
+  const map = doc?.tempo_map ?? [];
+  if (!map.length) return errors;
+  const sorted = [...map].sort((a, b) => a.time - b.time);
+  const beatToTime = (beat) => {
+    if (beat <= sorted[0].beat)
+      return sorted[0].time - ((sorted[0].beat - beat) * 60) / sorted[0].bpm;
+    for (let i = 1; i < sorted.length; i++) {
+      const a = sorted[i - 1], b = sorted[i];
+      if (beat <= b.beat) return a.time + ((beat - a.beat) * 60) / a.bpm;
+    }
+    const last = sorted[sorted.length - 1];
+    return last.time + ((beat - last.beat) * 60) / last.bpm;
+  };
+  for (const [i, n] of (doc?.notes ?? []).entries()) {
+    if (typeof n?.onset !== "number" || typeof n?.onset_beat !== "number") continue;
+    const expected = beatToTime(n.onset_beat);
+    if (Math.abs(n.onset - expected) > tolerance)
+      errors.push(`notes[${i}]: onset ${n.onset}s disagrees with onset_beat ${n.onset_beat} (${expected.toFixed(4)}s under tempo_map)`);
+    if (typeof n?.duration === "number" && typeof n?.duration_beats === "number") {
+      const end = beatToTime(n.onset_beat + n.duration_beats);
+      if (Math.abs(n.onset + n.duration - end) > tolerance)
+        errors.push(`notes[${i}]: duration ${n.duration}s disagrees with duration_beats ${n.duration_beats}`);
+    }
+  }
+  return errors;
+};
