@@ -35,7 +35,14 @@ const programTicks = (input) => {
 
 // input: Buffer/Uint8Array of a .mid file.
 export function midiToIR(input) {
-  const midi = new Midi(input);
+  let midi;
+  try {
+    midi = new Midi(input);
+  } catch (e) {
+    // tonejs throws plain strings on malformed input; normalize to Error so
+    // the CLI (#20) can rely on .message.
+    throw new Error(`malformed MIDI input: ${typeof e === "string" ? e : e.message}`);
+  }
   const programs = programTicks(input);
   const ppq = midi.header.ppq;
   const beat = (ticks) => ticksToBeats(ticks, ppq);
