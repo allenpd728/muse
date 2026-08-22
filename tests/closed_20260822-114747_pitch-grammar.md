@@ -32,3 +32,15 @@ harness `mustReject` loop, and existing examples prove acceptance of
 
 Fold into `tests/material.test.mjs` / `tests/constraints.test.mjs` (accept/reject
 tables) plus the parity suite as `tests/pitch-grammar.test.mjs`; `npm test`.
+
+## Resolution
+
+Coverage landed in `tests/pitch-grammar.test.mjs` (issue #52): accept table
+(seven naturals, sharps, flats, negative octave C-1), reject table
+(lowercase, double accidental, missing octave, octave-only, empty, H4), and
+the schema⇔importer parity pin — 35 assertions total. C10 is the one
+deliberate divergence: the grammar pins form, not the MIDI 0-127 range;
+the schema accepts it and `pitchToMidi` range-rejects it, both pinned.
+Cross-file $ref integrity proven by compiling constraints.schema.json
+standalone with material pre-registered. Existing material/constraints
+suites continue to pin that rhythm/timbre motifs validate without `pitches`.
