@@ -1,1 +1,6 @@
-{ "messages": ["renditions"] }
+{
+  "channel": "schema",
+  "messages": [
+    "renditions"
+  ]
+}

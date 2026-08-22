@@ -1,1 +1,6 @@
-{ "messages": ["energy"] }
+{
+  "channel": "schema",
+  "messages": [
+    "energy"
+  ]
+}

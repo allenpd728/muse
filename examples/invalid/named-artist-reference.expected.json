@@ -1,1 +1,6 @@
-{ "messages": ["policy violation"] }
+{
+  "channel": "semantics",
+  "messages": [
+    "policy violation"
+  ]
+}

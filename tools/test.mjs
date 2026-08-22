@@ -134,6 +134,21 @@ const mustReject = async (dir) => {
         bad(`${p} rejected`, `expected error text missing: ${missing.join(", ")}`);
         continue;
       }
+      // Channel-of-rejection pinning: the fixture must fail through the
+      // channel named in the sidecar, and no earlier channel in harness
+      // order (schema -> refs -> semantics) may fire first — a fixture that
+      // starts failing through a different channel signals convention drift.
+      if (expected.channel) {
+        const fired = [
+          ["schema", cli.code !== 0],
+          ["refs", dx.length > 0],
+          ["semantics", sem.length > 0],
+        ].filter(([, hit]) => hit).map(([ch]) => ch);
+        if (fired[0] !== expected.channel) {
+          bad(`${p} rejected`, `expected channel "${expected.channel}", rejection fired through: ${fired.join(", ") || "none"}`);
+          continue;
+        }
+      }
     }
     rejected ? ok(`${p} rejected`) : bad(`${p} rejected`, detail);
   }

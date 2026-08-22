@@ -1,1 +1,6 @@
-{ "messages": ["motif.missing"] }
+{
+  "channel": "refs",
+  "messages": [
+    "motif.missing"
+  ]
+}
