@@ -80,6 +80,57 @@ export const splitRef = (ref) => {
   return { base, suffix: ops.length ? `#${ops.join("#")}` : "" };
 };
 
+// --- MVP 4: material editors ---
+// Space-separated text lists, parsed per field kind. Parse failures keep the
+// last good value (the edit → validate loop would flag a bad write anyway,
+// but a half-typed token shouldn't corrupt the document).
+export const parseList = (text, kind) => {
+  const tokens = String(text).trim().split(/\s+/).filter(Boolean);
+  if (kind === "pitches") {
+    const bad = tokens.filter((t) => !/^[A-G](#|b)?-?\d+$/.test(t));
+    return bad.length ? { error: `not pitches: ${bad.join(", ")}` } : { value: tokens };
+  }
+  if (kind === "numbers") {
+    const bad = tokens.filter((t) => !/^\d+(\.\d+)?$/.test(t) || Number(t) <= 0);
+    return bad.length ? { error: `not positive numbers: ${bad.join(", ")}` } : { value: tokens.map(Number) };
+  }
+  if (kind === "pattern") {
+    const bad = tokens.filter((t) => !/^\d+(\.\d+)?$/.test(t));
+    return bad.length ? { error: `not numbers: ${bad.join(", ")}` } : { value: tokens.map(Number) };
+  }
+  return { value: tokens }; // chords: free text (spec §6 open question)
+};
+
+const LIST_FIELDS = {
+  motif: [["pitches", "pitches"], ["durations", "numbers"]],
+  rhythm: [["pattern", "pattern"]],
+  progression: [["chords", "chords"]],
+};
+
+function ListEditor({ node, name, kind, onEdit }) {
+  const raw = (node.fields[name] ?? []).join(" ");
+  const [text, setText] = React.useState(raw);
+  const [error, setError] = React.useState(null);
+  React.useEffect(() => { setText(raw); setError(null); }, [raw, node.id]);
+  return (
+    <label className="field">
+      <span>{name}</span>
+      <input
+        type="text"
+        value={text}
+        className={error ? "invalid" : ""}
+        title={error ?? ""}
+        onChange={(e) => {
+          setText(e.target.value);
+          const r = parseList(e.target.value, kind);
+          if (r.error) setError(r.error);
+          else { setError(null); onEdit(node.id, name, r.value); }
+        }}
+      />
+    </label>
+  );
+}
+
 const LAYOUT_X = { globals: 0, constraints: 0, motif: 0, theme: 320, rhythm: 0, progression: 320, section: 640, rendition: 960 };
 const LAYOUT_Y = { globals: 0, constraints: 160, motif: 320, rhythm: 320, progression: 320, section: 320, rendition: 320 };
 
@@ -179,6 +230,9 @@ function Inspector({ node, graph, onEdit, onEditEdge, onRemoveEdge, onReorder })
             />
           )}
         </label>
+      ))}
+      {(LIST_FIELDS[node.kind] ?? []).map(([name, kind]) => (
+        <ListEditor key={name} node={node} name={name} kind={kind} onEdit={onEdit} />
       ))}
       {node.kind === "section" && (
         <>
