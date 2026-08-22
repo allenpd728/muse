@@ -33,3 +33,30 @@ This spec is for what remains.
 ## How to run
 
 `cd explorer && npm test` (vitest); browser pass in the closing note.
+
+---
+
+## Closed — 2026-08-22 (issue #104)
+
+Coverage landed (appended to `explorer/src/listen/wav.test.js`, now 8
+checks):
+
+- **Download filename pinned:** `wavFilename` extracted — `<title>.
+  <rendition-id>.wav`, spaces collapse, missing title → `muse` (incl.
+  null doc).
+- **Perf cache keying pinned:** the download reads the cache by ACTIVE
+  rendition id — a switch changes active, so a stale rendition's render
+  can't be served unless the cache keying itself broke (contract test).
+
+Deferred (still open, with triggers):
+
+- **Browser download integrity** — scripted-browser territory (Blob
+  helper untestable in vitest; DOM-renderer decision from the composer
+  lineage covers this).
+- **Provenance continuity** — the WAV has no metadata channel; if
+  listeners need provenance, the perf JSON should be downloadable too
+  (UX decision, flag to the human).
+- **Long renders** — ~40MB Uint8Array on full-length pieces; pin a size
+  guard or streaming decision if it becomes a problem.
+
+Run: `cd explorer && npm test`.
