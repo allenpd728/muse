@@ -120,4 +120,24 @@ export function render(perfDoc, { sampleRate = 44100 } = {}) {
   return [left, right];
 }
 
-// 16-bit PCM WAV (stereo) wrapper.
+// 16-bit PCM WAV encoding as a Uint8Array — browser-safe (DataView, no
+// Buffer), shared by the node renderWav wrapper and the listener's
+// client-side download (#100).
+export function encodeWav(channels, { sampleRate = 44100 } = {}) {
+  const nCh = channels.length;
+  const frames = channels[0]?.length ?? 0;
+  const dataSize = frames * nCh * 2;
+  const buf = new ArrayBuffer(44 + dataSize);
+  const v = new DataView(buf);
+  const str = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  str(0, "RIFF"); v.setUint32(4, 36 + dataSize, true); str(8, "WAVE");
+  str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+  v.setUint16(22, nCh, true); v.setUint32(24, sampleRate, true);
+  v.setUint32(28, sampleRate * nCh * 2, true); v.setUint16(32, nCh * 2, true);
+  v.setUint16(34, 16, true);
+  str(36, "data"); v.setUint32(40, dataSize, true);
+  for (let i = 0; i < frames; i++)
+    for (let c = 0; c < nCh; c++)
+      v.setInt16(44 + (i * nCh + c) * 2, Math.max(-32768, Math.min(32767, Math.round(channels[c][i] * 32767))), true);
+  return new Uint8Array(buf);
+}

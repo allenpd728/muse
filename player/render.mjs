@@ -2,25 +2,11 @@
 // The pure renderer (render, droppedTechniques) lives in render-core.mjs —
 // browser-safe for the listener (#97/#98). This file adds the node-only
 // pieces: 16-bit PCM WAV encoding (Buffer) and the CLI.
-import { render } from "./render-core.mjs";
-export { render, droppedTechniques } from "./render-core.mjs";
+import { render, encodeWav } from "./render-core.mjs";
+export { render, droppedTechniques, encodeWav } from "./render-core.mjs";
 
 export function renderWav(perfDoc, { sampleRate = 44100 } = {}) {
-  const channels = render(perfDoc, { sampleRate });
-  const nCh = channels.length;
-  const frames = channels[0].length;
-  const dataSize = frames * nCh * 2;
-  const buf = Buffer.alloc(44 + dataSize);
-  buf.write("RIFF", 0); buf.writeUInt32LE(36 + dataSize, 4); buf.write("WAVE", 8);
-  buf.write("fmt ", 12); buf.writeUInt32LE(16, 16); buf.writeUInt16LE(1, 20);
-  buf.writeUInt16LE(nCh, 22); buf.writeUInt32LE(sampleRate, 24);
-  buf.writeUInt32LE(sampleRate * nCh * 2, 28); buf.writeUInt16LE(nCh * 2, 32);
-  buf.writeUInt16LE(16, 34);
-  buf.write("data", 36); buf.writeUInt32LE(dataSize, 40);
-  for (let i = 0; i < frames; i++)
-    for (let c = 0; c < nCh; c++)
-      buf.writeInt16LE(Math.max(-32768, Math.min(32767, Math.round(channels[c][i] * 32767))), 44 + (i * nCh + c) * 2);
-  return buf;
+  return Buffer.from(encodeWav(render(perfDoc, { sampleRate }), { sampleRate }));
 }
 
 // --- CLI ---
