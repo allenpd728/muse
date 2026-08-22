@@ -29,3 +29,19 @@ export const checkSemantics = (doc) => {
   }
   return errors;
 };
+
+// Performance-document reference integrity (spec §7): notes[].part and
+// dynamics[].part must resolve against parts[].id. Same class as the
+// harness's danglingRefs lint — cross-value, not expressible in draft
+// 2020-12. Returns human-readable errors; empty means consistent.
+export const checkPerfRefs = (doc) => {
+  const errors = [];
+  const partIds = new Set((doc?.parts ?? []).map((p) => p?.id).filter(Boolean));
+  for (const [i, n] of (doc?.notes ?? []).entries())
+    if (n?.part && !partIds.has(n.part))
+      errors.push(`notes[${i}].part: dangling ref "${n.part}"`);
+  for (const [i, d] of (doc?.dynamics ?? []).entries())
+    if (d?.part && !partIds.has(d.part))
+      errors.push(`dynamics[${i}].part: dangling ref "${d.part}"`);
+  return errors;
+};
