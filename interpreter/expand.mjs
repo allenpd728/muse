@@ -166,6 +166,24 @@ const openaiCall = async ({ model, apiKey, baseUrl, prompt }) => {
   return data.choices?.[0]?.message?.content ?? "";
 };
 
+// Gemini (Google AI Studio free tier) — API key in the query string per the
+// public endpoint convention; responseMimeType requests structured JSON for
+// the generate→validate→fix loop.
+const geminiCall = async ({ model, apiKey, baseUrl, prompt }) => {
+  const res = await fetch(`${baseUrl}/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: prompt.system }] },
+      contents: [{ role: "user", parts: [{ text: prompt.user }] }],
+      generationConfig: { responseMimeType: "application/json" },
+    }),
+  });
+  if (!res.ok) throw new Error(`gemini ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+};
+
 // Returns { callModel, model } from env config. Prompt-aware adapter
 // selection lives here; provider adapters above are the wire shapes.
 export const defaultModelConfig = (env = process.env) => {
@@ -184,7 +202,13 @@ export const defaultModelConfig = (env = process.env) => {
     const baseUrl = env.MUSE_BASE_URL ?? "https://api.openai.com/v1";
     return { model, callModel: (prompt) => openaiCall({ model, apiKey, baseUrl, prompt }) };
   }
-  throw new Error(`unknown MUSE_PROVIDER "${provider}" (anthropic | openai)`);
+  if (provider === "gemini") {
+    const apiKey = env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY is required for MUSE_PROVIDER=gemini");
+    const baseUrl = env.MUSE_BASE_URL ?? "https://generativelanguage.googleapis.com";
+    return { model, callModel: (prompt) => geminiCall({ model, apiKey, baseUrl, prompt }) };
+  }
+  throw new Error(`unknown MUSE_PROVIDER "${provider}" (anthropic | openai | gemini)`);
 };
 
 // --- CLI ---

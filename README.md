@@ -21,6 +21,16 @@ Muse is built as four layers:
 - **Provenance and rights.** A human-authored schema is a copyrightable musical work. Renditions are traceable derivatives of it, which aligns with the post-2025 industry's move toward licensed, opt-in, auditable generation.
 - **Portability.** The schema is an open, inspectable document — not a proprietary session file or a hidden model state. Composers own it; engines compete to render it.
 
+## Interpreter providers
+
+`tools/play.mjs` and `interpreter/expand.mjs` share the same provider order — **offline → Gemini free tier → paid adapters**:
+
+- **Offline** (default): deterministic rule-based expander, no API key.
+- **`MUSE_PROVIDER=gemini`** + `GEMINI_API_KEY`: Google AI Studio free tier; requests structured JSON (`responseMimeType: application/json`). Default model: `gemini-2.0-flash`.
+- **`MUSE_PROVIDER=anthropic`** + `ANTHROPIC_API_KEY`, or **`MUSE_PROVIDER=openai`** + `OPENAI_API_KEY`: paid adapters.
+
+All live-model paths feed the generate → validate → fix loop; a performance that can't satisfy the constraints after bounded retries fails loudly.
+
 ## Repository contents
 
 - [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md) — Muse Schema Specification v0 (draft)
