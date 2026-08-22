@@ -44,12 +44,17 @@ at a time.
 
 ## Claiming protocol
 
+The claim lock applies to **any issue an agent is actively working** — a task, a
+`Tests:` follow-up, or a blocker-resolution — not just tasks. The mechanics are
+identical for all three; only the "done" action differs.
+
 1. **Sweep stale claims.** Before selecting work, list all `status:claimed` issues.
    For each, if the claim comment is older than **1 hour** with no activity since
    (no commits on the PR, no new comments), the claim is void: remove
-   `status:claimed`, add `status:available`, and comment that the task was
+   `status:claimed`, restore the prior label (`status:available` for tasks/tests,
+   `status:blocked-needs-input` for blockers), and comment that the work was
    reclaimed (audit trail).
-2. **Pick a task.** Any `status:available` issue the agent has enough context to
+2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue.
 3. **When no task is available, fall through in priority order:**
@@ -61,13 +66,20 @@ at a time.
      resolvable, close the blocker and return the task to `status:available`.
    - Only when tasks, `Tests:` issues, and blockers are all exhausted is the
      queue empty and the session done.
-4. **Attempt the claim.** Add `status:claimed`, self-assign, and post a claim
+4. **Attempt the claim.** Whatever the work item: swap its current label to
+   `status:claimed` (from `status:available` for tasks/tests, from
+   `status:blocked-needs-input` for blockers), self-assign, and post a claim
    comment (`claimed by <run-id> at <UTC timestamp>`). Then re-fetch the issue:
    if the label or assignee doesn't match, another agent won — back off and pick
-   a different task. GitHub serializes these writes, so exactly one agent wins.
+   a different item. GitHub serializes these writes, so exactly one agent wins.
 5. **Do the work.** Commit directly to `dev` (no PR — review happens
    retrospectively on `dev`). Swap `status:claimed` → `status:done` and close the
-   issue with a comment linking the commits.
+   issue with a comment linking the commits. For a **blocker-resolution** item the
+   "done" action differs: resolve the ambiguity (amend the spec/docs), rename the
+   `blockers/open_*` file to `closed_*` appending the resolution, remove
+   `status:claimed` from the blocked issue, and return that issue to
+   `status:available` — the blocker itself is a means, the goal is unblocking the
+   original task.
 6. **Spec the tests.** Before closing out, write
    `tests/open_YYYYMMDD-HHMMSS_<task-slug>.md` describing the test coverage the
    work needs: behaviors to verify, edge cases, and how to invoke the tests.
