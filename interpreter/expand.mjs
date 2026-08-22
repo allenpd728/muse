@@ -11,6 +11,7 @@ import path from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { checkPerfRefs } from "../tools/semantics.mjs";
+import { scorePerformance } from "../benchmark/metrics.mjs";
 
 const REPO = new URL("..", import.meta.url);
 const readJson = async (p) => JSON.parse(await readFile(p, "utf8"));
@@ -75,10 +76,26 @@ export const parseModelOutput = (text) => {
   return JSON.parse(trimmed);
 };
 
-const validatePerf = async (perf) => {
+const validatePerf = async (perf, doc) => {
   const validate = await perfValidator();
   const schemaErrors = validate(perf) ? [] : (validate.errors ?? []).map((e) => `${e.instancePath || "/"} ${e.message}`);
-  return [...schemaErrors, ...checkPerfRefs(perf)];
+  const refErrors = checkPerfRefs(perf);
+  // Constraint semantics pass (scope doc): the conformance metrics from
+  // benchmark/metrics.mjs — a score below 1 feeds back as error detail.
+  let metricErrors = [];
+  if (doc) {
+    const report = scorePerformance(doc, perf);
+    for (const d of report.per_motif ?? [])
+      if (!d.found) metricErrors.push(`motif_recall: "${d.id}" not realized${d.reason ? ` (${d.reason})` : ""}`);
+    if (report.structure_fidelity < 1)
+      metricErrors.push(`structure_fidelity: ${report.structure.actual_bars} bars outside expected [${report.structure.expected_bars}]`);
+    for (const d of report.tempo_shape_detail ?? [])
+      if (!d.conformant) metricErrors.push(`tempo_shapes: section "${d.section}" ${d.kind} not realized`);
+    for (const d of report.harmony_detail ?? [])
+      for (const c of d.chords ?? [])
+        if (!c.covered) metricErrors.push(`harmonic_fidelity: chord "${c.chord}" not covered in section "${d.section}"`);
+  }
+  return [...schemaErrors, ...refErrors, ...metricErrors];
 };
 
 export async function expand({ doc, renditionId, callModel, model, maxAttempts = 3, at }) {
@@ -99,7 +116,7 @@ export async function expand({ doc, renditionId, callModel, model, maxAttempts =
       feedback = lastErrors.join("\n");
       continue;
     }
-    const errors = await validatePerf(perf);
+    const errors = await validatePerf(perf, doc);
     if (errors.length === 0) {
       // Provenance is stamped by the harness — never trusted to the model.
       perf.metadata.interpreter = { model, at: stampedAt };

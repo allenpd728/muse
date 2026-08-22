@@ -70,7 +70,25 @@ export function motifRecall(schema, perf) {
   for (const id of targetIds) {
     const motif = motifsById.get(id);
     if (!motif || !(motif.pitches ?? []).length) {
-      detail.push({ id, found: false, reason: motif ? "rhythm-only motif (no pitch contour to recall)" : "unknown motif id" });
+      // Rhythm-only motifs recall on the duration grid alone (normalized —
+      // uniform aug/dim tolerated, same convention as pitch recall).
+      if (motif && (motif.durations ?? []).length >= 2) {
+        const target = normalizeDurations(motif.durations);
+        let hit = null;
+        for (const [part, notes] of parts) {
+          for (let start = 0; start + target.length <= notes.length; start++) {
+            const runDur = normalizeDurations(notes.slice(start, start + target.length).map((n) => n.duration_beats));
+            if (target.every((d, i) => Math.abs(d - runDur[i]) <= EPS * Math.max(1, Math.abs(d)))) {
+              hit = { match: "rhythm-grid", part, at_beat: notes[start].onset_beat };
+              break;
+            }
+          }
+          if (hit) break;
+        }
+        detail.push(hit ? { id, found: true, ...hit } : { id, found: false, match: "rhythm-grid" });
+      } else {
+        detail.push({ id, found: false, reason: motif ? "rhythm-only motif (no pitch contour to recall)" : "unknown motif id" });
+      }
       continue;
     }
     const pitches = motif.pitches.map(pitchToMidi);
@@ -182,17 +200,74 @@ export function tempoShapeConformance(schema, perf) {
   return { score: detail.length ? conformant / detail.length : 1, targets: detail.length, detail };
 }
 
+// Harmonic fidelity: for each section wired to a progression, the perf
+// notes sounding within that section's span must cover every chord's
+// pitch-class set at least once per progression cycle. Pitch classes only
+// (voicing is interpretation; content is conformance).
+const CHORD_PC = { "": [0, 4, 7], m: [0, 3, 7], maj7: [0, 4, 7, 11], m7: [0, 3, 7, 10], 7: [0, 4, 7, 10], dim: [0, 3, 6], aug: [0, 4, 8] };
+const chordPitchClasses = (symbol) => {
+  const m = /^([A-G])(#|b)?(.*)$/.exec(symbol);
+  if (!m) return null;
+  const root = pitchToMidi(`${m[1]}${m[2] ?? ""}0`) % 12;
+  return (CHORD_PC[m[3] || ""] ?? CHORD_PC[""]).map((t) => (root + t) % 12);
+};
+
+export function harmonicFidelity(schema, perf) {
+  const progsById = new Map((schema.material?.harmony?.progressions ?? []).map((p) => [p.id, p]));
+  const barBeats = beatsPerBar(schema.globals?.meter);
+  const spans = new Map();
+  let bar = 0;
+  const sections = new Map((schema.form?.sections ?? []).map((s) => [s.id, s]));
+  const repetition = schema.form?.repetition ?? {};
+  for (const id of schema.form?.order ?? []) {
+    const s = sections.get(id);
+    if (!s) continue;
+    const bars = s.bars ?? 4;
+    const reps = repetition[id]?.min ?? 1;
+    for (let r = 0; r < reps; r++) {
+      const prev = spans.get(id);
+      spans.set(id, {
+        start: Math.min(prev?.start ?? Infinity, bar * barBeats),
+        end: Math.max(prev?.end ?? -Infinity, (bar + bars) * barBeats),
+      });
+      bar += bars;
+    }
+  }
+  const detail = [];
+  for (const [sectionId, span] of spans) {
+    const section = sections.get(sectionId);
+    const prog = progsById.get(section?.harmony);
+    if (!prog) continue;
+    const inSpan = (perf.notes ?? []).filter((n) => n.onset_beat >= span.start - EPS && n.onset_beat < span.end - EPS);
+    const pcs = new Set(inSpan.map((n) => n.pitch % 12));
+    const chords = [];
+    for (const chord of prog.chords ?? []) {
+      const expected = chordPitchClasses(chord);
+      if (!expected) { chords.push({ chord, covered: false, reason: "unparseable chord symbol" }); continue; }
+      const missing = expected.filter((pc) => !pcs.has(pc));
+      chords.push({ chord, covered: missing.length === 0, ...(missing.length ? { missing_pcs: missing } : {}) });
+    }
+    const covered = chords.filter((c) => c.covered).length;
+    detail.push({ section: sectionId, progression: prog.id, score: chords.length ? covered / chords.length : 1, chords });
+  }
+  const score = detail.length ? detail.reduce((a, d) => a + d.score, 0) / detail.length : 1;
+  return { score, sections: detail.length, detail };
+}
+
 export const scorePerformance = (schema, perf) => {
   const motif = motifRecall(schema, perf);
   const structure = structureFidelity(schema, perf);
   const tempoShapes = tempoShapeConformance(schema, perf);
+  const harmony = harmonicFidelity(schema, perf);
   return {
     motif_recall: Math.round(motif.score * 1000) / 1000,
     structure_fidelity: Math.round(structure.score * 1000) / 1000,
     tempo_shapes: Math.round(tempoShapes.score * 1000) / 1000,
+    harmonic_fidelity: Math.round(harmony.score * 1000) / 1000,
     per_motif: motif.detail,
     structure,
     tempo_shape_detail: tempoShapes.detail,
+    harmony_detail: harmony.detail,
   };
 };
 

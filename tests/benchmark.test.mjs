@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { motifRecall, structureFidelity, scorePerformance, referencePerformance, tempoShapeConformance } from "../benchmark/metrics.mjs";
+import { motifRecall, structureFidelity, scorePerformance, referencePerformance, tempoShapeConformance, harmonicFidelity } from "../benchmark/metrics.mjs";
 import { expandOffline } from "../interpreter/offline.mjs";
 
 const full = JSON.parse(await readFile(new URL("../examples/full.muse.json", import.meta.url), "utf8"));
@@ -152,6 +152,41 @@ check("no form declared scores 1", structureFidelity({ material: {} }, perf([]))
   })());
   check("no tempo_shapes → score 1 (vacuous)",
     tempoShapeConformance(schema([motif]), perf([])).score === 1);
+}
+
+// Rhythm-only motif recall (issue #90): duration-grid match, normalized.
+{
+  const rhythmMotif = { id: "motif.r", kind: "rhythm", durations: [0.25, 0.25, 0.5] };
+  const s = schema([rhythmMotif]);
+  check("rhythm-only motif recalls on duration grid",
+    motifRecall(s, perf(note([60, 62, 64], [0.25, 0.25, 0.5]))).score === 1);
+  check("rhythm grid tolerates uniform scaling (aug/dim)",
+    motifRecall(s, perf(note([60, 62, 64], [0.5, 0.5, 1]))).score === 1);
+  check("rhythm grid rejects wrong durations",
+    motifRecall(s, perf(note([60, 62, 64], [0.5, 0.25, 0.25]))).score === 0);
+  check("rhythm grid matches anywhere in the note stream",
+    motifRecall(s, perf([...note([70], [2], 0), ...note([60, 62, 64], [0.25, 0.25, 0.5], 2)])).score === 1);
+}
+
+// Harmonic fidelity (issue #90): chord pitch-class coverage per section.
+{
+  const harmSchema = {
+    material: { harmony: { progressions: [{ id: "prog.1", chords: ["Dm7", "G7"], bars_per_chord: 1 }] } },
+    form: { sections: [{ id: "s1", role: "verse", bars: 2, harmony: "prog.1" }], order: ["s1"] },
+    globals: { meter: { beats: 4, unit: 4 } },
+  };
+  const fullCoverage = perf(note([50, 53, 57, 60, 55, 59, 62, 65], [1, 1, 1, 1, 1, 1, 1, 1])); // D F A C + G B D F
+  check("all chords covered → harmonic fidelity 1",
+    harmonicFidelity(harmSchema, fullCoverage).score === 1);
+  check("missing chord tone drops the chord's coverage", (() => {
+    const noC = perf(note([50, 53, 57, 55, 59, 62, 65], [1, 1, 1, 1, 1, 1, 1])); // no C (pc 0)
+    const r = harmonicFidelity(harmSchema, noC);
+    return r.score === 0.5 && r.detail[0].chords.find((c) => c.chord === "Dm7").covered === false;
+  })());
+  check("voicing irrelevant — pitch classes in any octave count",
+    harmonicFidelity(harmSchema, perf(note([38, 41, 45, 48, 43, 47, 50, 53], [1, 1, 1, 1, 1, 1, 1, 1]))).score === 1);
+  check("section without harmony progression is skipped (vacuous)",
+    harmonicFidelity(schema([motif]), perf([])).score === 1);
 }
 
 // DoD: ≥2 corpus entries scored end-to-end — reference performance (the
