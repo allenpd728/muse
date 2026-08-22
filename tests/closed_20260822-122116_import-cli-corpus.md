@@ -23,3 +23,14 @@ rejection). This spec covers what it does not.
 ## How to run
 
 Extend `tests/import-cli.test.mjs`; `npm test` picks the suite up automatically.
+
+## Resolution
+
+Residual coverage landed in `tests/import-cli.test.mjs` (issue #60): usage
+errors for missing args and missing `-o`; readable errors for missing input
+file and non-existent output directory (CLI error paths now catch and report
+instead of leaking a Node stack trace); no partial artifact on failure; `.midi`
+extension fallback; uncompressed `.musicxml` corpus entry (`bwv269.musicxml`,
+extracted from the shipped `.mxl`); corpus enumerated from the fixtures
+directory rather than a hardcoded list — adding a corpus file is adding a
+file. 30/30 standalone; npm test green.
