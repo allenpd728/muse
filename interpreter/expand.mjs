@@ -200,9 +200,13 @@ const geminiCall = async ({ model, apiKey, baseUrl, prompt }) => {
 
 // Returns { callModel, model } from env config. Prompt-aware adapter
 // selection lives here; provider adapters above are the wire shapes.
+// Model default: MUSE_MODEL wins everywhere; gemini falls back to the
+// current free-tier flash model (README documents it as the default).
+// Anthropic/openai have no default — naming a model there is a pricing
+// decision, not a convenience.
 export const defaultModelConfig = (env = process.env) => {
   const provider = env.MUSE_PROVIDER ?? "anthropic";
-  const model = env.MUSE_MODEL;
+  const model = env.MUSE_MODEL ?? (provider === "gemini" ? "gemini-2.0-flash" : undefined);
   if (!model) throw new Error("MUSE_MODEL is required (model-agnostic: no default model is hard-coded)");
   if (provider === "anthropic") {
     const apiKey = env.ANTHROPIC_API_KEY;

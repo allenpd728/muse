@@ -24,3 +24,24 @@ role wire shape, text surfacing for the retry loop). This spec covers what remai
 ## How to run
 
 `npm test`; live smoke stays manual (recorded in the closing comment).
+
+---
+
+## Closed — 2026-08-22 (issue #110)
+
+Coverage landed (appended to `tests/interpreter-gemini.test.mjs`, now 14
+checks):
+
+- **Error surface:** 429 and 400 responses throw with status + body text
+  (`gemini 429: rate limit…`) — readable to the retry loop.
+- **Retry loop integration:** prose-wrapped JSON ("Here is the performance
+  document…") fails parsing, feeds feedback to the model, clean second
+  response succeeds — pinned against the canned fetch, no live key.
+- **MUSE_BASE_URL override:** applies to the gemini adapter (proxy/test
+  harness support).
+- **Model default (reconciled):** gemini falls back to `gemini-2.0-flash`
+  when MUSE_MODEL is unset — the README already documented it as the
+  default; anthropic/openai still require explicit MUSE_MODEL (no
+  hard-coded pricing decision). MUSE_MODEL always wins when set.
+
+Run: `npm test`.
