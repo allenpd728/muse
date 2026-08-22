@@ -46,5 +46,13 @@ export function danglingRefs(doc) {
     if (!sections.has(key)) out.push({ path: "constraints.tempo_lock", ref: key });
   for (const key of Object.keys(doc?.constraints?.register ?? {}))
     if (!ids.has(key)) out.push({ path: "constraints.register", ref: key });
+  // Rendition mix topology (v0.3): routes[].bus resolves against the
+  // rendition's own buses[].id (rendition-internal, not material/section).
+  for (const r of doc?.renditions ?? []) {
+    const buses = new Set((r?.params?.mix?.buses ?? []).map((b) => b?.id).filter(Boolean));
+    for (const route of r?.params?.mix?.routes ?? [])
+      if (route?.bus && !buses.has(route.bus))
+        out.push({ path: `renditions[${r.id}].params.mix.routes`, ref: route.bus });
+  }
   return out;
 }
