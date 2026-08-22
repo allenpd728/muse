@@ -30,9 +30,17 @@ const specSnippet = {
 
 check("spec §2.4 snippet valid", validate(specSnippet));
 check("repeated ids in order accepted", validate({ sections: [{ id: "v", role: "verse" }], order: ["v", "v", "v"] }));
-check("every role enum value accepted", ["intro", "verse", "pre_chorus", "chorus", "bridge", "solo", "outro", "custom"]
+const ROLES = [
+  "intro", "outro", "interlude", "coda", "solo", "custom",
+  "verse", "pre_chorus", "chorus", "refrain", "bridge", "hook",
+  "exposition", "development", "recapitulation", "episode", "theme",
+  "variation", "trio", "minuet", "scherzo", "fugue", "cadenza", "finale",
+  "cue", "underscore", "stinger", "main_title", "end_credits",
+  "build", "drop", "breakdown", "vamp", "groove",
+];
+check("every role enum value accepted", ROLES
   .every((role) => validate({ sections: [{ id: "x", role }], order: ["x"] })));
-check("unknown role rejected", !validate({ sections: [{ id: "x", role: "refrain" }], order: ["x"] }));
+check("unknown role rejected", !validate({ sections: [{ id: "x", role: "ritornello" }], order: ["x"] }));
 check("energy 0 and 1 accepted", validate({ sections: [{ id: "x", role: "verse", energy: 0 }], order: ["x"] })
   && validate({ sections: [{ id: "x", role: "verse", energy: 1 }], order: ["x"] }));
 check("energy above 1 rejected", !validate({ sections: [{ id: "x", role: "verse", energy: 1.1 }], order: ["x"] }));

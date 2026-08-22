@@ -111,7 +111,7 @@ The reusable musical vocabulary of the work. Everything in `form` references mat
   "sections": [
     {
       "id": "verse.1",
-      "role": "verse",                    // intro | verse | pre_chorus | chorus | bridge | solo | outro | custom
+      "role": "verse",                    // see role vocabulary below
       "bars": 16,
       "uses": [ { "ref": "theme.1", "variation": "plain" } ],
       "harmony": "prog.verse",
@@ -129,6 +129,16 @@ The reusable musical vocabulary of the work. Everything in `form` references mat
   "repetition": { "verse.1": { "min": 2, "max": 4 } }
 }
 ```
+
+**`role` vocabulary.** Roles are tradition-neutral structural labels, not genre signals. The enum spans compositional traditions; tools must pass role values through verbatim (never assume pop structure). `custom` remains for anything else.
+
+- **Universal:** `intro`, `outro`, `interlude`, `coda`, `solo`, `custom`
+- **Song form:** `verse`, `pre_chorus`, `chorus`, `refrain`, `bridge`, `hook`
+- **Classical / concert form:** `exposition`, `development`, `recapitulation`, `episode`, `theme`, `variation`, `trio`, `minuet`, `scherzo`, `fugue`, `cadenza`, `finale`
+- **Film / media scoring:** `cue`, `underscore`, `stinger`, `main_title`, `end_credits`
+- **DAW / production form:** `build`, `drop`, `breakdown`, `vamp`, `groove`
+
+A section's role is semantic intent for interpreters and cleanup agents; conformance depends on `form.order`/`repetition`/`constraints`, not on the role name.
 
 `uses[].ref` follows the transform-ref grammar of §2.3 (id + optional `#seq/#inv/#retro/#aug/#dim` suffixes). `variation` is free text describing the treatment — it is not transform syntax and is not validated against the transform grammar.
 
@@ -207,6 +217,7 @@ A renderer is **Muse-conforming** if it:
 
 **Changelog**
 
+- **v0.2 (2026-08-22):** `form.sections[].role` enum broadened from pop-song vocabulary to a tradition-spanning taxonomy (universal / song form / classical / film / production roles), with pass-through semantics stated (issue #67).
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
 - **v0.1 (2026-08-22):** `metadata.provenance` items sealed (`additionalProperties: false`), matching every other fixed-shape object (issue #45).
