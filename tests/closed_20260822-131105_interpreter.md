@@ -33,3 +33,15 @@ env config). This spec is for what remains.
 ## How to run
 
 `npm test`; live smoke documented in the closing note of this spec.
+
+## Resolution
+
+Residual coverage landed in `tests/interpreter-residual.test.mjs` (issue #65):
+the clock-consistency semantic is now executable — `checkClockConsistency` in
+`tools/semantics.mjs` (linear interpolation between tempo_map points, 1e-3s
+tolerance for float dust). The interpreter's own fixture is proven consistent;
+two-segment tempo_map, onset drift (and its duration drag), missing clocks,
+and empty tempo_map are all pinned. Live-model smoke stays manual/never-CI
+by design; the constraint-semantics pass (motif recall, register bounds) is
+explicitly deferred to the fidelity-metric work per the spec. 6/6 standalone;
+npm test 46/46 green.
