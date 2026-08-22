@@ -33,3 +33,15 @@ determinism). This spec is for what remains.
 ## How to run
 
 `npm test`; new cases into `tests/synthesize.test.mjs`.
+
+## Resolution
+
+Residual coverage landed in `tests/theme-assembly.test.mjs` (issue #102):
+overlap-tie pinned with a crafted IR (equal overlap → longer motif chains
+first), chain bounded by the motif pool (no repeat chaining — pathological
+self-overlap terminates), and cleanup-agent ergonomics pinned — inferred
+entries name the motifs pool so an undoing agent can find the chain.
+uses/per-section mixing and rendered-output-sanity were already covered by
+#92's own DoD pass (uses wired, fallback-to-pool when no themes,
+expandOffline path). 4/4 standalone; npm test 53/53 green incl. corpus
+re-imports.
