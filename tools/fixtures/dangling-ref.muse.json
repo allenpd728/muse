@@ -1,0 +1,15 @@
+{
+  "muse_version": "0.1",
+  "metadata": { "id": "muse:work:harness-fixture-dangling", "title": "Harness fixture (dangling refs)" },
+  "material": {
+    "themes": [{ "id": "theme.1" }],
+    "harmony": { "progressions": [{ "id": "prog.verse", "chords": ["Dm7"] }] }
+  },
+  "form": {
+    "sections": [
+      { "id": "verse.1", "uses": [{ "ref": "theme.1" }], "harmony": "prog.verse" },
+      { "id": "chorus.1", "uses": [{ "ref": "motif.a#seq(+2)" }] }
+    ]
+  },
+  "constraints": { "must_contain": ["motif.a"] }
+}
