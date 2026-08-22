@@ -1,0 +1,8 @@
+{
+  "channel": "schema",
+  "messages": [
+    "motifs",
+    "uses",
+    "must match pattern"
+  ]
+}

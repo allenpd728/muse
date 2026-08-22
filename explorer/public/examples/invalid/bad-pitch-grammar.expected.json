@@ -1,0 +1,8 @@
+{
+  "channel": "schema",
+  "messages": [
+    "pitches",
+    "register",
+    "must match pattern"
+  ]
+}
