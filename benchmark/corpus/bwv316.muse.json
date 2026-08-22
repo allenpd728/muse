@@ -1,12 +1,12 @@
 {
   "muse_version": "0.1.0",
   "metadata": {
-    "id": "muse:work:01M0MV2WKAGGA773BWRRPT53QM",
+    "id": "muse:work:01M0N2MY5ZQY2A3H440KG6SDEH",
     "title": "bwv316",
     "composer": {
       "name": "unknown (imported)"
     },
-    "created": "2026-08-22T13:38:10.156Z",
+    "created": "2026-08-22T15:50:21.633Z",
     "license": {
       "renditions": "closed"
     },
@@ -14,7 +14,7 @@
       {
         "event": "import",
         "actor": "importer",
-        "at": "2026-08-22T13:38:10.156Z",
+        "at": "2026-08-22T15:50:21.633Z",
         "ai": false,
         "notes": "source: bwv316.mxl (musicxml)"
       }
@@ -66,6 +66,10 @@
         {
           "path": "material.motifs",
           "reason": "heuristic extraction: 8 repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)"
+        },
+        {
+          "path": "material.themes",
+          "reason": "heuristic assembly: 1 theme(s) chained from motifs by suffix/prefix overlap — phrase structure needs cleanup"
         }
       ]
     }
@@ -206,6 +210,19 @@
           0.5,
           0.5,
           0.25
+        ]
+      }
+    ],
+    "themes": [
+      {
+        "id": "theme.1",
+        "phrases": [
+          {
+            "motifs": [
+              "motif.2",
+              "motif.3"
+            ]
+          }
         ]
       }
     ]

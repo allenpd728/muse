@@ -1,12 +1,12 @@
 {
   "muse_version": "0.1.0",
   "metadata": {
-    "id": "muse:work:01M0MV2X98WMZ7H9QK5RS19X8Q",
+    "id": "muse:work:01M0N2MYX5BXQQQCCQ62W53NQE",
     "title": "bwv344",
     "composer": {
       "name": "unknown (imported)"
     },
-    "created": "2026-08-22T13:38:10.858Z",
+    "created": "2026-08-22T15:50:22.375Z",
     "license": {
       "renditions": "closed"
     },
@@ -14,7 +14,7 @@
       {
         "event": "import",
         "actor": "importer",
-        "at": "2026-08-22T13:38:10.858Z",
+        "at": "2026-08-22T15:50:22.375Z",
         "ai": false,
         "notes": "source: bwv344.mxl (musicxml)"
       }
@@ -66,6 +66,14 @@
         {
           "path": "material.motifs",
           "reason": "heuristic extraction: 8 repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)"
+        },
+        {
+          "path": "material.themes",
+          "reason": "heuristic assembly: 2 theme(s) chained from motifs by suffix/prefix overlap — phrase structure needs cleanup"
+        },
+        {
+          "path": "form.sections[].uses",
+          "reason": "sections wired to assembled themes — placement is whole-section, not per-occurrence"
         },
         {
           "path": "form.sections",
@@ -226,6 +234,30 @@
           1
         ]
       }
+    ],
+    "themes": [
+      {
+        "id": "theme.1",
+        "phrases": [
+          {
+            "motifs": [
+              "motif.4",
+              "motif.5"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "theme.2",
+        "phrases": [
+          {
+            "motifs": [
+              "motif.6",
+              "motif.7"
+            ]
+          }
+        ]
+      }
     ]
   },
   "form": {
@@ -233,7 +265,15 @@
       {
         "id": "section.1",
         "role": "custom",
-        "bars": 24
+        "bars": 24,
+        "uses": [
+          {
+            "ref": "theme.1"
+          },
+          {
+            "ref": "theme.2"
+          }
+        ]
       }
     ],
     "order": [
