@@ -2,6 +2,7 @@
 // Standalone runner: `node tests/musicxml.test.mjs`; also folded into npm test.
 import { readFile } from "node:fs/promises";
 import { parseMusicXML } from "../importer/musicxml.mjs";
+import { validateIR, normalizeIR } from "../importer/ir.mjs";
 
 let passed = 0, failed = 0;
 const check = (name, cond) => {
@@ -64,6 +65,75 @@ check("backup rewinds cursor for lower voice", eq(tinyIr.parts[0].notes.find((n)
 check("parser rejects timewise root for now", (() => {
   try { parseMusicXML("<score-timewise version=\"4.0\"/>", { filename: "x.musicxml" }); return false; } catch { return true; }
 })());
+
+// --- Residual pins (issue #56, spec: tests/open_20260822-110500_musicxml-parser.md) ---
+
+// Parser boundary conformance (per #16 spec): the chorale's IR validates and
+// normalization is idempotent.
+check("chorale IR passes validateIR", eq(validateIR(chorale), []));
+check("normalizeIR is idempotent on parser output", eq(normalizeIR(normalizeIR(chorale)), normalizeIR(chorale)));
+
+// Non-traditional key signatures (key-step/key-alter lists) and composite
+// time signatures with mixed beat-types produce no IR entry and no crash.
+const nonTraditional = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>Flute</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>1</divisions>
+        <key><key-step>B</key-step><key-alter>-1</key-alter><key-step>E</key-step><key-alter>-1</key-alter></key>
+        <time><beats>3</beats><beat-type>4</beat-type><beats>2</beats><beat-type>8</beat-type></time>
+      </attributes>
+      <note><pitch><step>D</step><octave>5</octave></pitch><duration>4</duration></note>
+    </measure>
+  </part>
+</score-partwise>`;
+const ntIr = parseMusicXML(nonTraditional, { filename: "nt.musicxml" });
+check("non-traditional key signature: no keyMap entry, no crash", ntIr.keyMap.length === 0);
+check("composite time with mixed beat-types: no meterMap entry, no crash", ntIr.meterMap.length === 0);
+check("notes still parse when key/time are skipped", ntIr.parts[0].notes.length === 1 && ntIr.parts[0].notes[0].midi === 74);
+
+// Mode mapping across the circle of fifths × modes. `fifths` is the key
+// *signature's* fifths (standard MusicXML semantics): fifths=1 is one sharp
+// (G major signature), and modes shift the tonic within that signature —
+// dorian a step up, lydian a fourth up, minor down a third, etc.
+const keyDoc = (fifths, mode) => `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>X</part-name></score-part></part-list>
+  <part id="P1"><measure number="1">
+    <attributes><divisions>1</divisions><key><fifths>${fifths}</fifths><mode>${mode}</mode></key><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+  </measure></part>
+</score-partwise>`;
+const tonicOf = (fifths, mode) => parseMusicXML(keyDoc(fifths, mode), { filename: "k.musicxml" }).keyMap[0];
+check("mode map: 0 fifths minor is A minor", eq(tonicOf(0, "minor"), { beat: 0, tonic: "A", mode: "minor" }));
+check("mode map: 1 fifth dorian is A dorian (G-major signature)", eq(tonicOf(1, "dorian"), { beat: 0, tonic: "A", mode: "dorian" }));
+check("mode map: 2 fifths mixolydian is A mixolydian (D-major signature)", eq(tonicOf(2, "mixolydian"), { beat: 0, tonic: "A", mode: "mixolydian" }));
+check("mode map: -2 fifths major is Bb major", eq(tonicOf(-2, "major"), { beat: 0, tonic: "Bb", mode: "major" }));
+check("mode map: -1 fifth minor is D minor", eq(tonicOf(-1, "minor"), { beat: 0, tonic: "D", mode: "minor" }));
+check("mode map: 3 fifths lydian is D lydian (A-major signature)", eq(tonicOf(3, "lydian"), { beat: 0, tonic: "D", mode: "lydian" }));
+
+// Measure-boundary beats: <forward> across a measure line lands the next
+// note at the right absolute beat.
+const crossMeasure = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>X</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>1</divisions><key><fifths>0</fifths><mode>major</mode></key><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration></note>
+      <forward><duration>2</duration></forward>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration></note>
+    </measure>
+    <measure number="2">
+      <forward><duration>3</duration></forward>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration></note>
+    </measure>
+  </part>
+</score-partwise>`;
+const cmIr = parseMusicXML(crossMeasure, { filename: "cm.musicxml" });
+check("forward carries across the measure boundary (E4 lands at beat 7)",
+  eq(cmIr.parts[0].notes.map((n) => [n.midi, n.onsetBeat]), [[60, 0], [62, 3], [64, 7]]));
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
