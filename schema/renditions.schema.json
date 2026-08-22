@@ -4,6 +4,15 @@
   "title": "Muse renditions",
   "description": "Sanctioned rendition presets — genre covers (SCHEMA_SPEC.md §2.6). style.references describe styles, eras, and production techniques only; named-artist imitation is out of spec without an attached license record. That rule is semantic and cannot be enforced here.",
   "type": "array",
+  "$defs": {
+    "levelOrRange": {
+      "description": "A scalar level or a [min, max] range the rendition may explore (schema-as-space convention).",
+      "anyOf": [
+        { "type": "number", "minimum": 0, "maximum": 1 },
+        { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 }, "minItems": 2, "maxItems": 2 }
+      ]
+    }
+  },
   "items": {
     "type": "object",
     "required": ["id", "name"],
@@ -72,7 +81,53 @@
             }
           },
           "density": { "type": "number", "minimum": 0, "maximum": 1 },
-          "swing": { "type": "number", "minimum": 0, "maximum": 1 }
+          "swing": { "type": "number", "minimum": 0, "maximum": 1 },
+          "mix": {
+            "type": "object",
+            "description": "Sanctioned mixing space (spec §2.6 mix topology, v0.3): bus routing and send structure a rendition may vary within — not DAW automation.",
+            "additionalProperties": false,
+            "properties": {
+              "buses": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "kind"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": { "type": "string", "minLength": 1 },
+                    "kind": { "type": "string", "enum": ["group", "send"] },
+                    "effect": { "type": "string", "minLength": 1, "description": "Effect identity for send buses, kept loose (e.g. \"plate reverb\")." }
+                  }
+                }
+              },
+              "routes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["part", "bus"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "part": { "type": "string", "minLength": 1 },
+                    "bus": { "type": "string", "minLength": 1 },
+                    "send": { "$ref": "#/$defs/levelOrRange" }
+                  }
+                }
+              },
+              "sidechains": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["source", "target", "amount"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "source": { "type": "string", "minLength": 1 },
+                    "target": { "type": "string", "minLength": 1 },
+                    "amount": { "$ref": "#/$defs/levelOrRange" }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "author": {

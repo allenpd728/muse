@@ -152,7 +152,19 @@
             "program": 42,
             "techniques": { "bowing": ["arco", "sul_ponticello"] }
           }
-        ]
+        ],
+        "mix": {
+          "buses": [
+            { "id": "bus.strings", "kind": "group" },
+            { "id": "bus.hall", "kind": "send", "effect": "hall reverb" }
+          ],
+          "routes": [
+            { "part": "Violin I", "bus": "bus.strings" },
+            { "part": "Cello", "bus": "bus.strings" },
+            { "part": "Violin I", "bus": "bus.hall", "send": [0.2, 0.5] }
+          ],
+          "sidechains": []
+        }
       },
       "author": { "name": "Muse Examples" }
     }

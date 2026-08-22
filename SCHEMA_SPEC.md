@@ -214,6 +214,31 @@ Technique names are a controlled vocabulary: **`divisi`** (allowed/required), **
 
 Techniques map to the performance layer as articulation/controllers: the interpreter translates a sanctioned technique into `notes[].articulation` where one exists, otherwise into `controllers` (e.g. `timbre`) or part-level directives — and anything the active player cannot render is dropped with the decision recorded (Player V1 honors GM `program` only). This keeps the schema's expressive ceiling above any single engine's floor.
 
+**Mix topology (v0.3).** `params.mix` extends per-part gain/pan with the *sanctioned mixing space* — bus routing and send structure that renditions may vary within, not full DAW automation:
+
+```jsonc
+"params": {
+  "mix": {
+    "buses": [
+      { "id": "bus.drums", "kind": "group" },
+      { "id": "bus.verb",  "kind": "send", "effect": "plate reverb" }
+    ],
+    "routes": [
+      { "part": "drums",  "bus": "bus.drums" },
+      { "part": "vocals", "bus": "bus.verb", "send": 0.35 }
+    ],
+    "sidechains": [
+      { "source": "kick", "target": "bass", "amount": [ 0.4, 0.8 ] }
+    ]
+  }
+}
+```
+
+- **`buses`** declare the topology: `group` buses sum parts; `send` buses carry an effect. Ranges and effect identities stay loose — the schema says *what may route where*, not which plugin.
+- **`routes`** attach parts (or rendition instrumentation names) to buses; a `send` level is itself a rangeable value (scalar or `[min, max]` the rendition may explore).
+- **`sidechains`** declare ducking relationships (`source` ducks `target` by `amount`, rangeable). They express the *effect*, not the compressor patch — an engine realizes it with whatever dynamics processing it has.
+- Everything here is a rendition hook: values may be scalars or `[min, max]` ranges, and `constraints` may pin them. The performance layer realizes the concrete mix; Player V1 applies gain/pan/`reverb_send` and records any routing it cannot honor (same honored-or-dropped discipline as techniques).
+
 ### 2.7 `extensions`
 
 Namespaced escape hatch, e.g. `"extensions": { "engine.audiocraft": { "cfg": 3.5 } }`. Conforming engines must ignore unknown namespaces, never fail on them.
@@ -250,6 +275,7 @@ A renderer is **Muse-conforming** if it:
 - **v0.3 (2026-08-22):** §7 `instrument` gains `divisi`, `doubles`, `techniques` — orchestral writing depth beyond GM programs; honor-or-drop conformance rule with recorded decisions in `extensions` (issue #76).
 - **v0.3 (2026-08-22):** `constraints.tempo_shapes` added — per-section ritardando/accelerando/rubato constraints with bounded spans; conformance relation to §7 `tempo_map` stated (issue #75).
 - **v0.3 (2026-08-22):** structured instrumentation entries in `renditions[].params.instrumentation` (issue #76): GM program fallback, `doubles`, and a controlled technique vocabulary (`divisi`, mutes, bowing, breath/attack, production), with the honored-or-dropped-with-recording rule for performance-layer mapping.
+- **v0.3 (2026-08-22):** `renditions[].params.mix` added (issue #77): buses (group/send), part routing with rangeable send levels, and sidechain ducking relations — the sanctioned mixing space, not DAW automation.
 - **v0.2 (2026-08-22):** `form.sections[].role` enum broadened from pop-song vocabulary to a tradition-spanning taxonomy (universal / song form / classical / film / production roles), with pass-through semantics stated (issue #67).
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
