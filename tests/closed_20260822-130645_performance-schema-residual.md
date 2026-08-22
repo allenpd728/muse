@@ -26,3 +26,12 @@ dangling part refs rejected). This spec covers what remains.
 ## How to run
 
 Extend `tests/performance.test.mjs`; `npm test`.
+
+## Resolution
+
+Residual coverage landed in `tests/performance-residual.test.mjs` (issue #64):
+duplicate part ids pinned (Set-based resolution; dup detection is not a lint
+rule), mix partials (gain-only valid, unknown member rejected), dynamics
+global+part-tagged coexistence, and the seconds-authoritative pin (beats-only
+note rejected). tempo_map ordering and controllers-unknown were already
+covered in the #62 pass. 9/9 standalone; npm test green.
