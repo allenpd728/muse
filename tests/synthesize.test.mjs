@@ -68,5 +68,89 @@ check("synthesized document validates against schema/muse.schema.json", r.status
 if (r.status !== 0) console.error(r.stderr);
 await rm(tmp, { force: true });
 
+// --- Residual pins (issue #57, spec: tests/open_20260822-115500_synthesis.md) ---
+
+// Section detection: genuinely repeated multi-bar block → form with the
+// inference marked in extensions.importer.inferred.
+const quarter = (midi, onset) => ({ midi, onsetBeat: onset, durationBeats: 1, velocity: 90 });
+const repeatedBlock = {
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [{ beat: 0, beats: 4, unit: 4 }],
+  keyMap: [],
+  parts: [{
+    id: "t", name: "T",
+    notes: [
+      quarter(60, 0), quarter(64, 1), quarter(67, 2), quarter(72, 3),   // bar 1
+      quarter(60, 4), quarter(64, 5), quarter(67, 6), quarter(72, 7),   // bar 2 = bar 1
+    ],
+  }],
+};
+const blocked = synthesize(repeatedBlock, { source: "block" });
+check("repeated multi-bar block produces form.sections", blocked.form?.sections?.length >= 1);
+check("section inference marked in extensions", blocked.extensions?.importer?.inferred?.some((e) => e.path === "form.sections"));
+
+// Key map flattening: opening key wins; mid-piece change dropped + marked.
+const keyChange = synthesize({
+  ...repeatedBlock,
+  keyMap: [{ beat: 0, tonic: "C", mode: "major" }, { beat: 4, tonic: "G", mode: "major" }],
+}, { source: "keychange" });
+check("opening key becomes globals.key", keyChange.globals.key?.tonic === "C" && keyChange.globals.key?.mode === "major");
+check("mid-piece key change dropped and marked", keyChange.extensions?.importer?.inferred?.some((e) => e.path === "globals.key"));
+
+// Atonal key: no mode emitted (globals.schema anyOf requires mode unless atonal).
+const atonal = synthesize({ ...repeatedBlock, keyMap: [{ beat: 0, tonic: "atonal" }] }, { source: "atonal" });
+check("atonal key emits tonic only, no mode", atonal.globals.key?.tonic === "atonal" && !("mode" in atonal.globals.key));
+
+// Cross-part recurrence: a pattern played once per part still counts.
+const crossPart = synthesize({
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [],
+  keyMap: [],
+  parts: [
+    { id: "a", name: "A", notes: [quarter(60, 0), quarter(62, 1), quarter(64, 2)] },
+    { id: "b", name: "B", notes: [quarter(67, 0), quarter(69, 1), quarter(71, 2)] },
+  ],
+}, { source: "crosspart" });
+check("pattern repeated across parts extracted as motif", (crossPart.material?.motifs?.length ?? 0) >= 1);
+
+// Empty IR: validates, tempo defaults to 120 and is marked inferred.
+const empty = synthesize({ tempoMap: [], meterMap: [], keyMap: [], parts: [] }, { source: "empty" });
+check("empty IR defaults tempo to 120 and marks it", empty.globals.tempo.bpm === 120
+  && empty.extensions?.importer?.inferred?.some((e) => e.path === "globals.tempo.bpm"));
+
+// Long-pattern dedup — pinned as implemented: a shorter repeated pattern is
+// dropped when it shares its full interval/duration key with the trailing
+// segment of a longer kept pattern (keys are suffix-compared). A longer
+// motif whose tail echoes a shorter motif's intervals suppresses the shorter
+// one even when they are musically distinct figures.
+const tailEcho = synthesize({
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [],
+  keyMap: [],
+  parts: [{
+    id: "t", name: "T",
+    // F-G-A-D (intervals 2,2,5) twice, then C-D-E (2,2) twice — the 3-note
+    // motif's key is a suffix of the 4-note key.
+    notes: [65, 67, 69, 74, 65, 67, 69, 74, 60, 62, 64, 60, 62, 64].map((m, i) => quarter(m, i)),
+  }],
+}, { source: "tailecho" });
+const tailMotifs = tailEcho.material?.motifs ?? [];
+check("shorter pattern sharing the longer key's tail is dropped",
+  !tailMotifs.some((m) => m.pitches.join() === "C4,D4,E4")
+  && tailMotifs.some((m) => m.pitches.join() === "F4,G4,A4,D5"));
+
+// The same 3-note figure on its own (no longer pattern whose tail matches)
+// extracts normally — the suppression above is purely key-suffix mechanics.
+const solo = synthesize({
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [],
+  keyMap: [],
+  parts: [{
+    id: "t", name: "T",
+    notes: [60, 62, 64, 60, 62, 64].map((m, i) => quarter(m, i)),
+  }],
+}, { source: "solo" });
+check("uncontained 3-note pattern extracts on its own", (solo.material?.motifs ?? []).some((m) => m.pitches.join() === "C4,D4,E4"));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
