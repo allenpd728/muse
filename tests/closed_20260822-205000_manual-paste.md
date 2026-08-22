@@ -21,3 +21,28 @@ what remains.
 ## How to run
 
 `npm test`; the interactive two-paste retry is scripted via spawnSync input.
+
+---
+
+## Closed — 2026-08-22 (issue #111)
+
+Coverage landed (appended to `tests/interpreter-manual.test.mjs`, now 11
+checks):
+
+- **MUSE_MANUAL=1:** env var takes the same manual path as `--manual`
+  (provenance stamped `manual`).
+- **tools/play.mjs manual wiring:** `--manual` routes through `manualCall`
+  (exported from expand.mjs) — WAV produced end-to-end. Also fixed a
+  latent bug this exposed: `expand.mjs`'s `resolveRendition` rejected an
+  explicit `r.default` on rendition-less documents (play.mjs passes the
+  implicit id through) — the id now resolves by convention, matching the
+  zero-rendition default rule.
+- **Retry feedback visible:** pinned at the expand level (the loop
+  manualCall feeds) — the second prompt carries the validation error text.
+  Two-paste stdin is not expressible in one stream; the interactive
+  two-paste retry remains a terminal-level manual check.
+- **Provenance override:** pinned — no `--manual-model` flag exists;
+  `manual` is the only stamp. An override, if ever added, lands
+  deliberately.
+
+Run: `npm test`.

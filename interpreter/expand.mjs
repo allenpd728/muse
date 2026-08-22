@@ -35,7 +35,12 @@ const resolveRendition = (doc, renditionId) => {
   const renditions = doc.renditions ?? [];
   if (renditionId) {
     const r = renditions.find((r) => r.id === renditionId);
-    if (!r) throw new Error(`rendition "${renditionId}" not found in document`);
+    if (!r) {
+      // "r.default" on a rendition-less document resolves to the implicit
+      // default, not an error — the id exists by convention, not declaration.
+      if (renditionId === IMPLICIT_DEFAULT.id && renditions.length === 0) return IMPLICIT_DEFAULT;
+      throw new Error(`rendition "${renditionId}" not found in document`);
+    }
     return r;
   }
   // No sanctioned renditions = the work's untransformed default treatment
@@ -259,7 +264,7 @@ if (invokedDirectly) {
 // read the model's response from stdin, feed it through the same
 // validate→feedback→retry loop. The transport is the human clipboard — works
 // with any chat UI, zero API key.
-async function manualCall(prompt) {
+export async function manualCall(prompt) {
   const { createInterface } = await import("node:readline");
   console.error("=== SYSTEM ===\n" + prompt.system + "\n=== USER ===\n" + prompt.user + "\n=== PASTE THE MODEL'S JSON RESPONSE, THEN CTRL-D ===");
   const rl = createInterface({ input: process.stdin });
