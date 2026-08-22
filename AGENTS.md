@@ -45,21 +45,22 @@ Nothing to build yet — the repo currently contains documents only. When toolin
 
 Update this section as tooling is added; do not leave it stale.
 
-## Repository layout (planned)
+## Repository layout
 
 ```
 SCHEMA_SPEC.md        # normative spec (this is the source of truth)
 PRIOR_ART_REVIEW.md   # landscape research
 TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
-README.md             # vision + architecture
-docs/                 # vision, milestone scope docs
+README.md             # vision + architecture overview
+docs/                 # vision, architecture, pipeline status, per-layer scope docs, demo audio
 blockers/             # open_/closed_ blocker reports needing human input
-tests/                # open_/closed_ test specs written per completed task
-examples/             # example .muse.json documents (planned)
-schema/               # JSON Schema validation files (planned)
-tools/                # validator CLI + test harness (planned)
-importer/             # MIDI/MusicXML → .muse.json (planned)
-interpreter/          # LLM prompt + expansion logic → performance layer (planned)
-player/               # performance renderer (planned)
-composer/             # node-based authoring UI (deferred)
+tests/                # test suites + open_/closed_ test specs per completed task
+examples/             # hand-authored reference .muse.json (minimal, full)
+schema/               # JSON Schema validation files (one per spec section + performance)
+tools/                # validate/test/semantics/refs CLIs + play.mjs (schema→audio)
+importer/             # MIDI/MusicXML → IR → .muse.json (cli, parsers, synthesize, fixtures)
+interpreter/          # expand.mjs (LLM harness + adapters) + offline.mjs (no-key reference)
+player/               # render.mjs — performance document → WAV (V1 synthesis)
+explorer/             # Vite+React static app: read-only browser + listener tab
+benchmark/            # corpus/ (10 public-domain imports) + metrics.mjs conformance scoring
 ```

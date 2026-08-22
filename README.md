@@ -6,14 +6,14 @@ Think of a film-score composer delivering the thematic skeleton of a film, with 
 
 ## Architecture
 
-Muse is built as four layers:
+Muse is built as four layers (status details in [docs/pipeline.md](docs/pipeline.md)):
 
 | Layer | What it is | Status |
 |---|---|---|
-| **Semantic schema** | JSON-native specification describing a composition as a *space of valid renditions*: tempo, meter, form, sections, themes, motifs, variations, rhythms, harmony, constraints, and rendition hooks | [Draft spec](SCHEMA_SPEC.md) |
-| **Composer interface** | Node-based visual authoring environment (DAW/Sibelius-class UX) that compiles to the schema | Not started |
-| **Generative audio engine** | AI that interprets a schema + rendition parameters in real time and renders audio, enforcing long-range structure (motif recall, theme development, form) | Not started |
-| **Listener front end** | Listening platform where users select composers and switch between renditions ("genre covers") of the same schema | Not started |
+| **Semantic schema** | JSON-native specification describing a composition as a *space of valid renditions*: tempo, meter, form, sections, themes, motifs, variations, rhythms, harmony, constraints, and rendition hooks | ✅ [Spec v0.3](SCHEMA_SPEC.md) |
+| **Composer interface** | Node-based visual authoring environment (DAW/Sibelius-class UX) that compiles to the schema | 📋 Scoped ([#74](docs/scope-composer.md)); MVP tasks open |
+| **Generative audio engine** | Interprets a schema + rendition into a performance document (§7), then renders audio, enforcing long-range structure (motif recall, theme development, form) | ✅ Working — LLM + offline interpreters, V1 player renders WAV |
+| **Listener front end** | Listening surface where users select composers and switch between renditions ("genre covers") of the same schema | ✅ MVP — explorer's listen tab (A/B crossfade) on the Netlify dev preview |
 
 ## Why a schema, not a prompt
 
@@ -33,9 +33,12 @@ All live-model paths feed the generate → validate → fix loop; a performance 
 
 ## Repository contents
 
-- [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md) — Muse Schema Specification v0 (draft)
+- [`docs/architecture.md`](docs/architecture.md) — how the pieces fit together: artifact flow, validation seams, directory map (read first)
+- [`docs/pipeline.md`](docs/pipeline.md) — composer→listener loop with live status table
+- [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md) — Muse Schema Specification v0 (normative source of truth)
 - [`PRIOR_ART_REVIEW.md`](PRIOR_ART_REVIEW.md) — landscape and prior-art review informing the design
 - [`AGENTS.md`](AGENTS.md) — project conventions and context for AI coding agents
+- [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — multi-agent task claiming/blocker protocol
 
 ## Principles
 

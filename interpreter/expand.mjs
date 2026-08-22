@@ -98,6 +98,17 @@ const validatePerf = async (perf, doc) => {
   return [...schemaErrors, ...refErrors, ...metricErrors];
 };
 
+// Usage/error logging: every callModel invocation appends one JSON line to
+// MUSE_USAGE_LOG (default: no logging). Schema errors, provider errors, and
+// attempt counts land there so a free-tier key's burn is inspectable without
+// touching the harness. Format: { at, provider, model, attempt, ok, error? }.
+const logUsage = async (entry) => {
+  const logPath = process.env.MUSE_USAGE_LOG;
+  if (!logPath) return;
+  const { appendFile } = await import("node:fs/promises");
+  await appendFile(logPath, JSON.stringify(entry) + "\n").catch(() => {});
+};
+
 export async function expand({ doc, renditionId, callModel, model, maxAttempts = 3, at }) {
   const rendition = resolveRendition(doc, renditionId);
   const perfSchema = await readJson(new URL("../schema/performance.schema.json", import.meta.url));
@@ -110,8 +121,11 @@ export async function expand({ doc, renditionId, callModel, model, maxAttempts =
     const messages = feedback ? { ...prompt, user: `${prompt.user}\n\nprevious attempt failed validation:\n${feedback}` } : prompt;
     let perf;
     try {
-      perf = parseModelOutput(await callModel(messages, { attempt }));
+      const raw = await callModel(messages, { attempt });
+      await logUsage({ at: new Date().toISOString(), model, attempt, ok: true });
+      perf = parseModelOutput(raw);
     } catch (e) {
+      await logUsage({ at: new Date().toISOString(), model, attempt, ok: false, error: e.message });
       lastErrors = [`output was not parseable JSON: ${e.message}`];
       feedback = lastErrors.join("\n");
       continue;
