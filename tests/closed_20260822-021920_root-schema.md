@@ -44,3 +44,22 @@ Implementation calls (retrospective review): top-level
 (non-backtracking); section sibling registration in the CLI skips reloading the
 root and is wrapped in a permissive `catch` (quietly degrades if `schema/`
 can't be listed — see residual behavior above).
+
+---
+
+## Closed — 2026-08-22 (issue #38)
+
+Residual coverage landed in `tests/root-schema.test.mjs` (16/16):
+
+- Fixture-upgrade regression: `tools/fixtures/valid.muse.json` and every
+  `examples/*.muse.json` validated against the root in-suite.
+- Sibling registration pinned: missing `schema/metadata.schema.json` → CLI
+  exits 1 with a readable `schema error` naming the unresolvable ref
+  (decision: the permissive `catch` stays — it guards only the directory
+  scan; the compile failure is the readable error channel).
+- Versioning drift guard: no section schema may declare its own
+  `muse_version`; root requires it.
+- Edge pinned: `renditions: []` is legal (no `minItems` — zero sanctioned
+  renditions allowed).
+
+Run: `npm test` (folds in `tests/root-schema.test.mjs`).

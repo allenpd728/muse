@@ -1,6 +1,10 @@
-// Tests for schema/muse.schema.json (issue #11).
+// Tests for schema/muse.schema.json (issue #11; residual coverage per
+// tests/open_20260822-021920_root-schema.md, issue #38).
 // Standalone runner: `node tests/root-schema.test.mjs`; also folded into npm test.
-import { readFile, readdir } from "node:fs/promises";
+import { copyFile, mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
@@ -72,6 +76,49 @@ check("optional members undeclared valid", validate({ muse_version: "0.1.0", met
 check("non-semver muse_version rejected", !validate({ muse_version: "0.1", metadata: doc.metadata, globals: doc.globals }));
 check("unknown top-level member rejected", !validate({ muse_version: "0.1.0", metadata: doc.metadata, globals: doc.globals, blobs: [] }));
 check("section error surfaces through root (form.energy 2)", !validate({ muse_version: "0.1.0", metadata: doc.metadata, globals: doc.globals, form: { sections: [{ id: "s", role: "verse", energy: 2 }], order: ["s"] } }));
+
+// --- Residual coverage (issue #38) ---
+
+// Fixture-upgrade regression: every shipped fixture and example stays
+// root-conformant as section schemas tighten.
+const readJson = async (p) => JSON.parse(await readFile(p, "utf8"));
+const fixtureDoc = await readJson(new URL("../tools/fixtures/valid.muse.json", import.meta.url));
+check("tools/fixtures/valid.muse.json stays root-conformant", validate(fixtureDoc));
+const examplesDir = new URL("../examples/", import.meta.url);
+for (const f of (await readdir(examplesDir)).filter((x) => x.endsWith(".muse.json")).sort())
+  check(`examples/${f} stays root-conformant`, validate(await readJson(new URL(f, examplesDir))));
+
+// Versioning drift guard: muse_version lives at the root only — if a section
+// schema ever declares its own, this fails loudly instead of drifting.
+const sectionDeclaresVersion = [];
+for (const f of await readdir(dir)) {
+  if (f === "muse.schema.json" || !f.endsWith(".schema.json")) continue;
+  const s = JSON.parse(await readFile(new URL(f, dir), "utf8"));
+  if (s.properties && "muse_version" in s.properties) sectionDeclaresVersion.push(f);
+}
+check("no section schema declares its own muse_version", sectionDeclaresVersion.length === 0);
+check("root requires muse_version", root.required.includes("muse_version"));
+
+// Edge pinned: zero sanctioned renditions is legal (renditions schema has no
+// minItems — a work may sanction none).
+check("renditions: [] (no sanctioned renditions) valid", validate({ muse_version: "0.1.0", metadata: doc.metadata, globals: doc.globals, renditions: [] }));
+
+// Sibling-registration pin: a missing section schema must surface a readable
+// CLI error, not a silent pass. The CLI's permissive catch only guards the
+// directory scan; the compile then fails naming the unresolvable ref.
+{
+  const tmp = await mkdtemp(path.join(tmpdir(), "muse-schema-"));
+  try {
+    for (const f of await readdir(dir))
+      if (f !== "metadata.schema.json") await copyFile(new URL(f, dir), path.join(tmp, f));
+    const r = spawnSync(process.execPath, ["tools/validate.mjs", "examples/minimal.muse.json", path.join(tmp, "muse.schema.json")], { encoding: "utf8" });
+    check("missing section schema: CLI exits 1", r.status === 1);
+    check("missing section schema: readable schema error naming the ref",
+      (r.stderr ?? "").includes("schema error") && (r.stderr ?? "").includes("metadata.schema.json"));
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+}
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
