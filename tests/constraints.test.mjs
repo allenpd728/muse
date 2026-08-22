@@ -48,5 +48,19 @@ check("unknown form_deviation rejected", !validate({ structure: { form_deviation
 check("structure unknown member rejected", !validate({ structure: { form_deviation: "none", surprise: true } }));
 check("unknown top-level property rejected", !validate({ must_contain: ["motif.a"], coda: {} }));
 
+// tempo_shapes (v0.3, spec §2.5)
+check("tempo_shapes ritardando valid", validate({ tempo_shapes: { "x": { kind: "ritardando", target_bpm: 72 } } }));
+check("tempo_shapes accelerando with span valid", validate({ tempo_shapes: { "x": { kind: "accelerando", target_bpm: 120, span: "opening_bars" } } }));
+check("tempo_shapes rubato valid", validate({ tempo_shapes: { "x": { kind: "rubato", deviation_bpm: 8 } } }));
+check("tempo_shapes spec snippet (rit. final_bars) valid", validate({ tempo_shapes: { "bridge.cadenza": { kind: "ritardando", target_bpm: 72, span: "final_bars" } } }));
+check("ritardando without target_bpm rejected", !validate({ tempo_shapes: { "x": { kind: "ritardando" } } }));
+check("accelerando without target_bpm rejected", !validate({ tempo_shapes: { "x": { kind: "accelerando" } } }));
+check("rubato without deviation_bpm rejected", !validate({ tempo_shapes: { "x": { kind: "rubato" } } }));
+check("unknown tempo shape kind rejected", !validate({ tempo_shapes: { "x": { kind: "fermata", target_bpm: 60 } } }));
+check("tempo shape unknown member rejected", !validate({ tempo_shapes: { "x": { kind: "rubato", deviation_bpm: 8, surprise: 1 } } }));
+check("tempo shape zero target rejected", !validate({ tempo_shapes: { "x": { kind: "ritardando", target_bpm: 0 } } }));
+check("tempo shape unknown span rejected", !validate({ tempo_shapes: { "x": { kind: "ritardando", target_bpm: 72, span: "middle" } } }));
+check("tempo_shapes composes with tempo_lock", validate({ tempo_lock: { "x": [90, 110] }, tempo_shapes: { "x": { kind: "accelerando", target_bpm: 108 } } }));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

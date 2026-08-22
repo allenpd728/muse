@@ -97,6 +97,9 @@
     "must_contain": ["motif.a"],
     "must_not": [{ "kind": "modulation_beyond", "semitones": 3 }],
     "tempo_lock": { "chorus.1": [92, 104] },
+    "tempo_shapes": {
+      "bridge.cadenza": { "kind": "ritardando", "target_bpm": 72, "span": "final_bars" }
+    },
     "register": { "theme.1": ["C4", "A5"] },
     "structure": { "form_deviation": "none" }
   },

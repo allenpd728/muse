@@ -21,6 +21,11 @@
       "description": "Per-section bpm ranges, narrowing globals.tempo.range. Keys are section ids.",
       "additionalProperties": { "$ref": "#/$defs/bpmRange" }
     },
+    "tempo_shapes": {
+      "type": "object",
+      "description": "Per-section tempo-shape constraints (spec §2.5): bounded expressive tempo modification — ritardando, accelerando, rubato — that the performance layer's tempo_map must realize. Keys are section ids.",
+      "additionalProperties": { "$ref": "#/$defs/tempoShape" }
+    },
     "register": {
       "type": "object",
       "description": "Per-material pitch ranges. Keys are material ids; values are [low, high] pitch bounds.",
@@ -52,6 +57,35 @@
       "minItems": 2,
       "maxItems": 2,
       "description": "[min, max] bpm."
+    },
+    "tempoShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["ritardando", "accelerando", "rubato"],
+          "description": "rit./accel. change the section tempo monotonically toward `target_bpm`; rubato permits bounded expressive deviation within `deviation_bpm` around the active tempo."
+        },
+        "target_bpm": { "type": "number", "exclusiveMinimum": 0 },
+        "deviation_bpm": { "type": "number", "exclusiveMinimum": 0 },
+        "span": {
+          "type": "string",
+          "enum": ["section", "final_bars", "opening_bars"],
+          "description": "Where the shape applies; bar-count scoping uses the section's own bar count. Default: section."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "enum": ["ritardando", "accelerando"] } } },
+          "then": { "required": ["target_bpm"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "rubato" } } },
+          "then": { "required": ["deviation_bpm"] }
+        }
+      ]
     },
     "predicate": {
       "type": "object",
