@@ -9,6 +9,7 @@ import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { checkSemantics } from "./semantics.mjs";
 
 const SCHEMA = "schema/muse.schema.json";
 const FIXTURES = "tools/fixtures";
@@ -99,15 +100,21 @@ dx.length > 0
 
 // 2-3. Examples (once later Batch 1 tasks land them).
 const examplesDir = "examples";
+// Semantic errors (range ordering etc.) — a lint channel alongside cross-refs.
+const semErrs = (doc) => (doc ? checkSemantics(doc) : []);
+const lintText = (dx, sem) =>
+  [...dx.map((x) => `${x.path}: ${x.ref}`), ...sem].join("\n");
+
 const mustPass = async (dir) => {
   for (const f of await listJson(dir)) {
     const p = path.join(dir, f);
     const doc = await readJson(p);
     const cli = runCli(p);
     const dx = danglingRefs(doc);
-    cli.code === 0 && dx.length === 0
+    const sem = semErrs(doc);
+    cli.code === 0 && dx.length === 0 && sem.length === 0
       ? ok(`${p} valid`)
-      : bad(`${p} valid`, cli.stderr || dx.map((x) => `${x.path}: ${x.ref}`).join("\n"));
+      : bad(`${p} valid`, cli.stderr || lintText(dx, sem));
   }
 };
 const mustReject = async (dir) => {
@@ -116,11 +123,12 @@ const mustReject = async (dir) => {
     const doc = await readJson(p).catch(() => null);
     const cli = runCli(p);
     const dx = doc ? danglingRefs(doc) : [];
-    const rejected = cli.code !== 0 || dx.length > 0;
-    let detail = cli.stdout || "schema accepted; refs resolved";
+    const sem = semErrs(doc);
+    const rejected = cli.code !== 0 || dx.length > 0 || sem.length > 0;
+    let detail = cli.stdout || "schema accepted; refs and semantics clean";
     if (rejected && existsSync(p.replace(/\.muse\.json$/, ".expected.json"))) {
       const expected = await readJson(p.replace(/\.muse\.json$/, ".expected.json"));
-      const errorText = cli.stderr + dx.map((x) => `${x.path}: ${x.ref}`).join("\n");
+      const errorText = cli.stderr + lintText(dx, sem);
       const missing = (expected.messages ?? []).filter((m) => !errorText.includes(m));
       if (missing.length > 0) {
         bad(`${p} rejected`, `expected error text missing: ${missing.join(", ")}`);
