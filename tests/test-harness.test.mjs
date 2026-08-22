@@ -147,5 +147,41 @@ check("pinned: progression id as uses ref dangles (uses targets material ids; ha
   form: { sections: [{ id: "s1", uses: [{ ref: "prog.verse" }] }] },
 }).includes("prog.verse"));
 
+// --- Residual pins (issue #55, spec: tests/open_20260822-105836_crossref-surfaces.md) ---
+
+// Kind-narrowing decision: pool convention stays. Phrase motifs[] and
+// uses[].ref resolve against the full material id pool (motifs + themes +
+// rhythms), even though the field description says "Motif references" —
+// flagging kinds would be a new semantic rule, deliberately not bundled
+// into #47.
+check("pinned (pool convention): theme id in a phrase motifs[] position resolves", dangles({
+  material: { themes: [{ id: "theme.1" }, { id: "theme.2", phrases: [{ motifs: ["theme.1"] }] }] },
+  form: { sections: [{ id: "s1" }] },
+}).length === 0);
+
+// Duplicate section ids: sectionIds() is a Set, so a duped id resolves refs —
+// the lint relies on form-semantic's "duplicate section ids" check
+// (tests/form-semantic.test.mjs) to flag the document instead.
+check("pinned: duplicate section ids make refs to that id resolve (dup check lives in form-semantic)", dangles({
+  material,
+  form: { sections: [{ id: "s1" }, { id: "s1" }], order: ["s1"] },
+}).length === 0);
+
+// baseRef on a non-string ref (schema-invalid doc): String() coercion means
+// no crash; the ref resolves if the stringified value matches an id.
+check("pinned: numeric uses ref does not crash and resolves when stringified id matches", dangles({
+  material: { motifs: [{ id: "1" }] },
+  form: { sections: [{ id: "s1", uses: [{ ref: 1 }] }] },
+}).length === 0);
+
+// register/tempo_lock keys are compared literally, never transform-stripped:
+// a key containing "#" dangles unless an id literally contains it (ids are
+// dotted slugs per §2.8, so "#" never appears).
+check("pinned: register key containing # dangles (keys are not transform-stripped)", dangles({
+  material,
+  form: { sections: [{ id: "s1" }] },
+  constraints: { register: { "motif.a#inv": ["C4", "A5"] } },
+}).includes("motif.a#inv"));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
