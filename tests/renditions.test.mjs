@@ -45,5 +45,24 @@ check("unknown rendition member rejected", !validate([{ id: "r.x", name: "X", re
 check("unknown style member rejected", !validate([{ id: "r.x", name: "X", style: { artist: "someone famous" } }]));
 check("author without name rejected", !validate([{ id: "r.x", name: "X", author: { id: "u.1" } }]));
 
+// Residual coverage (issue #34, spec tests/open → closed_…_renditions-schema.md)
+check("swing 0 and 1 accepted", validate([{ id: "r.x", name: "X", params: { swing: 0 } }])
+  && validate([{ id: "r.x", name: "X", params: { swing: 1 } }]));
+check("swing outside 0..1 rejected", !validate([{ id: "r.x", name: "X", params: { swing: 1.5 } }])
+  && !validate([{ id: "r.x", name: "X", params: { swing: -0.1 } }]));
+check("style as string rejected (must be object)", !validate([{ id: "r.x", name: "X", style: "synthwave" }]));
+check("params as string rejected (must be object)", !validate([{ id: "r.x", name: "X", params: "loud" }]));
+check("references entry non-string rejected", !validate([{ id: "r.x", name: "X", style: { references: [1984] } }]));
+check("references entry empty string rejected", !validate([{ id: "r.x", name: "X", style: { references: [""] } }]));
+check("instrumentation entry non-string rejected", !validate([{ id: "r.x", name: "X", params: { instrumentation: [7] } }]));
+check("instrumentation entry empty string rejected", !validate([{ id: "r.x", name: "X", params: { instrumentation: [""] } }]));
+check("unwrapped rendition object rejected (root is array)", !validate({ id: "r.x", name: "X" }));
+check("string item rejected", !validate(["not a rendition"]));
+check("null item rejected", !validate([null]));
+check("numeric era rejected (era is a string; change is a spec question)", !validate([{ id: "r.x", name: "X", style: { era: 1984 } }]));
+// §2.6 hard rule is semantic: the schema deliberately does not pattern-match
+// artist references — semantics.mjs owns that lint.
+check("artist-phrased reference passes schema (semantic lint's job)", validate([{ id: "r.x", name: "X", style: { references: ["in the style of someone famous"] } }]));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
