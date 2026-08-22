@@ -80,6 +80,19 @@ identical for all three; only the "done" action differs.
    `status:claimed` from the blocked issue, and return that issue to
    `status:available` — the blocker itself is a means, the goal is unblocking the
    original task.
+
+   **Concurrent-work rules** (agents run in parallel against `dev`):
+   - Pull before you start, and again before you push.
+   - On push rejection (non-fast-forward): `git pull --rebase origin dev`, resolve
+     any conflicts, push again. Repeat as needed.
+   - **Never force-push to `dev`** — it can destroy a sibling agent's committed
+     work. This is the one move the direct-to-dev model depends on forbidding.
+   - A rebase conflict you cannot resolve confidently is a blocker — someone
+     else's work changed the ground under your task. Don't guess; file it.
+   - Prefer tasks whose touched files don't overlap a sibling's in-flight work;
+     when both edit the same file (e.g. different sections of a spec), the rebase
+     is usually clean, but confirm the merged result still makes sense before
+     pushing.
 6. **Spec the tests.** Before closing out, write
    `tests/open_YYYYMMDD-HHMMSS_<task-slug>.md` describing the test coverage the
    work needs: behaviors to verify, edge cases, and how to invoke the tests.
@@ -88,7 +101,12 @@ identical for all three; only the "done" action differs.
    `Tests: <task title>` that links the test spec file, labels it
    `status:available`, and mark it `Blocked by` the task just completed.
    Completed task + filed test spec + linked test issue = a full unit of work.
-7. **Iterate.** If review later finds the work lacking, write a new task rather
+7. **Unblock dependents.** Before finishing, check the issues that listed this
+   task under "Blocked by". For each whose blockers are all now `status:done`,
+   label it `status:available` and comment that it is unblocked. Dependent tasks
+   do not become visible to the queue on their own — closing without this step
+   silently strands them.
+8. **Iterate.** If review later finds the work lacking, write a new task rather
    than reopening the old one.
 
 ## Test follow-ups
