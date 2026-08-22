@@ -8,10 +8,13 @@ import addFormats from "ajv-formats";
 import { checkPerfRefs } from "../tools/semantics.mjs";
 
 const dir = new URL("../schema/", import.meta.url);
+const schemas = {};
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
-for (const f of (await readdir(dir)).filter((f) => f.endsWith(".schema.json")))
-  ajv.addSchema(JSON.parse(await readFile(new URL(f, dir), "utf8")));
+for (const f of (await readdir(dir)).filter((f) => f.endsWith(".schema.json"))) {
+  schemas[f] = JSON.parse(await readFile(new URL(f, dir), "utf8"));
+  ajv.addSchema(schemas[f]);
+}
 const validate = ajv.getSchema("https://muse.dev/schema/performance.schema.json");
 
 const fixture = JSON.parse(await readFile(new URL("../tools/fixtures/valid.muse.perf.json", import.meta.url), "utf8"));
@@ -72,6 +75,18 @@ check("instrument doubles empty-string entry rejected", !validate((() => { const
 check("instrument techniques valid", validate((() => { const d = clone(); d.parts[0].instrument.techniques = ["pizzicato", "sul_ponticello"]; return d; })()));
 check("unknown technique rejected", !validate((() => { const d = clone(); d.parts[0].instrument.techniques = ["sul_"]; return d; })()));
 check("instrument unknown member still rejected (sealed)", !validate((() => { const d = clone(); d.parts[0].instrument.bogus = 1; return d; })()));
+
+// Spec ↔ schema parity (issue #86): the §7 technique list matches
+// performance.schema.json#/$defs/technique (inspection pin, same pattern
+// as the role/tempo-shape parity pins).
+{
+  const spec = await readFile(new URL("../SCHEMA_SPEC.md", import.meta.url), "utf8");
+  const schemaTechniques = schemas["performance.schema.json"].$defs.technique.enum;
+  const listMatch = /`techniques` — active performance\/extended techniques: ([^.]+)\./.exec(spec);
+  const specTechniques = listMatch ? [...listMatch[1].matchAll(/`([a-z_]+)`/g)].map((m) => m[1]) : [];
+  check("§7 technique list matches $defs/technique enum",
+    JSON.stringify([...specTechniques].sort()) === JSON.stringify([...schemaTechniques].sort()));
+}
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

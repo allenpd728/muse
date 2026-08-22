@@ -28,3 +28,28 @@ techniques valid/unknown-rejected, sealed-instrument regression).
 
 `npm test` (syntax pins in `tests/performance.test.mjs`); semantic checks
 land with player/interpreter test follow-ups.
+
+---
+
+## Closed — 2026-08-22 (issue #86)
+
+Coverage landed:
+
+- **Spec ↔ schema parity:** §7's technique list set-equals
+  `performance.schema.json#/$defs/technique` — pinned in
+  `tests/performance.test.mjs` (same inspection pattern as the
+  role/tempo-shape parity pins).
+- **Honor-or-drop conformance:** `player/render.mjs` gains
+  `droppedTechniques()` — the drop record per spec §7 (V1 honors GM
+  program only, so every technique drops today; the recording path is
+  the contract). 3 checks in `tests/player.test.mjs`: drops recorded,
+  render never fails (bit-identical output), empty record without
+  techniques.
+- **Interpreter prompt emitting techniques:** the offline expander does
+  not yet map rendition-sanctioned techniques into part
+  `instrument.techniques` — flagged as follow-up work on the #91/#92
+  lineage (material/rendition realization), not this spec.
+- **Rendition-level doubles vocabulary:** remains a v0.3 follow-up task
+  as the spec's own note says — no schema construct added here.
+
+Run: `npm test`.
