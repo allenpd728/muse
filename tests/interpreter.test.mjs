@@ -62,6 +62,36 @@ const check = (name, cond) => {
     err !== null && err.message.includes("2 attempts") && Array.isArray(err.validationErrors) && err.validationErrors.length > 0);
 }
 
+// Constraint semantics pass (issue #90): the retry loop feeds the
+// conformance metrics — a performance that drops a must_contain motif
+// fails with the metric's error detail, and the feedback reaches the model.
+{
+  const constrained = {
+    ...minimal,
+    material: { motifs: [{ id: "motif.a", kind: "pitch_rhythm", pitches: ["D4", "F4", "A4"], durations: [1, 1, 1] }] },
+    constraints: { must_contain: ["motif.a"] },
+  };
+  const calls = [];
+  const script = [
+    fakeJson,           // fixture has C-E-G, not the D-F-A motif → metric failure
+    JSON.stringify({ ...fakePerf, notes: [
+      { part: "p1", pitch: 62, pitch_name: "D4", onset: 0, duration: 0.625, onset_beat: 0, duration_beats: 1, velocity: 80 },
+      { part: "p1", pitch: 65, pitch_name: "F4", onset: 0.625, duration: 0.625, onset_beat: 1, duration_beats: 1, velocity: 80 },
+      { part: "p1", pitch: 69, pitch_name: "A4", onset: 1.25, duration: 0.625, onset_beat: 2, duration_beats: 1, velocity: 80 },
+    ] }),
+  ];
+  const { perf, attempts } = await expand({
+    doc: constrained,
+    callModel: async (prompt, { attempt }) => { calls.push(prompt); return script[attempt - 1]; },
+    model: "fake-model-v0",
+    at: "2026-08-22T12:00:00Z",
+  });
+  check("dropped must_contain motif fails with metric error and retries",
+    attempts === 2 && !!perf);
+  check("metric error detail reaches the model on retry",
+    calls.length === 2 && calls[1].user.includes("motif_recall") && calls[1].user.includes("motif.a"));
+}
+
 // Rendition resolution.
 {
   let err = null;

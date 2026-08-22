@@ -31,3 +31,31 @@ corpus floor + corrupted, CLI report shape). This spec is for what remains.
 ## How to run
 
 `npm test`; CLI `node benchmark/metrics.mjs <schema> <perf>`.
+
+---
+
+## Closed — 2026-08-22 (issue #90)
+
+Coverage landed:
+
+- **Interpreter validation loop wired:** `interpreter/expand.mjs`'s
+  `validatePerf` now runs `scorePerformance` — the constraint semantics
+  pass from the scope doc. A dropped `must_contain` motif fails with
+  `motif_recall` error detail, the feedback reaches the model on retry
+  (2 new checks in `tests/interpreter.test.mjs`).
+- **Rhythm-only motif recall:** duration-grid match (normalized, uniform
+  aug/dim tolerated, same convention as pitch recall) — 4 checks.
+- **Harmonic fidelity:** `harmonicFidelity()` — per section wired to a
+  progression, every chord's pitch-class set must be covered (voicing
+  irrelevant) — 4 checks; wired into `scorePerformance` as
+  `harmonic_fidelity`.
+
+Deferred (still open, with triggers):
+
+- **Structure beyond length:** section-boundary conformance needs section
+  markers in the perf doc — a v0.x perf-format amendment; flag to spec
+  owners before adding (unchanged from the spec).
+- **Score stability / onset snapping:** pin the tolerance policy after
+  the first live-model benchmark run (unchanged).
+
+Run: `npm test`.
