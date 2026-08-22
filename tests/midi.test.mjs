@@ -73,6 +73,14 @@ check("empty named track: kept, notes empty, validates", mid.parts.length === 1
 let threw = null;
 try { midiToIR(Uint8Array.from([1, 2, 3, 4])); } catch (e) { threw = e; }
 check("garbage bytes throw (not a silent empty IR)", threw !== null);
+// Spec pin (#50): an Error with a message, not a raw tonejs string throw.
+check("garbage bytes throw an Error with a message",
+  threw instanceof Error && typeof threw.message === "string" && threw.message.length > 0);
+let threwTrunc = null;
+try { midiToIR((await readFile(new URL("../importer/fixtures/midi-sample.mid", import.meta.url))).subarray(0, 20)); }
+catch (e) { threwTrunc = e; }
+check("truncated file throws an Error with a message",
+  threwTrunc instanceof Error && typeof threwTrunc.message === "string" && threwTrunc.message.length > 0);
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
