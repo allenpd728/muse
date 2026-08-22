@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/renditions.schema.json",
+  "title": "Muse renditions",
+  "description": "Sanctioned rendition presets — genre covers (SCHEMA_SPEC.md §2.6). style.references describe styles, eras, and production techniques only; named-artist imitation is out of spec without an attached license record. That rule is semantic and cannot be enforced here.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name"],
+    "additionalProperties": false,
+    "properties": {
+      "id": { "type": "string", "minLength": 1 },
+      "name": { "type": "string", "minLength": 1 },
+      "style": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "genre": { "type": "string", "minLength": 1 },
+          "era": { "type": "string", "description": "e.g. \"1984\", \"1959\"." },
+          "references": {
+            "type": "array",
+            "description": "Styles, eras, and production techniques only — no named-artist references without a license record (spec §2.6 hard rule).",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      },
+      "params": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tempo_bpm": { "type": "number", "exclusiveMinimum": 0 },
+          "instrumentation": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "density": { "type": "number", "minimum": 0, "maximum": 1 },
+          "swing": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "author": {
+        "type": "object",
+        "description": "May differ from composer — renditions are collaborative works.",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "id": { "type": "string" }
+        }
+      }
+    }
+  }
+}
