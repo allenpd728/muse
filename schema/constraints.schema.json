@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/constraints.schema.json",
+  "title": "Muse constraints",
+  "description": "Invariants every rendition must satisfy (SCHEMA_SPEC.md §2.5). The conformance contract between composer and engine.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "must_contain": {
+      "type": "array",
+      "description": "Material ids that must appear recognizably in every rendition.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "must_not": {
+      "type": "array",
+      "description": "Typed predicates every rendition must avoid. Extensible: a predicate is an object with a string `kind`; known kinds carry their own fields. Unknown kinds are preserved for engines that understand them.",
+      "items": { "$ref": "#/$defs/predicate" }
+    },
+    "tempo_lock": {
+      "type": "object",
+      "description": "Per-section bpm ranges, narrowing globals.tempo.range. Keys are section ids.",
+      "additionalProperties": { "$ref": "#/$defs/bpmRange" }
+    },
+    "register": {
+      "type": "object",
+      "description": "Per-material pitch ranges. Keys are material ids; values are [low, high] pitch bounds.",
+      "additionalProperties": {
+        "type": "array",
+        "prefixItems": [
+          { "type": "string", "description": "low bound, e.g. C4" },
+          { "type": "string", "description": "high bound, e.g. A5" }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "form_deviation": { "type": "string", "enum": ["none", "reorder", "abridge"] }
+      }
+    }
+  },
+  "$defs": {
+    "bpmRange": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "number", "exclusiveMinimum": 0 },
+        { "type": "number", "exclusiveMinimum": 0 }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "[min, max] bpm."
+    },
+    "predicate": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "modulation_beyond" } } },
+          "then": {
+            "properties": {
+              "semitones": { "type": "number", "exclusiveMinimum": 0 }
+            },
+            "required": ["semitones"]
+          }
+        }
+      ]
+    }
+  }
+}
