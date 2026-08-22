@@ -6,7 +6,8 @@
   "description": "Schema-first generative music platform — validator and tooling",
   "scripts": {
     "validate": "node tools/validate.mjs",
-    "test": "node tools/test.mjs"
+    "test": "node tools/test.mjs",
+    "expand": "node interpreter/expand.mjs"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
