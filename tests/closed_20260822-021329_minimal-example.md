@@ -34,3 +34,21 @@
 `npm test` (harness example loop), or directly:
 `node tools/validate.mjs examples/minimal.muse.json` (exit 0; removing a
 required field → exit 1).
+
+---
+
+## Closed — 2026-08-22 (issue #39)
+
+Coverage landed: `tests/minimal.test.mjs` — 7 checks:
+
+- Minimal example validates against the root schema (in-suite pin on top of
+  the harness's `mustPass` loop).
+- Required-field mutation: removing `muse_version`, `metadata`, or `globals`
+  fails validation (automated; was manual at authoring).
+- Provenance policy: an `ai: true` entry present.
+- Minimality guards: top-level keys pinned to exactly
+  `muse_version`/`metadata`/`globals`; `globals` pinned sparse
+  (`tempo`/`meter`/`duration_bars` only) — accretion now requires a
+  conscious test edit.
+
+Run: `npm test` (folds in `tests/minimal.test.mjs`).
