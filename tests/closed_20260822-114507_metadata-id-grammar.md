@@ -28,3 +28,14 @@
 Fold into `tests/metadata.test.mjs` (or a new `tests/metadata-id.test.mjs`);
 driven via `node tools/validate.mjs <fixture> schema/muse.schema.json` against
 crafted metadata fixtures, run by `npm test` in CI.
+
+## Resolution
+
+Coverage landed in `tests/metadata.test.mjs` (issue #51): prefixed ULID and
+UUID acceptance (spec §2.1 example form), rejection channels (wrong namespace,
+25/27-char prefixed ULIDs, lowercase ULID, malformed UUID, double prefix),
+and the §2.8 convention-not-enforcement pin — a non-slug section id
+(`verse one!`) validates, loaded through form.schema.json with the material
+sibling pre-registered. New fixture `tools/fixtures/prefixed-id.muse.json`
+exercises the prefixed branch through the CLI; existing examples keep
+validating under the harness loops. 33/33 standalone; npm test green.
