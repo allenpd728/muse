@@ -2,7 +2,7 @@
 // Offline DSP analysis — no audio hardware required.
 // Standalone runner: `node tests/player.test.mjs`; also folded into npm test.
 import { readFile } from "node:fs/promises";
-import { render, renderWav } from "../player/render.mjs";
+import { render, renderWav, droppedTechniques } from "../player/render.mjs";
 
 const fixture = JSON.parse(await readFile(new URL("../tools/fixtures/valid.muse.perf.json", import.meta.url), "utf8"));
 const clone = () => JSON.parse(JSON.stringify(fixture));
@@ -128,6 +128,21 @@ check("no clipping beyond [-1, 1] after soft clip", peak(left) <= 1 && peak(righ
   const finite = (ch) => ch.every((v) => Number.isFinite(v));
   check("articulation/duration extremes render finite, bounded output",
     finite(el) && finite(er) && peak(el) <= 1 && peak(er) <= 1);
+}
+
+// Honor-or-drop (spec §7, issue #86): unsupported part techniques are
+// dropped with a recorded decision — render never fails.
+{
+  const withTech = clone();
+  withTech.parts[0].instrument.techniques = ["pizzicato", "sul_ponticello"];
+  withTech.parts[1].instrument.techniques = ["muted"];
+  const drops = droppedTechniques(withTech);
+  check("unsupported techniques recorded as dropped (V1 honors GM program only)",
+    drops.length === 3 && drops.every((d) => d.part && d.technique));
+  const [tl, tr2] = render(withTech, { sampleRate: SR });
+  check("render never fails on unsupported techniques (identical output)",
+    tl.every((v, i) => v === left[i]) && tr2.every((v, i) => v === right[i]));
+  check("no techniques → empty drop record", droppedTechniques(clone()).length === 0);
 }
 
 console.log(`${passed} passed, ${failed} failed`);

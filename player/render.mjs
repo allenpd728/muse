@@ -52,6 +52,23 @@ const levelAt = (curves, partId, t) => {
   return sorted[sorted.length - 1].level;
 };
 
+// Techniques Player V1 can render (spec §7 honor-or-drop rule): anything
+// else on a part's techniques list is dropped and recorded — never a
+// failure. V1 honors GM program only, so every technique drops today; the
+// recording path is the contract.
+const V1_SUPPORTED_TECHNIQUES = [];
+
+// The drop record, per spec §7: unsupported part techniques, one entry
+// each. Players fold this into extensions.<player>.dropped; render never
+// fails on a technique.
+export const droppedTechniques = (perfDoc) => {
+  const dropped = [];
+  for (const part of perfDoc.parts ?? [])
+    for (const t of part.instrument?.techniques ?? [])
+      if (!V1_SUPPORTED_TECHNIQUES.includes(t)) dropped.push({ part: part.id, technique: t });
+  return dropped;
+};
+
 // render(perfDoc, { sampleRate }) → Float32Array[] [left, right].
 // This IS the renderer contract (docs/scope-batch3.md): plugins implement
 // the same signature.
