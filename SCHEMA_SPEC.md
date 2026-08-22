@@ -153,12 +153,20 @@ What every rendition must satisfy to be a rendition of *this* work. Constraints 
   "must_contain": [ "motif.a" ],                       // motif recall requirement
   "must_not":      [ { "kind": "modulation_beyond", "semitones": 3 } ],
   "tempo_lock":    { "chorus.1": [ 92, 104 ] },
+  "tempo_shapes":  { "bridge.cadenza": { "kind": "ritardando", "target_bpm": 72, "span": "final_bars" } },
   "register":      { "theme.1": [ "C4", "A5" ] },
   "structure":     { "form_deviation": "none" }        // none | reorder | abridge
 }
 ```
 
 A conforming engine renders audio that satisfies all `constraints` while exploring the freedom left by `globals` ranges and the active `rendition`.
+
+**`tempo_shapes`** (v0.3) are per-section expressive tempo constraints — the schema-level vocabulary for ritardando, accelerando, and rubato that `globals.tempo.range` cannot express. Three kinds:
+
+- `ritardando` / `accelerando` — the section's tempo moves monotonically toward `target_bpm`. `span` scopes where the shape applies: `section` (default), `final_bars`, or `opening_bars` (counted against the section's own bar count).
+- `rubato` — bounded expressive deviation within `deviation_bpm` around the active tempo; the section returns to tempo at its end.
+
+Relation to the performance layer (§7): the schema *constrains*; the performance document *realizes*. A conforming interpreter's `tempo_map` must satisfy every `tempo_shapes` entry — rit./accel. appear as a monotone bpm ramp ending at `target_bpm` within the span; rubato stays within the deviation band and returns to the section's base tempo. `tempo_lock` (scalar bounds) composes orthogonally: a section may have both, and the realized curve must satisfy each.
 
 ### 2.6 `renditions` — sanctioned presets ("genre covers")
 
@@ -217,6 +225,7 @@ A renderer is **Muse-conforming** if it:
 
 **Changelog**
 
+- **v0.3 (2026-08-22):** `constraints.tempo_shapes` added — per-section ritardando/accelerando/rubato constraints with bounded spans; conformance relation to §7 `tempo_map` stated (issue #75).
 - **v0.2 (2026-08-22):** `form.sections[].role` enum broadened from pop-song vocabulary to a tradition-spanning taxonomy (universal / song form / classical / film / production roles), with pass-through semantics stated (issue #67).
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
