@@ -135,6 +135,11 @@ export const withExportProvenance = (doc, { at = new Date().toISOString() } = {}
   },
 });
 
+// Export filename: doc name with spaces collapsed and any existing JSON
+// suffix normalized to .muse.json (exported for tests).
+export const exportFilename = (docName) =>
+  `${(docName ?? "untitled").replace(/\s+/g, "-").replace(/\.muse\.json$|\.json$/i, "")}.muse.json`;
+
 // Download helper (browser only).
 const download = (doc, name) => {
   const blob = new Blob([JSON.stringify(doc, null, 2) + "\n"], { type: "application/json" });
@@ -415,7 +420,7 @@ function Composer() {
         {doc && (
           <button
             className="export"
-            onClick={() => download(withExportProvenance(doc), (docName ?? "untitled").replace(/\s+/g, "-").replace(/\.muse\.json$|\.json$/i, "") + ".muse.json")}
+            onClick={() => download(withExportProvenance(doc), exportFilename(docName))}
           >
             ⬇ export .muse.json
           </button>

@@ -29,3 +29,31 @@ button + clean panel on the full example). This spec is for what remains.
 ## How to run
 
 `cd explorer && npm test` (vitest); browser pass in the closing note.
+
+---
+
+## Closed — 2026-08-22 (issue #96)
+
+Coverage landed (appended to `explorer/src/composer/export.test.mjs`,
+now 7 checks):
+
+- **Export filename pinned:** `exportFilename` extracted — spaces
+  collapse, existing `.json`/`.muse.json` suffixes normalize (case-
+  insensitive), undefined → `untitled.muse.json`.
+- **Pipeline validity:** an exported doc (provenance appended) plays
+  end-to-end through `tools/play.mjs` — WAV with a RIFF header produced
+  (vitest drives the real CLI with a 30s budget).
+
+Deferred (still open, with triggers):
+
+- **Download round-trip through the browser** — scripted-browser
+  territory (the Blob/download helper is untestable in vitest; the
+  DOM-renderer decision from #93–#95 covers this too).
+- **Load-path parity (URL field)** — composer currently has example
+  buttons + file picker; the explorer's URL loader is a separate
+  component — parity is a small port, flag if wanted.
+- **Error panel channel split** — channels render with attribution today
+  (the panel labels each issue `[schema]`/`[refs]`/`[semantics]`); a
+  broken-in-each-channel visual pass is a browser check, not vitest.
+
+Run: `cd explorer && npm test`.
