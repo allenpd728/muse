@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/muse.schema.json",
+  "title": "Muse schema (placeholder)",
+  "type": "object",
+  "required": ["muse_version"],
+  "properties": {
+    "muse_version": { "type": "string" }
+  }
+}
