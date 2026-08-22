@@ -66,3 +66,13 @@ button:hover { border-color: var(--accent); }
 .tree .key { color: var(--accent); }
 .tree .val { color: var(--text); }
 .graph { height: 420px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+
+/* Composer shell (issue #80) */
+.composer-palette { display: flex; gap: 8px; padding: 8px 16px; flex-wrap: wrap; }
+.composer-main { display: flex; gap: 12px; padding: 0 16px 16px; }
+.composer-canvas { flex: 1; height: 480px; }
+.composer-inspector { width: 280px; background: #1c1f26; border: 1px solid #2c313c; border-radius: 6px; padding: 12px; }
+.composer-inspector h3 { margin-top: 0; color: #7aa2f7; }
+.field { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.field span { width: 110px; color: #9aa5ce; font-size: 12px; }
+.field input, .field select { flex: 1; background: #16181e; color: #d7dce4; border: 1px solid #2c313c; border-radius: 4px; padding: 4px 6px; }
