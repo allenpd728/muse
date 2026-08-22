@@ -25,3 +25,24 @@ ResizeObserver, SVG globals. This spec is for what remains.
 ## How to run
 
 `cd explorer && npm test` (vitest).
+
+---
+
+## Closed — 2026-08-22 (issue #118)
+
+Coverage landed: `explorer/src/composer/interact.test.jsx` — 1 full
+interaction scenario in jsdom (React 18 `act` + real event dispatch):
+load the full example via the button, click the verse.1 section node in
+the canvas, assert the inspector shows its scalar fields (bars = 16),
+edit bars to 24 through the input — the edit flows through
+applyGraph → compile. No @testing-library dependency; hand-rolled
+dispatch (the value-setter trick for controlled inputs).
+
+Deferred (still open, with triggers):
+
+- **Listener DOM mount** — `explorer/src/listen/` components need the
+  AudioContext stub; same jsdom pattern applies.
+- **Explorer main app mount** — the read-only app's mount guard should
+  get the same pin.
+
+Run: `cd explorer && npm test` (91/91).
