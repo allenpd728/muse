@@ -50,20 +50,22 @@ const excerpt = structuredClone(doc);
 }
 
 describe("listener smoke (expand → render → transport)", () => {
-  test("selecting a rendition produces a non-empty buffer and a playing transport", { timeout: 20000 }, () => {
-    const ctx = stubContext();
-    const rendition = doc.renditions.find((r) => r.id === "r.synthwave");
-    const perf = expandOffline(excerpt, rendition);
-    expect(perf.notes.length).toBeGreaterThan(0);
+  for (const id of ["r.synthwave", "r.quartet"]) {
+    test(`rendition ${id}: expand → render → playing transport`, { timeout: 20000 }, () => {
+      const ctx = stubContext();
+      const rendition = doc.renditions.find((r) => r.id === id);
+      const perf = expandOffline(excerpt, rendition);
+      expect(perf.notes.length).toBeGreaterThan(0);
 
-    const buffer = renderToBuffer(ctx, perf);
-    expect(buffer.length).toBeGreaterThan(0);
-    expect(buffer.duration).toBeGreaterThan(0.5);
+      const buffer = renderToBuffer(ctx, perf);
+      expect(buffer.length).toBeGreaterThan(0);
+      expect(buffer.duration).toBeGreaterThan(0.5);
 
-    const transport = createTransport(buffer, ctx, { onstatechange: () => {} });
-    transport.play();
-    expect(transport.state().playing).toBe(true);
-    transport.stop();
-    expect(transport.state().playing).toBe(false);
-  });
+      const transport = createTransport(buffer, ctx, { onstatechange: () => {} });
+      transport.play();
+      expect(transport.state().playing).toBe(true);
+      transport.stop();
+      expect(transport.state().playing).toBe(false);
+    });
+  }
 });
