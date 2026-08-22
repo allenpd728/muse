@@ -28,6 +28,7 @@ Components, in dependency order:
 - **Branching:** `main` is the stable branch. All day-to-day work happens on `dev` — agents and contributors branch from and merge into `dev` by default. `dev` merges into `main` via PR at meaningful milestones. Never commit directly to `main`.
 - **Task coordination:** Work is claimed and tracked per [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — one task per GitHub issue, label-based states, commit directly to `dev`. Read it before picking up any task.
 - **Blockers:** If you can't start or finish a task, don't guess — write `blockers/open_<datetime>_<slug>.md` per the protocol in `TASK_WORKFLOW.md` and move on to other work.
+- **Tests:** Completing a task means also spec'ing its tests — `tests/open_<datetime>_<slug>.md` plus a linked `Tests:` issue, per the test-follow-up protocol in `TASK_WORKFLOW.md`. Code without a test spec is an incomplete task.
 - **Schema documents:** JSON, validated against the spec; files use the `.muse.json` extension (once examples/tooling land).
 - **Spec edits:** keep the changelog discipline — `muse_version` is semver; v0.x may break, v1+ additive only.
 - **Code style:** minimal comments; comment only non-obvious invariants or deliberate tradeoffs. Keep changes focused and small.
@@ -56,6 +57,7 @@ examples/             # example .muse.json documents (planned)
 schema/               # JSON Schema validation files (planned)
 tools/                # validator CLI + test harness (planned)
 importer/             # MIDI/MusicXML → .muse.json (planned)
+interpreter/          # LLM prompt + expansion logic → performance layer (planned)
 player/               # performance renderer (planned)
 composer/             # node-based authoring UI (deferred)
 ```
