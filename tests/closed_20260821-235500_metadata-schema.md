@@ -25,3 +25,13 @@
 Fold into the `npm test` harness (#3) as a `metadata` fixture pair (valid + one invalid
 per case above). Reference implementation used during authoring: per-case `node
 tools/validate.mjs <fixture> schema/metadata.schema.json` — all passed.
+
+## Coverage landed (issue #28)
+
+`tests/metadata.test.mjs` — 25 cases covering every behavior and edge case in
+this spec: ULID/UUID acceptance, 25/27-char and excluded-char (I/L/O/U) id
+rejection, license.renditions enum, each required field, RFC 3339 created,
+empty title/composer.name, additionalProperties strictness (top-level and
+license), provenance item event requirement, optional-field absence.
+Run via `npm test` (harness folds in all `tests/*.test.mjs`) or
+`node tests/metadata.test.mjs` standalone.
