@@ -1,0 +1,10 @@
+{
+  "channel": "refs",
+  "messages": [
+    "motif.ghost",
+    "section.ghost",
+    "repeat.ghost",
+    "tempo.ghost",
+    "theme.ghost"
+  ]
+}

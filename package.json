@@ -8,7 +8,8 @@
     "validate": "node tools/validate.mjs",
     "test": "node tools/test.mjs",
     "expand": "node interpreter/expand.mjs",
-    "render": "node player/render.mjs"
+    "render": "node player/render.mjs",
+    "test:explorer": "npm --prefix explorer test"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",

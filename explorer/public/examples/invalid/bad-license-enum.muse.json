@@ -1,0 +1,16 @@
+{
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "01J0ZFG3M8KQV2J4XG5N0W6Y7Z",
+    "title": "Bad license enum",
+    "composer": { "name": "Muse Project" },
+    "created": "2026-08-22T00:00:00Z",
+    "license": { "renditions": "do-anything" },
+    "provenance": [{ "event": "authored", "ai": true }]
+  },
+  "globals": {
+    "tempo": { "bpm": 96 },
+    "meter": { "beats": 4, "unit": 4 },
+    "duration_bars": 8
+  }
+}
