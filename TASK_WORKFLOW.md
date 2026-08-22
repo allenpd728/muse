@@ -54,6 +54,11 @@ identical for all three; only the "done" action differs.
    `status:claimed`, restore the prior label (`status:available` for tasks/tests,
    `status:blocked-needs-input` for blockers), and comment that the work was
    reclaimed (audit trail).
+1b. **Pipeline status sweep.** Check `docs/pipeline.md` against reality: if a
+   recently-closed task changed a tool's state (landed, broke, unblocked),
+   update the status table in the same session — a stale pipeline table is a
+   process failure on par with a stale claim. If a row is wrong and no task
+   covers fixing it, file the task.
 2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue.
