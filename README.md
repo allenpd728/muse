@@ -27,7 +27,7 @@ Muse is built as four layers (status details in [docs/pipeline.md](docs/pipeline
 
 - **Offline** (default): deterministic rule-based expander, no API key.
 - **Manual paste** (`node interpreter/expand.mjs <doc> --manual`, or `MUSE_MANUAL=1`): prints the prompt, reads the model's JSON response from stdin, runs the same validate→feedback→retry loop. Zero API key — the transport is the human clipboard.
-- **`MUSE_PROVIDER=gemini`** + `GEMINI_API_KEY` (or `GOOGLE_API_KEY` alias): Google AI Studio free tier; requests structured JSON (`responseMimeType: application/json`). `MUSE_MODEL` is always required — no hard-coded default, per the model-agnostic rule; the current free-tier flash is `gemini-3.6-flash`.
+- **`MUSE_PROVIDER=gemini`** + `GEMINI_API_KEY` (or `GOOGLE_API_KEY` alias): Google AI Studio free tier; requests structured JSON (`responseMimeType: application/json`). `MUSE_MODEL` defaults to the current free-tier flash (`gemini-3.6-flash`; 2.0/2.5 are retired for new users); anthropic/openai require `MUSE_MODEL` explicitly.
 - **`MUSE_PROVIDER=anthropic`** + `ANTHROPIC_API_KEY`, or **`MUSE_PROVIDER=openai`** + `OPENAI_API_KEY`: paid adapters.
 
 All live-model paths feed the generate → validate → fix loop; a performance that can't satisfy the constraints after bounded retries fails loudly.
