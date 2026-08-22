@@ -2,7 +2,8 @@
 // export provenance shape + the inline error surfacing contract.
 import { describe, it, expect } from "vitest";
 import { readFile } from "node:fs/promises";
-import { withExportProvenance } from "./main.jsx";
+import { execFileSync } from "node:child_process";
+import { withExportProvenance, exportFilename } from "./main.jsx";
 import { validateDocument } from "../validate.js";
 
 const full = JSON.parse(await readFile(new URL("../../../examples/full.muse.json", import.meta.url), "utf8"));
@@ -41,4 +42,37 @@ describe("inline error surfacing contract", () => {
     expect(issues.length).toBeGreaterThan(0);
     expect(issues.some((i) => i.channel === "schema")).toBe(true);
   });
+});
+
+describe("export filename (issue #96)", () => {
+  it("collapses spaces and normalizes the suffix", () => {
+    expect(exportFilename("my work")).toBe("my-work.muse.json");
+    expect(exportFilename("my work.json")).toBe("my-work.muse.json");
+    expect(exportFilename("my-work.muse.json")).toBe("my-work.muse.json");
+    expect(exportFilename("My Piece.MUSE.JSON")).toBe("My-Piece.muse.json");
+    expect(exportFilename(undefined)).toBe("untitled.muse.json");
+  });
+});
+
+describe("pipeline validity of exported docs (issue #96)", () => {
+  it("an exported doc plays end-to-end through tools/play.mjs", async () => {
+    const exported = withExportProvenance(full, { at: "2026-08-22T16:00:00Z" });
+    const { mkdtemp, writeFile, readFile: read, rm } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const path = await import("node:path");
+    const tmp = await mkdtemp(path.join(tmpdir(), "muse-export-"));
+    try {
+      const docPath = path.join(tmp, "exported.muse.json");
+      await writeFile(docPath, JSON.stringify(exported));
+      const out = execFileSync(process.execPath, ["tools/play.mjs", docPath, "r.synthwave", "--bars", "4", "--out", tmp], {
+        cwd: new URL("../../..", import.meta.url).pathname,
+        encoding: "utf8",
+      });
+      expect(out).toContain("notes");
+      const wav = await read(path.join(tmp, "exported.r.synthwave.wav"));
+      expect(wav.subarray(0, 4).toString()).toBe("RIFF");
+    } finally {
+      await rm(tmp, { recursive: true, force: true });
+    }
+  }, 30000);
 });
