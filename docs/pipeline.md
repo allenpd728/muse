@@ -27,7 +27,7 @@ TASK_WORKFLOW.md: status sweep is a session duty). Status values:
 | 4. Validate | `tools/validate.mjs`, `schema/`, semantics lint | ✅ done | Batch 1; 48 suite groups green; v0.3 adds tempo_shapes, structured instrumentation, mix topology (#75–#77) |
 | 5. Interpret | `interpreter/offline.mjs` / `expand.mjs` | ⚠️ partial | hand-authored examples render; imported corpus → 0 notes (#88) |
 | 6. Play | `player/render.mjs` → WAV | ✅ done | deterministic synthesis placeholder; demo WAVs in `docs/demo/` |
-| 7. Listen | — | ❌ not built | scope task #89 available |
+| 7. Listen | — | 🔄 in progress | scoped (#89); MVP chain filed (#97–#100) |
 
 ## Supporting surfaces
 
