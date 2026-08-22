@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/performance.schema.json",
+  "title": "Muse performance document (draft v0)",
+  "description": "One point in a work's rendition space — interpreter output, player input (SCHEMA_SPEC.md §7, docs/scope-batch3.md). Standalone root: validated with `node tools/validate.mjs <doc> schema/performance.schema.json`. Two clocks: seconds authoritative for playback, beats retained for structure metrics. Reference integrity (notes[].part, dynamics[].part → parts[].id) is a code check, not ajv.",
+  "type": "object",
+  "required": ["muse_perf_version", "metadata", "tempo_map", "parts", "notes"],
+  "additionalProperties": false,
+  "properties": {
+    "muse_perf_version": {
+      "type": "string",
+      "description": "Performance format version (semver), independent of muse_version.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source", "interpreter"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": ["schema_id", "rendition_id"],
+          "additionalProperties": false,
+          "properties": {
+            "schema_id": { "type": "string", "minLength": 1 },
+            "rendition_id": { "type": "string", "minLength": 1 }
+          }
+        },
+        "interpreter": {
+          "type": "object",
+          "required": ["model", "at"],
+          "additionalProperties": false,
+          "properties": {
+            "model": { "type": "string", "minLength": 1 },
+            "at": { "type": "string", "format": "date-time" }
+          }
+        }
+      }
+    },
+    "tempo_map": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["time", "beat", "bpm"],
+        "additionalProperties": false,
+        "properties": {
+          "time": { "type": "number", "minimum": 0 },
+          "beat": { "type": "number", "minimum": 0 },
+          "bpm": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "instrument"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "instrument": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "program": { "type": "integer", "minimum": 0, "maximum": 127, "description": "General MIDI program (free tier)." },
+              "sample_set": { "type": "string", "minLength": 1, "description": "Mid-tier sample library mapping." }
+            }
+          },
+          "mix": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gain": { "type": "number", "minimum": 0, "maximum": 1 },
+              "pan": { "type": "number", "minimum": -1, "maximum": 1 },
+              "reverb_send": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["part", "pitch", "pitch_name", "onset", "duration", "onset_beat", "duration_beats", "velocity"],
+        "additionalProperties": false,
+        "properties": {
+          "part": { "type": "string", "minLength": 1, "description": "Must resolve against parts[].id (code check)." },
+          "pitch": { "type": "integer", "minimum": 0, "maximum": 127 },
+          "pitch_name": { "$ref": "material.schema.json#/$defs/pitch" },
+          "onset": { "type": "number", "minimum": 0, "description": "Seconds." },
+          "duration": { "type": "number", "exclusiveMinimum": 0, "description": "Seconds." },
+          "onset_beat": { "type": "number", "minimum": 0 },
+          "duration_beats": { "type": "number", "exclusiveMinimum": 0 },
+          "velocity": { "type": "integer", "minimum": 0, "maximum": 127 },
+          "articulation": {
+            "type": "string",
+            "enum": ["normal", "tenuto", "staccato", "staccatissimo", "legato", "accent", "marcato"]
+          },
+          "controllers": {
+            "type": "object",
+            "description": "Optional per-note controllers (MIDI 2.0 lineage). V1 players may ignore; neural renderers consume.",
+            "additionalProperties": false,
+            "properties": {
+              "pitch_bend": { "type": "array", "items": { "type": "number" } },
+              "pressure": { "type": "array", "items": { "type": "number" } },
+              "timbre": { "type": "array", "items": { "type": "number" } }
+            }
+          }
+        }
+      }
+    },
+    "dynamics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["time", "level"],
+        "additionalProperties": false,
+        "properties": {
+          "time": { "type": "number", "minimum": 0 },
+          "part": { "type": "string", "minLength": 1, "description": "Omitted = global. Must resolve against parts[].id (code check)." },
+          "level": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}
