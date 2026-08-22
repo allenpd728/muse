@@ -52,3 +52,31 @@ invariants.
 
 `npm test` (harness picks up `tests/conventions.test.mjs` automatically);
 standalone: `node tests/conventions.test.mjs`.
+
+---
+
+## Closed — 2026-08-22 (issue #48)
+
+Coverage landed: `tests/conventions.test.mjs` — 26 checks across all seven
+behavior groups, asserting the resolved conventions of #43–#47:
+
+1. snake_case naming across every schema's `properties` (zero exceptions).
+2. Sealed objects, both directions: every typed-object-with-properties is
+   `additionalProperties: false` except the four documented open paths
+   (`form.repetition`, `constraints.tempo_lock`, `constraints.register`,
+   `must_not` predicates); a silently sealed exception also fails. Applicator
+   branches (`if`/`then`/`anyOf` conditions — properties without `type:
+   "object"`) are excluded from the sealing rule: they are constraints on a
+   shape, not shapes. Extensions root pinned open (`true`); provenance-items
+   seal pinned as the #45 regression guard.
+3. `metadata.id`: prefixed + bare ULID/UUID accepted, wrong-namespace and
+   malformed rejected (#43).
+4. Pitch grammar: shared `$defs/pitch` asserted structurally (both reference
+   sites) and behaviorally (#44).
+5. Transform refs: shared `$defs/materialRef` asserted structurally; 8 good /
+   7 bad refs verified identical at both sites (#46).
+6. Cross-ref: ghost id per surface via `danglingRefs()` on full-example
+   clones (#47).
+7. Seam thread asserted on `examples/full.muse.json`.
+
+Run: `npm test` (folds in `tests/conventions.test.mjs`).
