@@ -30,3 +30,15 @@ transform cases cover the phrase position. This spec is for what remains.
 
 Fold into `tests/form.test.mjs` (uses-ref tables) and
 `tests/material.test.mjs` (shared case list); `npm test`.
+
+## Resolution
+
+Coverage landed in `tests/transform-ref-grammar.test.mjs` (issue #54): one
+shared case list drives both positions — phrase motifs and `uses[].ref` —
+so the grammars cannot drift apart again. Acceptance: bare ids of all three
+material kinds, each documented transform, stacked transforms. Rejection:
+unknown transform, malformed args, empty id, leading/trailing `#`,
+`###garbage`. `variation` pinned free text per spec §2.4 (both plain and
+transform-shaped strings validate). Cross-file $ref integrity proven by
+standalone compile of form.schema.json with material pre-registered. 35/35
+standalone; npm test green.
