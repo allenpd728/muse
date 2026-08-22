@@ -39,3 +39,23 @@ coverage not possible until dependent tasks land.
 JSON Schema draft 2020-12 cannot compare two data values, so range ordering
 (min ≤ max) is a semantic check — same class as the harness's cross-reference
 lint. Keep it in code; do not block the schema task on it.
+
+## Coverage landed (issue #30)
+
+`tests/globals-integration.test.mjs` — 7 cases covering the residual work:
+globals validated through the root `$ref` (and violations fail through it),
+the range-order check now lives in `tools/semantics.mjs` (one home for
+code-only semantic rules, reusable by the harness), and the pinned edge
+cases: equal range bounds accepted, 1-element `beats` array rejected,
+non-power-of-2 `unit` accepted. The semantic lint is intentionally **not**
+harness-wired yet — only `globals` has semantic rules today; wiring one rule
+is over-engineering. When a second section gains semantic rules (#37
+integration review is the trigger point), fold `checkSemantics()` into the
+lint step the same way `danglingRefs` is.
+
+Also surfaced: the root schema demands full semver `muse_version` while spec
+§2 writes `"0.1"`. Test pins the strict behavior; the looseness mismatch is
+flagged for #37.
+
+Run via `npm test` (harness folds in all `tests/*.test.mjs`) or
+`node tests/globals-integration.test.mjs` standalone.
