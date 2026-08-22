@@ -130,5 +130,13 @@ if (existsSync(examplesDir)) {
   console.log("# examples/ not present yet — fixture checks only");
 }
 
+// Standalone test suites fold in when present (e.g. tests/validate-cli.test.mjs).
+for (const f of (await readdir("tests")).filter((x) => x.endsWith(".test.mjs")).sort()) {
+  const r = spawnSync(process.execPath, [path.join("tests", f)], { encoding: "utf8" });
+  process.stdout.write(r.stdout ?? "");
+  process.stderr.write(r.stderr ?? "");
+  r.status === 0 ? ok(`tests/${f} suite passes`) : bad(`tests/${f} suite passes`);
+}
+
 console.log(`# ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
