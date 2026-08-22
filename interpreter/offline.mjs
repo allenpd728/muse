@@ -78,8 +78,15 @@ export function expandOffline(doc, rendition, { at = "2026-08-22T00:00:00Z" } = 
 
   const notes = [];
   const sectionsById = new Map((doc.form?.sections ?? []).map((s) => [s.id, s]));
+  const repetition = doc.form?.repetition ?? {};
+  // Deterministic expander picks the lower repeat bound (spec: min ≤ actual
+  // ≤ max; renditions may explore above min).
+  const expandOrder = (doc.form?.order ?? []).flatMap((id) => {
+    const reps = repetition[id]?.min ?? 1;
+    return Array.from({ length: reps }, () => id);
+  });
   let bar = 0;
-  for (const sectionId of doc.form?.order ?? []) {
+  for (const sectionId of expandOrder) {
     const section = sectionsById.get(sectionId);
     if (!section) continue;
     const sectionBars = section.bars ?? 4;
