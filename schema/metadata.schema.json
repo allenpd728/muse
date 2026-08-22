@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/metadata.schema.json",
+  "title": "Muse metadata",
+  "description": "Title, composer, provenance, license — SCHEMA_SPEC.md §2.1.",
+  "type": "object",
+  "required": ["id", "title", "composer", "created", "license", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable work identifier (ULID or UUID).",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "composer": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "id": { "type": "string" }
+      }
+    },
+    "created": { "type": "string", "format": "date-time" },
+    "license": {
+      "type": "object",
+      "required": ["renditions"],
+      "additionalProperties": false,
+      "properties": {
+        "renditions": {
+          "type": "string",
+          "enum": ["presets-only", "open-within-constraints", "closed"]
+        },
+        "attribution": { "type": "string" },
+        "commercial": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "array",
+      "description": "Generation/edit history; AI involvement disclosures.",
+      "items": {
+        "type": "object",
+        "required": ["event"],
+        "properties": {
+          "event": { "type": "string" },
+          "actor": { "type": "string" },
+          "at": { "type": "string", "format": "date-time" },
+          "ai": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}
