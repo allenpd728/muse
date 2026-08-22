@@ -9,8 +9,8 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "Stable work identifier (ULID or UUID).",
-      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Stable work identifier: a ULID or RFC 4122 UUID, optionally prefixed with 'muse:work:' (spec §2.1, §2.8).",
+      "pattern": "^(muse:work:)?([0-9A-HJKMNP-TV-Z]{26}|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
     },
     "title": { "type": "string", "minLength": 1 },
     "composer": {

@@ -50,6 +50,8 @@ A Muse schema is a single JSON object with these top-level members:
 }
 ```
 
+`metadata.id` is a ULID or RFC 4122 UUID, optionally prefixed with `muse:work:` — the prefixed form is the recommended display/canonical form; both validate (see §2.8).
+
 ### 2.2 `globals`
 
 ```jsonc
@@ -172,6 +174,13 @@ Named parameter bundles a listener can select. Each rendition is a first-class o
 
 Namespaced escape hatch, e.g. `"extensions": { "engine.audiocraft": { "cfg": 3.5 } }`. Conforming engines must ignore unknown namespaces, never fail on them.
 
+### 2.8 Identifiers
+
+Two identifier families exist, with different grammars:
+
+- **Work id** (`metadata.id`): a ULID (26 chars, Crockford base32) or RFC 4122 UUID, optionally prefixed with `muse:work:`. Validators accept both forms.
+- **Internal ids** — `material.motifs[]`/`themes[]`/`rhythms[]`/`harmony.progressions[]`, `form.sections[]`, `renditions[]`: dotted slugs (`^[A-Za-z0-9_.-]+$`), namespaced by prefix: `motif.*`, `theme.*`, `groove.*`, `prog.*`, `r.*` for renditions, free-form for sections (e.g. `verse.1`). The prefix tells a reader which collection an id lives in; references in `form.sections[].uses[].ref` and `constraints.must_contain[]` resolve against the material collections, `form.sections[].harmony` against progressions. Chord symbols (e.g. `Dm7`, `Bbmaj7`) are free text, not slugs — a future chord grammar is an open question (§6).
+
 ## 3. Conformance
 
 A renderer is **Muse-conforming** if it:
@@ -191,6 +200,10 @@ A renderer is **Muse-conforming** if it:
 ## 5. Versioning
 
 `muse_version` is semver. v0.x drafts may break compatibility freely; from v1.0, all changes are additive within a major version.
+
+**Changelog**
+
+- **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 
 ## 6. Open questions for v0.x
 
