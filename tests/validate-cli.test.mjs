@@ -70,9 +70,23 @@ ok("empty object against required schema exits 1", r.code === 1);
 r = await cli([extra, schema]);
 ok("unknown properties allowed when schema omits additionalProperties:false", r.code === 0);
 
-// default schema path: run from repo root with only the document arg
-r = await cli([valid]);
-ok("default schema path (schema/muse.schema.json) used when schema arg omitted", r.code === 0 && /valid:/.test(r.stdout));
+// default schema path: run from repo root with only the document arg. The real
+// root requires muse_version/metadata/globals and resolves relative $refs to
+// pre-registered section siblings.
+const rootValid = await write("root-ok.json", JSON.stringify({
+  muse_version: "0.1.0",
+  metadata: {
+    id: "01J00000000000000000000000",
+    title: "default path check",
+    composer: { name: "harness" },
+    created: "2026-08-22T00:00:00Z",
+    license: { renditions: "presets-only", attribution: "required", commercial: true },
+    provenance: []
+  },
+  globals: { tempo: { bpm: 96 } }
+}));
+r = await cli([rootValid]);
+ok("default schema resolves $refs and validates composed doc", r.code === 0 && /valid:/.test(r.stdout));
 
 await rm(dir, { recursive: true, force: true });
 

@@ -1,16 +1,25 @@
 {
-  "muse_version": "0.1",
-  "metadata": { "id": "muse:work:harness-fixture", "title": "Harness fixture" },
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "01J00000000000000000000000",
+    "title": "Harness fixture",
+    "composer": { "name": "harness" },
+    "created": "2026-08-22T00:00:00Z",
+    "license": { "renditions": "presets-only", "attribution": "required", "commercial": true },
+    "provenance": []
+  },
+  "globals": { "tempo": { "bpm": 96 } },
   "material": {
     "motifs": [{ "id": "motif.a", "kind": "pitch_rhythm" }],
-    "themes": [{ "id": "theme.1" }],
+    "themes": [{ "id": "theme.1", "phrases": [{ "motifs": ["motif.a"] }] }],
     "harmony": { "progressions": [{ "id": "prog.verse", "chords": ["Dm7"] }] }
   },
   "form": {
     "sections": [
-      { "id": "verse.1", "uses": [{ "ref": "theme.1" }], "harmony": "prog.verse" },
-      { "id": "chorus.1", "uses": [{ "ref": "motif.a#seq(+2)" }] }
-    ]
+      { "id": "verse.1", "role": "verse", "uses": [{ "ref": "theme.1" }], "harmony": "prog.verse" },
+      { "id": "chorus.1", "role": "chorus", "uses": [{ "ref": "motif.a#seq(+2)" }] }
+    ],
+    "order": ["verse.1", "chorus.1"]
   },
   "constraints": { "must_contain": ["motif.a"] }
 }

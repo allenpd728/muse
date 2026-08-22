@@ -2,7 +2,7 @@
 // Validate a .muse.json document against a JSON Schema.
 // Usage: node tools/validate.mjs <document> [schema]
 // Exit 0 if valid, 1 if invalid or on error.
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import Ajv from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
@@ -26,6 +26,18 @@ try {
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv);
+
+// Section schemas $id as https:// URLs, so the root's relative $refs resolve
+// only if siblings are pre-registered by their ids.
+try {
+  const dir = path.resolve(path.dirname(schemaPath));
+  for (const f of await readdir(dir)) {
+    if (f.endsWith(".schema.json") && path.resolve(dir, f) !== path.resolve(schemaPath)) {
+      const s = await readJson(path.join(dir, f));
+      if (s.$id && !ajv.getSchema(s.$id)) ajv.addSchema(s);
+    }
+  }
+} catch {}
 
 let validate;
 try {

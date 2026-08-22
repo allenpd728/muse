@@ -1,10 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://muse.dev/schema/muse.schema.json",
-  "title": "Muse schema (placeholder)",
+  "title": "Muse work document",
+  "description": "Root schema for a .muse.json document (SCHEMA_SPEC.md §2). A schema is a space, not a score — this schema pins structure and lets the semantics live in the section schemas and the harness lints.",
   "type": "object",
-  "required": ["muse_version"],
+  "required": ["muse_version", "metadata", "globals"],
+  "additionalProperties": false,
   "properties": {
-    "muse_version": { "type": "string" }
+    "muse_version": {
+      "type": "string",
+      "description": "Schema spec version (semver). v0.x may break; v1+ additive only.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "metadata": { "$ref": "metadata.schema.json" },
+    "globals": { "$ref": "globals.schema.json" },
+    "material": { "$ref": "material.schema.json" },
+    "form": { "$ref": "form.schema.json" },
+    "constraints": { "$ref": "constraints.schema.json" },
+    "renditions": { "$ref": "renditions.schema.json" },
+    "extensions": { "$ref": "extensions.schema.json" }
   }
 }
