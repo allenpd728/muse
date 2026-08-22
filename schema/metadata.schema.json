@@ -42,6 +42,7 @@
       "items": {
         "type": "object",
         "required": ["event"],
+        "additionalProperties": false,
         "properties": {
           "event": { "type": "string" },
           "actor": { "type": "string" },
