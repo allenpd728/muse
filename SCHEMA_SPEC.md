@@ -207,6 +207,7 @@ A renderer is **Muse-conforming** if it:
 
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
+- **v0.1 (2026-08-22):** `metadata.provenance` items sealed (`additionalProperties: false`), matching every other fixed-shape object (issue #45).
 
 ## 6. Open questions for v0.x
 
