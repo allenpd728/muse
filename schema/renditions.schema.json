@@ -29,7 +29,48 @@
         "additionalProperties": false,
         "properties": {
           "tempo_bpm": { "type": "number", "exclusiveMinimum": 0 },
-          "instrumentation": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "instrumentation": {
+            "type": "array",
+            "description": "Free-text entries for production contexts; structured entries for orchestral precision (spec §2.6 instrumentation depth, v0.3).",
+            "items": {
+              "anyOf": [
+                { "type": "string", "minLength": 1 },
+                {
+                  "type": "object",
+                  "required": ["name"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": { "type": "string", "minLength": 1 },
+                    "program": { "type": "integer", "minimum": 0, "maximum": 127, "description": "GM fallback — the Player V1 rendering." },
+                    "doubles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": { "type": "string", "minLength": 1 },
+                          "program": { "type": "integer", "minimum": 0, "maximum": 127 }
+                        }
+                      }
+                    },
+                    "techniques": {
+                      "type": "object",
+                      "description": "Sanctioned states the rendition may invoke. Controlled vocabulary per spec §2.6; unknown names are valid but ignored-and-recorded by conforming engines.",
+                      "properties": {
+                        "divisi": { "type": "string", "enum": ["allowed", "required"] },
+                        "mute": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+                        "bowing": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+                        "breath": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+                        "production": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
           "density": { "type": "number", "minimum": 0, "maximum": 1 },
           "swing": { "type": "number", "minimum": 0, "maximum": 1 }
         }
