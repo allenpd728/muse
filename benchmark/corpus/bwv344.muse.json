@@ -1,0 +1,243 @@
+{
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "muse:work:01M0MV2X98WMZ7H9QK5RS19X8Q",
+    "title": "bwv344",
+    "composer": {
+      "name": "unknown (imported)"
+    },
+    "created": "2026-08-22T13:38:10.858Z",
+    "license": {
+      "renditions": "closed"
+    },
+    "provenance": [
+      {
+        "event": "import",
+        "actor": "importer",
+        "at": "2026-08-22T13:38:10.858Z",
+        "ai": false,
+        "notes": "source: bwv344.mxl (musicxml)"
+      }
+    ]
+  },
+  "globals": {
+    "tempo": {
+      "bpm": 120
+    },
+    "duration_bars": 24,
+    "meter": {
+      "beats": 3,
+      "unit": 4
+    },
+    "key": {
+      "tonic": "D",
+      "mode": "minor"
+    }
+  },
+  "renditions": [
+    {
+      "id": "r.default",
+      "name": "Default",
+      "params": {
+        "tempo_bpm": 120,
+        "instrumentation": [
+          "Soprano",
+          "Alto",
+          "Tenor",
+          "Bass"
+        ]
+      },
+      "author": {
+        "name": "unknown (imported)"
+      }
+    }
+  ],
+  "extensions": {
+    "importer": {
+      "inferred": [
+        {
+          "path": "globals.tempo.bpm",
+          "reason": "no tempo in source; defaulted to 120"
+        },
+        {
+          "path": "globals.key",
+          "reason": "mid-piece key changes dropped (spec v0)"
+        },
+        {
+          "path": "material.motifs",
+          "reason": "heuristic extraction: 8 repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)"
+        },
+        {
+          "path": "form.sections",
+          "reason": "repeated bar content detected; collapsed to one custom section — role and structure need cleanup"
+        }
+      ]
+    }
+  },
+  "material": {
+    "motifs": [
+      {
+        "id": "motif.1",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D5",
+          "D5",
+          "C5",
+          "A#4",
+          "A4",
+          "A4"
+        ],
+        "durations": [
+          2,
+          1,
+          2,
+          1,
+          2,
+          1
+        ]
+      },
+      {
+        "id": "motif.2",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D4",
+          "D4",
+          "D4",
+          "E4",
+          "F#4",
+          "G4"
+        ],
+        "durations": [
+          2,
+          1,
+          0.5,
+          0.5,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.3",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D#4",
+          "D4",
+          "C4",
+          "D#4",
+          "D4",
+          "C4"
+        ],
+        "durations": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      {
+        "id": "motif.4",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D5",
+          "D5",
+          "C5",
+          "A#4",
+          "A4"
+        ],
+        "durations": [
+          2,
+          1,
+          2,
+          1,
+          2
+        ]
+      },
+      {
+        "id": "motif.5",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D5",
+          "C5",
+          "A#4",
+          "A4",
+          "A4"
+        ],
+        "durations": [
+          1,
+          2,
+          1,
+          2,
+          1
+        ]
+      },
+      {
+        "id": "motif.6",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D4",
+          "D4",
+          "D4",
+          "E4",
+          "F#4"
+        ],
+        "durations": [
+          2,
+          1,
+          0.5,
+          0.5,
+          1
+        ]
+      },
+      {
+        "id": "motif.7",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "D4",
+          "D4",
+          "E4",
+          "F#4",
+          "G4"
+        ],
+        "durations": [
+          1,
+          0.5,
+          0.5,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.8",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "G4",
+          "G4",
+          "F#4",
+          "E4",
+          "F#4"
+        ],
+        "durations": [
+          1,
+          1,
+          0.5,
+          0.5,
+          1
+        ]
+      }
+    ]
+  },
+  "form": {
+    "sections": [
+      {
+        "id": "section.1",
+        "role": "custom",
+        "bars": 24
+      }
+    ],
+    "order": [
+      "section.1"
+    ]
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "muse:work:01M0MV2WXSSKBK79NGKMSYGJMX",
+    "title": "bwv331",
+    "composer": {
+      "name": "unknown (imported)"
+    },
+    "created": "2026-08-22T13:38:10.491Z",
+    "license": {
+      "renditions": "closed"
+    },
+    "provenance": [
+      {
+        "event": "import",
+        "actor": "importer",
+        "at": "2026-08-22T13:38:10.491Z",
+        "ai": false,
+        "notes": "source: bwv331.mxl (musicxml)"
+      }
+    ]
+  },
+  "globals": {
+    "tempo": {
+      "bpm": 120
+    },
+    "duration_bars": 10,
+    "meter": {
+      "beats": 4,
+      "unit": 4
+    },
+    "key": {
+      "tonic": "A",
+      "mode": "minor"
+    }
+  },
+  "renditions": [
+    {
+      "id": "r.default",
+      "name": "Default",
+      "params": {
+        "tempo_bpm": 120,
+        "instrumentation": [
+          "Soprano",
+          "Alto",
+          "Tenor",
+          "Bass"
+        ]
+      },
+      "author": {
+        "name": "unknown (imported)"
+      }
+    }
+  ],
+  "extensions": {
+    "importer": {
+      "inferred": [
+        {
+          "path": "globals.tempo.bpm",
+          "reason": "no tempo in source; defaulted to 120"
+        },
+        {
+          "path": "globals.key",
+          "reason": "mid-piece key changes dropped (spec v0)"
+        },
+        {
+          "path": "material.motifs",
+          "reason": "heuristic extraction: 8 repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)"
+        }
+      ]
+    }
+  },
+  "material": {
+    "motifs": [
+      {
+        "id": "motif.1",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "G#4",
+          "A4",
+          "A4",
+          "G#4",
+          "E4"
+        ],
+        "durations": [
+          0.5,
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "id": "motif.2",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "A4",
+          "B4",
+          "C5",
+          "D5"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.3",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "F5",
+          "G5",
+          "C5",
+          "F5"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.4",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E4",
+          "E4",
+          "D4",
+          "E4"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.5",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "A4",
+          "A4",
+          "G#4",
+          "E4"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          2
+        ]
+      },
+      {
+        "id": "motif.6",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "A4",
+          "G4",
+          "A4",
+          "A4"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          0.5
+        ]
+      },
+      {
+        "id": "motif.7",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "G4",
+          "G4",
+          "F4",
+          "E4"
+        ],
+        "durations": [
+          1,
+          1.5,
+          0.5,
+          2
+        ]
+      },
+      {
+        "id": "motif.8",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "G#4",
+          "A4",
+          "A4",
+          "G#4"
+        ],
+        "durations": [
+          0.5,
+          1,
+          1,
+          1
+        ]
+      }
+    ]
+  }
+}

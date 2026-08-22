@@ -1,0 +1,461 @@
+{
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "muse:work:01M0MV4FR00NC80MHP1SG1TRHW",
+    "title": "haydn_op74n1_movement3",
+    "composer": {
+      "name": "unknown (imported)"
+    },
+    "created": "2026-08-22T13:39:02.530Z",
+    "license": {
+      "renditions": "closed"
+    },
+    "provenance": [
+      {
+        "event": "import",
+        "actor": "importer",
+        "at": "2026-08-22T13:39:02.530Z",
+        "ai": false,
+        "notes": "source: haydn_op74n1_movement3.mxl (musicxml)"
+      }
+    ]
+  },
+  "globals": {
+    "tempo": {
+      "bpm": 120
+    },
+    "duration_bars": 114,
+    "meter": {
+      "beats": 3,
+      "unit": 4
+    },
+    "key": {
+      "tonic": "C",
+      "mode": "major"
+    }
+  },
+  "renditions": [
+    {
+      "id": "r.default",
+      "name": "Default",
+      "params": {
+        "tempo_bpm": 120,
+        "instrumentation": [
+          "Violin 1",
+          "Violin 2",
+          "Viola",
+          "Violoncello"
+        ]
+      },
+      "author": {
+        "name": "unknown (imported)"
+      }
+    }
+  ],
+  "extensions": {
+    "importer": {
+      "inferred": [
+        {
+          "path": "globals.tempo.bpm",
+          "reason": "no tempo in source; defaulted to 120"
+        },
+        {
+          "path": "globals.key",
+          "reason": "mid-piece key changes dropped (spec v0)"
+        },
+        {
+          "path": "material.motifs",
+          "reason": "heuristic extraction: 8 repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)"
+        },
+        {
+          "path": "form.sections",
+          "reason": "repeated bar content detected; collapsed to one custom section — role and structure need cleanup"
+        }
+      ]
+    }
+  },
+  "material": {
+    "motifs": [
+      {
+        "id": "motif.1",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.2",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.3",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.4",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.5",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E4",
+          "F4",
+          "G4",
+          "C5",
+          "A4",
+          "G4",
+          "C5",
+          "C5",
+          "C5",
+          "C5",
+          "C#5",
+          "D5",
+          "D5",
+          "F5",
+          "B4",
+          "C5",
+          "C5",
+          "C#5"
+        ],
+        "durations": [
+          3,
+          3,
+          2,
+          0.5,
+          0.5,
+          1,
+          1,
+          1,
+          3,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.6",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3",
+          "E3"
+        ],
+        "durations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "motif.7",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "E4",
+          "F4",
+          "G4",
+          "C5",
+          "A4",
+          "G4",
+          "C5",
+          "C5",
+          "C5",
+          "C5",
+          "C#5",
+          "D5",
+          "D5",
+          "F5",
+          "B4",
+          "C5",
+          "C5"
+        ],
+        "durations": [
+          3,
+          3,
+          2,
+          0.5,
+          0.5,
+          1,
+          1,
+          1,
+          3,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3,
+          1
+        ]
+      },
+      {
+        "id": "motif.8",
+        "kind": "pitch_rhythm",
+        "pitches": [
+          "F4",
+          "G4",
+          "C5",
+          "A4",
+          "G4",
+          "C5",
+          "C5",
+          "C5",
+          "C5",
+          "C#5",
+          "D5",
+          "D5",
+          "F5",
+          "B4",
+          "C5",
+          "C5",
+          "C#5"
+        ],
+        "durations": [
+          3,
+          2,
+          0.5,
+          0.5,
+          1,
+          1,
+          1,
+          3,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3,
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "form": {
+    "sections": [
+      {
+        "id": "section.1",
+        "role": "custom",
+        "bars": 114
+      }
+    ],
+    "order": [
+      "section.1"
+    ]
+  }
+}
