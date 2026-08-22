@@ -33,3 +33,28 @@ what remains.
 
 `cd explorer && npm test` (vitest); build check `npm run build`; browser
 pass documented in the closing note.
+
+---
+
+## Closed — 2026-08-22 (issue #93)
+
+Coverage landed (appended to `explorer/src/composer/composer.test.mjs`,
+now 14 checks):
+
+- **Palette add-node:** extracted as pure `addPaletteNode` — fresh key,
+  globals/constraints singleton guard, section default `role: "custom"`,
+  added node compiles into a schema-valid doc (4 checks).
+- **Build regression pin:** `vite build` emits both `index.html` and
+  `composer.html` (vitest drives the real build with a 30s budget).
+
+Deferred (still open, with triggers):
+
+- **Inspector round-trip through the UI** — needs a DOM renderer
+  (jsdom/happy-dom isn't in the explorer's deps; adding one is a
+  dependency decision for the human, not a silent add).
+- **Undo/redo** — scope-locked for MVP, not yet implemented; pin when it
+  lands.
+- **Import-safety** — remains pinned implicitly by the suite importing
+  `main.jsx` (mount guarded).
+
+Run: `cd explorer && npm test`.
