@@ -64,7 +64,7 @@ platform exposes; the explorer is where that property becomes visible.
   `publish = "dist"`. Branch deploy on `dev` (previews track the working
   branch; promotion to a `main`-based deploy waits for a milestone merge,
   same as everything else). No custom backend, no serverless functions.
-  The Netlify site (`muse-schema`, `dev--muse-schema.netlify.app`) is a
+  The Netlify site (`muse-qa-58fd708e`, `dev--muse-qa-58fd708e.netlify.app`) is a
   QA/design surface only: builds are restricted to the `dev` branch, and
   production deploys are deliberately out of scope (free-tier build
   minutes). See AGENTS.md "Deploys" convention — agents must not enable
