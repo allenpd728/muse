@@ -1,0 +1,16 @@
+{
+  "muse_perf_version": "0.1.0",
+  "metadata": {
+    "source": { "schema_id": "01J0ZFG3M8KQV2J4XG5N0W6Y7Z", "rendition_id": "r.default" },
+    "interpreter": { "model": "fixture", "at": "2026-08-22T00:00:00Z" }
+  },
+  "tempo_map": [{ "time": 0.0, "beat": 0, "bpm": 96 }],
+  "parts": [
+    { "id": "p1", "name": "Piano", "instrument": { "name": "piano", "program": 0 } }
+  ],
+  "notes": [
+    { "part": "p1", "pitch": 60, "pitch_name": "C4", "onset": 0.0, "duration": 0.625, "onset_beat": 0, "duration_beats": 1, "velocity": 80 },
+    { "part": "p1", "pitch": 64, "pitch_name": "E4", "onset": 0.625, "duration": 0.625, "onset_beat": 1, "duration_beats": 1, "velocity": 80 },
+    { "part": "p1", "pitch": 67, "pitch_name": "G4", "onset": 1.25, "duration": 1.25, "onset_beat": 2, "duration_beats": 2, "velocity": 84 }
+  ]
+}
