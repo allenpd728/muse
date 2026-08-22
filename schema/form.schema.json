@@ -18,7 +18,14 @@
           "id": { "type": "string", "minLength": 1 },
           "role": {
             "type": "string",
-            "enum": ["intro", "verse", "pre_chorus", "chorus", "bridge", "solo", "outro", "custom"]
+            "enum": [
+              "intro", "outro", "interlude", "coda", "solo", "custom",
+              "verse", "pre_chorus", "chorus", "refrain", "bridge", "hook",
+              "exposition", "development", "recapitulation", "episode", "theme",
+              "variation", "trio", "minuet", "scherzo", "fugue", "cadenza", "finale",
+              "cue", "underscore", "stinger", "main_title", "end_credits",
+              "build", "drop", "breakdown", "vamp", "groove"
+            ]
           },
           "bars": { "type": "integer", "minimum": 1 },
           "uses": {

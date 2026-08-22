@@ -81,9 +81,16 @@
         "uses": [{ "ref": "theme.1", "variation": "developed, ornamented" }],
         "harmony": "prog.chorus",
         "energy": 0.9
+      },
+      {
+        "id": "bridge.cadenza",
+        "role": "cadenza",
+        "bars": 4,
+        "uses": [{ "ref": "motif.a#inv", "variation": "improvisatory" }],
+        "energy": 0.6
       }
     ],
-    "order": ["verse.1", "chorus.1", "verse.1", "chorus.1"],
+    "order": ["verse.1", "chorus.1", "verse.1", "chorus.1", "bridge.cadenza", "chorus.1"],
     "repetition": { "verse.1": { "min": 2, "max": 4 } }
   },
   "constraints": {
