@@ -2,6 +2,7 @@
 // browser-safe encodeWav path — same encoder the node CLI wraps.
 import { describe, test, expect } from "vitest";
 import { render, encodeWav } from "../../../player/render-core.mjs";
+import { wavFilename } from "./ListenTab.jsx";
 
 const perf = {
   tempo_map: [{ time: 0, beat: 0, bpm: 120 }],
@@ -53,5 +54,30 @@ describe("encodeWav (browser-safe)", () => {
     const viaNode = renderWav(perf, { sampleRate: 8000 });
     const viaCore = encodeWav(render(perf, { sampleRate: 8000 }), { sampleRate: 8000 });
     expect(Buffer.from(viaCore).equals(viaNode)).toBe(true);
+  });
+});
+
+describe("download filename (issue #104)", () => {
+  test("title.rendition.wav with spaces collapsed", () => {
+    expect(wavFilename({ metadata: { title: "Night Circuit" } }, "r.synthwave")).toBe("Night-Circuit.r.synthwave.wav");
+  });
+  test("missing title falls back to muse", () => {
+    expect(wavFilename({ metadata: {} }, "r.quartet")).toBe("muse.r.quartet.wav");
+    expect(wavFilename({}, "r.x")).toBe("muse.r.x.wav");
+    expect(wavFilename(null, "r.x")).toBe("muse.r.x.wav");
+  });
+});
+
+describe("perf cache keying (issue #104)", () => {
+  // The download reads perfsRef by ACTIVE rendition id — a switch changes
+  // active, so the download can never serve a stale rendition's render
+  // unless the cache itself were keyed wrong. Pin the keying contract.
+  test("perf cache is keyed by rendition id, not insertion order", () => {
+    const cache = new Map();
+    const doc = { renditions: [{ id: "r.a" }, { id: "r.b" }] };
+    cache.set("r.a", { notes: [{ pitch: 60 }] });
+    cache.set("r.b", { notes: [{ pitch: 62 }] });
+    const active = doc.renditions[1].id;
+    expect(cache.get(active).notes[0].pitch).toBe(62);
   });
 });

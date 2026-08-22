@@ -10,6 +10,11 @@ import { render, encodeWav } from "../../../player/render-core.mjs";
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
+// Download filename: <title>.<rendition-id>.wav, spaces collapsed, title
+// falling back to "muse" (exported for tests).
+export const wavFilename = (doc, renditionId) =>
+  `${(doc?.metadata?.title ?? "muse").replace(/\s+/g, "-")}.${renditionId}.wav`;
+
 // Current form section by bar position, derived from the form order.
 const sectionAt = (doc, seconds, bpm) => {
   const sections = doc?.form?.sections ?? [];
@@ -67,7 +72,7 @@ export default function ListenTab({ doc }) {
     const blob = new Blob([bytes], { type: "audio/wav" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${(doc.metadata?.title ?? "muse").replace(/\s+/g, "-")}.${active}.wav`;
+    a.download = wavFilename(doc, active);
     a.click();
     URL.revokeObjectURL(a.href);
   };
