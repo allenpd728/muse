@@ -133,6 +133,19 @@ If you can make a reasonable call and note it in the commit/PR for retrospective
 review, do that instead — a blocker is a claim that the work is genuinely
 unstartable, not that a choice felt uncertain.
 
+**Nested blockers.** Any claimed work item can be blocked, including a `Tests:`
+issue — file a blocker pointing at it and swap it to `status:blocked-needs-input`
+as usual. The exception is blocker-resolution itself: an agent that cannot
+resolve a blocker must **not** file a blocker-on-a-blocker and walk away (that
+silent stall strands the queue). Instead: leave the issue
+`status:blocked-needs-input`, comment on the issue explaining what is still
+missing, and **flag it to the human in the end-of-session report** — blockers are
+the one work type where "I can't" escalates to a person, not another layer.
+A blocker that resists resolution usually means the underlying task is
+under-scoped; recommend splitting it in the report rather than building a
+blocker-dependency graph. If the fallback finds open blockers but none are
+resolvable, report the queue as **stalled** — do not manufacture busywork.
+
 Resolving a blocker: the human answers on the issue or updates the spec. During
 the start-of-session sweep, agents check every `blockers/open_*` file whose issue
 has been updated since the file was written; if the blocker is resolved, the agent
@@ -151,4 +164,5 @@ Before finishing, every agent reports:
 - New blockers written (with one-line reasons)
 - Open blockers still awaiting human input
 - Blockers closed during the sweep
+- Unresolvable blockers escalated, or **stalled queue** if nothing was workable
 
