@@ -1,0 +1,28 @@
+{
+  "muse_version": "0.1.0",
+  "metadata": {
+    "id": "01J0ZFG3M8KQV2J4XG5N0W6Y7Z",
+    "title": "Bad transform refs",
+    "composer": { "name": "Muse Project" },
+    "created": "2026-08-22T00:00:00Z",
+    "license": { "renditions": "presets-only" },
+    "provenance": [{ "event": "authored", "ai": true }]
+  },
+  "globals": {
+    "tempo": { "bpm": 96 },
+    "meter": { "beats": 4, "unit": 4 },
+    "duration_bars": 8
+  },
+  "material": {
+    "motifs": [{ "id": "motif.a", "kind": "pitch", "pitches": ["D4"] }],
+    "themes": [
+      { "id": "theme.1", "phrases": [{ "motifs": ["motif.a###garbage"] }] }
+    ]
+  },
+  "form": {
+    "sections": [
+      { "id": "verse.1", "role": "verse", "uses": [{ "ref": "theme.1###garbage" }] }
+    ],
+    "order": ["verse.1"]
+  }
+}
