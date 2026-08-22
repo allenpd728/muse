@@ -54,6 +54,19 @@ const INSPECTOR_FIELDS = {
 let freshSeq = 0;
 const freshKey = (kind) => `${kind}.new_${++freshSeq}`;
 
+// Palette add-node operation (pure, exported for tests): a new node with a
+// fresh key; globals/constraints are singletons; section nodes default
+// role "custom" (schema-valid).
+export const addPaletteNode = (graph, kind) => {
+  if ((kind === "globals" || kind === "constraints") && graph.nodes.some((n) => n.kind === kind)) return graph;
+  const key = freshKey(kind);
+  const fields = kind === "section" ? { id: key, role: "custom" } : { id: key };
+  return {
+    nodes: [...graph.nodes, { id: `${kind}:${key}`, kind, key, fields, _source: null }],
+    edges: graph.edges,
+  };
+};
+
 // --- MVP 3: edge/reference editing ---
 
 // §2.3 transform vocabulary for the suffix helper.
@@ -318,15 +331,7 @@ function Composer() {
     });
   };
 
-  const addNode = (kind) => {
-    if ((kind === "globals" || kind === "constraints") && graph.nodes.some((n) => n.kind === kind)) return;
-    const key = freshKey(kind);
-    const fields = kind === "section" ? { id: key, role: "custom" } : { id: key };
-    applyGraph({
-      nodes: [...graph.nodes, { id: `${kind}:${key}`, kind, key, fields, _source: null }],
-      edges: graph.edges,
-    });
-  };
+  const addNode = (kind) => applyGraph(addPaletteNode(graph, kind));
 
   // --- MVP 3 operations ---
 
