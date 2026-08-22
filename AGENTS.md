@@ -51,6 +51,7 @@ TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
 README.md             # vision + architecture
 docs/                 # vision, milestone scope docs
 blockers/             # open_/closed_ blocker reports needing human input
+tests/                # open_/closed_ test specs written per completed task
 examples/             # example .muse.json documents (planned)
 schema/               # JSON Schema validation files (planned)
 tools/                # validator CLI + test harness (planned)

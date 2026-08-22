@@ -59,8 +59,31 @@ at a time.
 4. **Do the work.** Commit directly to `dev` (no PR — review happens
    retrospectively on `dev`). Swap `status:claimed` → `status:done` and close the
    issue with a comment linking the commits.
-5. **Iterate.** If review later finds the work lacking, write a new task rather
+5. **Spec the tests.** Before closing out, write
+   `tests/open_YYYYMMDD-HHMMSS_<task-slug>.md` describing the test coverage the
+   work needs: behaviors to verify, edge cases, and how to invoke the tests.
+   If the task introduced a behavior with no existing test coverage, the test
+   spec is mandatory, not optional. Then file a follow-up GitHub issue titled
+   `Tests: <task title>` that links the test spec file, labels it
+   `status:available`, and mark it `Blocked by` the task just completed.
+   Completed task + filed test spec + linked test issue = a full unit of work.
+6. **Iterate.** If review later finds the work lacking, write a new task rather
    than reopening the old one.
+
+## Test follow-ups
+
+Tests are specified per task, not assumed. The lifecycle mirrors blockers:
+
+- `tests/open_*.md` — a pending test spec: what the task's work must be verified
+  against. Written by the completing agent; picked up by a later agent as a
+  normal `status:available` task.
+- `tests/closed_*.md` — the test issue is `status:done`; the spec file records
+  what coverage landed (test file paths, command to run).
+
+Test-spec issues are claimed, worked, and closed like any other task: commit the
+tests to `dev`, ensure `npm test` (or the task's stated command) runs them in CI,
+then close. A task that lands code but whose test follow-up never completes is a
+process failure to surface in the end-of-session report.
 
 ## Blockers
 
@@ -87,6 +110,8 @@ resolution), removes `status:blocked-needs-input`, and returns the task to
 Before finishing, every agent reports:
 
 - Tasks completed (with commit links)
+- Test specs written (linked `Tests:` issues) and any completed tasks whose test
+  follow-up never landed
 - Stale claims reclaimed during the sweep
 - New blockers written (with one-line reasons)
 - Open blockers still awaiting human input
