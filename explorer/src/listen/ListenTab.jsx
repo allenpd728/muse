@@ -7,7 +7,6 @@ import { expandOffline } from "../../../interpreter/offline.mjs";
 import { renderToBuffer, createTransport, resolveContext } from "./player.js";
 import { planSwitch, crossfadeGains } from "./crossfade.js";
 import { render, encodeWav } from "../../../player/render-core.mjs";
-import wavFilename from "./wav-filename.js";
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -73,11 +72,7 @@ export default function ListenTab({ doc }) {
     const blob = new Blob([bytes], { type: "audio/wav" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-<<<<<<< HEAD
     a.download = wavFilename(doc, active);
-=======
-    a.download = wavFilename(doc.metadata, active);
->>>>>>> cf3f7fc (Tests: WAV filename sanitization + browser round-trip verification (closes #104))
     a.click();
     URL.revokeObjectURL(a.href);
   };
