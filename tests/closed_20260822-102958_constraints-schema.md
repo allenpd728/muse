@@ -20,3 +20,11 @@
 
 Fold into the `npm test` harness (#3) as fixtures. Reference per-case checks via
 `node tools/validate.mjs <fixture> schema/constraints.schema.json` — 14/14 passed at authoring.
+
+## Resolution
+
+Coverage landed in `tests/constraints.test.mjs` (issue #33): all 14 spec cases
+plus boundary extras (three-element tempo_lock/register arrays, negative bpm,
+non-string must_contain entry, unknown member in `structure`). 19/19 pass
+standalone (`node tests/constraints.test.mjs`) and under `npm test`, where the
+harness picks the file up automatically and CI runs it on push to dev.
