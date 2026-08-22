@@ -79,9 +79,19 @@ export function expandOffline(doc, rendition, { at = "2026-08-22T00:00:00Z" } = 
   const notes = [];
   const sectionsById = new Map((doc.form?.sections ?? []).map((s) => [s.id, s]));
   const repetition = doc.form?.repetition ?? {};
+  // Fallback for form-less documents (issue #91): some imports infer motifs
+  // but no sections — realize one default section spanning the motif pool
+  // so the work still sounds.
+  const orderWithFallback = (doc.form?.order ?? []).length
+    ? doc.form.order
+    : sectionsById.size
+      ? [...sectionsById.keys()]
+      : (doc.material?.motifs ?? []).length ? ["section.default"] : [];
+  if (orderWithFallback.length && !sectionsById.size)
+    sectionsById.set("section.default", { id: "section.default", role: "custom", bars: 32 });
   // Deterministic expander picks the lower repeat bound (spec: min ≤ actual
   // ≤ max; renditions may explore above min).
-  const expandOrder = (doc.form?.order ?? []).flatMap((id) => {
+  const expandOrder = orderWithFallback.flatMap((id) => {
     const reps = repetition[id]?.min ?? 1;
     return Array.from({ length: reps }, () => id);
   });
@@ -120,34 +130,37 @@ export function expandOffline(doc, rendition, { at = "2026-08-22T00:00:00Z" } = 
     const energy = section.energy ?? 0.5;
     const velocity = Math.round(55 + 45 * energy * density);
 
-    // Lead: realize each use's theme phrases from motifs.
+    // Lead: realize each use's theme phrases from motifs. Fallback (issue
+    // #91): a section with no uses realizes from the bare motif pool in
+    // declaration order — importer output has no themes/uses, and a
+    // material-bearing schema must never be silent.
     let cursor = sectionStartBeat;
-    for (const use of section.uses ?? []) {
-      const theme = themesById.get(String(use.ref).split("#")[0]);
-      const phrases = theme?.phrases ?? [];
-      for (const phrase of phrases) {
-        for (const motifRef of phrase.motifs ?? []) {
-          const realized = realizeRef(motifRef, motifsById);
-          // Rhythm-only motifs (no pitches) carry no lead line — the bed
-          // already covers the pulse.
-          if (!realized || realized.pitches.length === 0) continue;
-          // Lead sits an octave above the notated material, clear of the bed.
-          realized.pitches = realized.pitches.map((p) => p + 12);
-          realized.pitches.forEach((midi, i) => {
-            const durBeats = realized.durations[i] ?? 1;
-            // Swing: delay offbeat eighths by (swing - 0.5) * 2/3 of the pair.
-            const offbeat = (cursor % 1) >= 0.5;
-            const swingBeats = swing > 0 && offbeat ? ((swing - 0.5) * 2) / 3 : 0;
-            notes.push({
-              part: "p.lead", pitch: midi, pitch_name: midiToPitch(midi),
-              onset: (cursor + swingBeats) * spb, duration: durBeats * spb * 0.92,
-              onset_beat: cursor + swingBeats, duration_beats: durBeats,
-              velocity,
-            });
-            cursor += durBeats;
-          });
-        }
-      }
+    const uses = section.uses ?? [];
+    const motifRefs = uses.length
+      ? uses.flatMap((use) => (themesById.get(String(use.ref).split("#")[0])?.phrases ?? []).flatMap((p) => p.motifs ?? []))
+      : (doc.material?.motifs ?? []).map((m) => m.id);
+    for (const motifRef of motifRefs) {
+      const realized = realizeRef(motifRef, motifsById);
+      // Rhythm-only motifs (no pitches) carry no lead line — the bed
+      // already covers the pulse.
+      if (!realized || realized.pitches.length === 0) continue;
+      // Lead sits an octave above the notated material, clear of the bed —
+      // except for fallback realizations of imported material, which plays
+      // at notated pitch (the import is the composer's voicing).
+      if (uses.length) realized.pitches = realized.pitches.map((p) => p + 12);
+      realized.pitches.forEach((midi, i) => {
+        const durBeats = realized.durations[i] ?? 1;
+        // Swing: delay offbeat eighths by (swing - 0.5) * 2/3 of the pair.
+        const offbeat = (cursor % 1) >= 0.5;
+        const swingBeats = swing > 0 && offbeat ? ((swing - 0.5) * 2) / 3 : 0;
+        notes.push({
+          part: "p.lead", pitch: midi, pitch_name: midiToPitch(midi),
+          onset: (cursor + swingBeats) * spb, duration: durBeats * spb * 0.92,
+          onset_beat: cursor + swingBeats, duration_beats: durBeats,
+          velocity,
+        });
+        cursor += durBeats;
+      });
     }
 
     // Bed: one chord per bars_per_chord through the section's progression.
