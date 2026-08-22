@@ -5,6 +5,8 @@ import Ajv from "ajv/dist/2020.js";
 
 const schema = JSON.parse(await readFile(new URL("../schema/constraints.schema.json", import.meta.url), "utf8"));
 const ajv = new Ajv({ allErrors: true, strict: false });
+// register bounds $ref material.schema.json#/$defs/pitch (issue #44) — pre-register the sibling.
+ajv.addSchema(JSON.parse(await readFile(new URL("../schema/material.schema.json", import.meta.url), "utf8")));
 const validate = ajv.compile(schema);
 
 let passed = 0, failed = 0;
