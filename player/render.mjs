@@ -90,7 +90,7 @@ export function render(perfDoc, { sampleRate = 44100 } = {}) {
       for (let h = 0; h < voice.partials.length; h++)
         s += voice.partials[h] * Math.sin(2 * Math.PI * freq * (h + 1) * t);
       const dyn = levelAt(dynamics, note.part, t);
-      const v = s * env * gain * dyn * 0.2;
+      const v = s * env * gain * dyn * 0.35;
       left[start + i] += v * lGain;
       right[start + i] += v * rGain;
     }
