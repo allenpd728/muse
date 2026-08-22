@@ -46,8 +46,14 @@ if (!rendition) {
 }
 
 // Live-model path when configured; offline expander otherwise.
+// --manual (or MUSE_MANUAL=1): human-clipboard expansion via the
+// interpreter's manual paste mode — works with any chat UI, no API key.
+const manual = process.env.MUSE_MANUAL === "1" || process.argv.includes("--manual");
 let perf;
-if (process.env.MUSE_MODEL) {
+if (manual) {
+  const { expand, manualCall } = await import("../interpreter/expand.mjs");
+  ({ perf } = await expand({ doc, renditionId: rendition.id, callModel: manualCall, model: "manual" }));
+} else if (process.env.MUSE_MODEL) {
   const { expand, defaultModelConfig } = await import("../interpreter/expand.mjs");
   const { callModel, model } = defaultModelConfig();
   ({ perf } = await expand({ doc, renditionId: rendition.id, callModel, model }));
