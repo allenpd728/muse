@@ -44,3 +44,7 @@ Implementation calls made on the schema task (retrospective review):
 `sections` and `order` required at the top level; `repetition` optional;
 `additionalProperties: false` per object; `id`/`ref` strings `minLength: 1`.
 Duplicate section ids are not schema-rejected — uniqueness is semantic.
+
+## Resolution
+
+Residual coverage landed in `tests/form-semantic.test.mjs` (issue #32): semantic invariants (duplicate section ids, order/repetition ref integrity, repetition min <= max, min==max allowed) + root-schema integration via CLI. 7/7 pass standalone and under `npm test`. DoD cases remain in `tests/form.test.mjs`.
