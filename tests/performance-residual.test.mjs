@@ -62,5 +62,34 @@ check("unknown controller name rejected (sealed set)", !validate({
 import { checkPerfRefs } from "../tools/semantics.mjs";
 check("harness perf channel: fixture passes checkPerfRefs", checkPerfRefs(fixture).length === 0);
 
+// --- Residual coverage (issue #64, spec tests/open_20260822-122600_performance-schema.md) ---
+
+// Duplicate part ids: resolution is Set-based, so a duped id resolves refs —
+// the lint relies on that behavior staying unchanged.
+check("pinned: duplicate part ids resolve refs (Set-based; dup detection is not a lint rule yet)",
+  checkPerfRefs({ parts: [{ id: "p" }, { id: "p" }], notes: [{ part: "p" }] }).length === 0);
+
+// mix partials: gain-only validates; unknown member rejected.
+check("mix with only gain validates", validate({
+  ...clone(),
+  parts: [{ ...clone().parts[0], mix: { gain: 0.5 } }],
+}));
+check("mix with unknown member rejected", !validate({
+  ...clone(),
+  parts: [{ ...clone().parts[0], mix: { gain: 0.5, delay_send: 0.2 } }],
+}));
+
+// dynamics: global (no part) and part-tagged entries coexist in one array.
+check("dynamics global + part-tagged coexist", validate({
+  ...clone(),
+  dynamics: [{ time: 0, level: 0.5 }, { time: 1, part: clone().parts[0].id, level: 0.8 }],
+}));
+
+// Seconds are authoritative: a beats-only note is rejected.
+check("beats-only note rejected (seconds authoritative)", !validate({
+  ...clone(),
+  notes: [{ part: clone().parts[0].id, pitch: 62, pitch_name: "D4", onset_beat: 0, duration_beats: 1, velocity: 90 }],
+}));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
