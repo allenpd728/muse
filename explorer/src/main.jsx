@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import ReactFlow, { Background, Controls } from "reactflow";
 import "reactflow/dist/style.css";
 import { validateDocument } from "./validate.js";
+import ListenTab from "./listen/ListenTab.jsx";
 import "./styles.css";
 
 const EXAMPLES = ["minimal", "full"];
@@ -152,7 +153,7 @@ function RenditionCards({ doc }) {
             {r.style?.genre && <><dt>genre</dt><dd>{r.style.genre}{r.style.era ? ` (${r.style.era})` : ""}</dd></>}
             {r.style?.references && <><dt>references</dt><dd>{r.style.references.join(", ")}</dd></>}
             {r.params?.tempo_bpm !== undefined && <><dt>tempo</dt><dd>{r.params.tempo_bpm} bpm</dd></>}
-            {r.params?.instrumentation && <><dt>instruments</dt><dd>{r.params.instrumentation.join(", ")}</dd></>}
+            {r.params?.instrumentation && <><dt>instruments</dt><dd>{r.params.instrumentation.map((i) => (typeof i === "string" ? i : i.name)).join(", ")}</dd></>}
             {r.params?.density !== undefined && <><dt>density</dt><dd>{r.params.density}</dd></>}
             {r.params?.swing !== undefined && <><dt>swing</dt><dd>{r.params.swing}</dd></>}
             {r.author?.name && <><dt>author</dt><dd>{r.author.name}</dd></>}
@@ -198,6 +199,7 @@ function App() {
     ["form", "Form graph"],
     ["material", "Material"],
     ["renditions", "Renditions"],
+    ["listen", "Listen"],
   ];
 
   return (
@@ -236,6 +238,7 @@ function App() {
             {tab === "form" && <FormGraph doc={doc} />}
             {tab === "material" && <MaterialBrowser doc={doc} />}
             {tab === "renditions" && <RenditionCards doc={doc} />}
+            {tab === "listen" && <ListenTab doc={doc} />}
           </div>
         </>
       )}
