@@ -2,3 +2,13 @@
   base = "explorer"
   command = "npm ci && npm run build"
   publish = "dist"
+
+# QA/design preview only — keep off search engines and AI crawlers.
+# Netlify already sends X-Robots-Tag: noindex on branch deploys
+# (dev--*.netlify.app); this pins the same header for every response
+# from the site, including the production subdomain, and serves a
+# deny-all robots.txt from explorer/public/.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
