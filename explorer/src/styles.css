@@ -86,3 +86,7 @@ button:hover { border-color: var(--accent); }
 
 /* Composer MVP 4: material editors */
 .field input.invalid { border-color: #f7768e; }
+
+/* Composer MVP 5: validation + export */
+.composer-palette .export { margin-left: auto; border-color: #9ece6a; color: #9ece6a; }
+.composer-errors h2 { font-size: 13px; color: #f7768e; margin: 0 0 6px; }

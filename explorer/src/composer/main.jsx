@@ -107,6 +107,31 @@ const LIST_FIELDS = {
   progression: [["chords", "chords"]],
 };
 
+// --- MVP 5: validation + export ---
+
+// Export shape: provenance entry appended on save per the scope doc —
+// event "edit", actor "composer-tool", ai: false. `at` injectable for tests.
+export const withExportProvenance = (doc, { at = new Date().toISOString() } = {}) => ({
+  ...doc,
+  metadata: {
+    ...doc.metadata,
+    provenance: [
+      ...(doc.metadata?.provenance ?? []),
+      { event: "edit", actor: "composer-tool", at, ai: false },
+    ],
+  },
+});
+
+// Download helper (browser only).
+const download = (doc, name) => {
+  const blob = new Blob([JSON.stringify(doc, null, 2) + "\n"], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
 function ListEditor({ node, name, kind, onEdit }) {
   const raw = (node.fields[name] ?? []).join(" ");
   const [text, setText] = React.useState(raw);
@@ -382,9 +407,18 @@ function Composer() {
         {PALETTE.map(([kind, label]) => (
           <button key={kind} onClick={() => doc && addNode(kind)}>{label}</button>
         ))}
+        {doc && (
+          <button
+            className="export"
+            onClick={() => download(withExportProvenance(doc), (docName ?? "untitled").replace(/\s+/g, "-").replace(/\.muse\.json$|\.json$/i, "") + ".muse.json")}
+          >
+            ⬇ export .muse.json
+          </button>
+        )}
       </div>
       {doc && (issues.length > 0 || dangling.length > 0) && (
-        <div className="view">
+        <div className="view composer-errors">
+          <h2>Validation — {issues.length + dangling.length} issue(s)</h2>
           {issues.map((i, n) => (
             <div className="issue" key={n}><span className="channel">[{i.channel}]</span>{i.message}</div>
           ))}
@@ -392,6 +426,9 @@ function Composer() {
             <div className="issue" key={`d${n}`}><span className="channel">[refs]</span>{d.path}: {d.ref}</div>
           ))}
         </div>
+      )}
+      {doc && issues.length === 0 && dangling.length === 0 && (
+        <div className="view"><p className="ok">clean — schema, cross-refs, and semantics all pass</p></div>
       )}
       <div className="composer-main">
         <div className="graph composer-canvas">
