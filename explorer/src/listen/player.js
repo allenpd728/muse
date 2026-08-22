@@ -3,7 +3,7 @@
 // reused, never ported — this module owns only AudioContext plumbing.
 // Pure (no DOM at import time): AudioContext is injected or resolved lazily,
 // so node can exercise the buffer logic with a stub.
-import { render } from "../../../player/render.mjs";
+import { render } from "../../../player/render-core.mjs";
 
 const resolveContext = (injected) => {
   if (injected) return injected;

@@ -90,3 +90,7 @@ button:hover { border-color: var(--accent); }
 /* Composer MVP 5: validation + export */
 .composer-palette .export { margin-left: auto; border-color: #9ece6a; color: #9ece6a; }
 .composer-errors h2 { font-size: 13px; color: #f7768e; margin: 0 0 6px; }
+.card-active { border-color: var(--ok); }
+.transport { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; margin-top: 0.75rem; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; }
+.transport input[type="range"] { flex: 1; }
+.transport-title { font-size: 0.85rem; }
