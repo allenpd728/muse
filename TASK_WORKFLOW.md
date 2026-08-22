@@ -98,6 +98,20 @@ ambiguous definition of done), it must not guess:
    blocker file.
 3. Move on to a different available task — never sit idle on a blocker.
 
+**Blocker quality bar.** Blockers are for spec-level ambiguity — missing or
+contradictory information that only the human can resolve. They are not for
+implementation choices, which are the agent's to make. Before writing one,
+confirm:
+
+- You read the relevant spec/docs and can cite the exact gap (quote the section).
+- The missing information is a *decision* (what should the format allow?), not a
+  *mechanism* (how do I encode it? — that's your job).
+- You state what you tried and why it was insufficient.
+
+If you can make a reasonable call and note it in the commit/PR for retrospective
+review, do that instead — a blocker is a claim that the work is genuinely
+unstartable, not that a choice felt uncertain.
+
 Resolving a blocker: the human answers on the issue or updates the spec. During
 the start-of-session sweep, agents check every `blockers/open_*` file whose issue
 has been updated since the file was written; if the blocker is resolved, the agent
