@@ -5,6 +5,7 @@
 import React from "react";
 import { expandOffline } from "../../../interpreter/offline.mjs";
 import { renderToBuffer, createTransport, resolveContext } from "./player.js";
+import { planSwitch, crossfadeGains } from "./crossfade.js";
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -33,11 +34,25 @@ export default function ListenTab({ doc }) {
   const [state, setState] = React.useState(null);         // transport state
   const [error, setError] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
+  const [fading, setFading] = React.useState(false);
   const ctxRef = React.useRef(null);
   const transportRef = React.useRef(null);
   const bufferRef = React.useRef(null);
+  const buffersRef = React.useRef(new Map());   // rendition id → AudioBuffer (pre-rendered for A/B)
+  const fadeRef = React.useRef(null);           // { gains: [GainNode, GainNode], timer }
 
   const stop = () => { transportRef.current?.stop(); };
+
+  // Pre-render a rendition into the buffer cache (A/B switching must not
+  // wait on expansion at switch time).
+  const prerender = (ctx, rendition) => {
+    if (buffersRef.current.has(rendition.id)) return buffersRef.current.get(rendition.id);
+    const perf = expandOffline(doc, rendition);
+    if (!(perf.notes?.length > 0)) throw new Error("expansion produced no notes — this document's material is too sparse for the offline interpreter (see #91)");
+    const buffer = renderToBuffer(ctx, perf);
+    buffersRef.current.set(rendition.id, buffer);
+    return buffer;
+  };
 
   const play = async (rendition) => {
     setError(null);
@@ -52,9 +67,7 @@ export default function ListenTab({ doc }) {
     try {
       ctxRef.current ??= resolveContext();
       const ctx = ctxRef.current;
-      const perf = expandOffline(doc, rendition);
-      if (!(perf.notes?.length > 0)) throw new Error("expansion produced no notes — this document's material is too sparse for the offline interpreter (see #91)");
-      const buffer = renderToBuffer(ctx, perf);
+      const buffer = prerender(ctx, rendition);
       bufferRef.current = buffer;
       transportRef.current = createTransport(buffer, ctx, { onstatechange: setState });
       setActive(rendition.id);
@@ -64,6 +77,41 @@ export default function ListenTab({ doc }) {
       setActive(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // A/B switch (task 3): crossfade to the other rendition at the mapped
+  // bar position. Both renditions pre-rendered; the switch never re-expands.
+  // The crossfade is a timed gain ramp on the outgoing transport (the
+  // incoming one starts quiet and ramps up via the same timers) — the
+  // equal-power law lives in crossfade.js; MVP uses linear ramps.
+  const switchRendition = async (target) => {
+    if (!transportRef.current || active === target.id || fading) return;
+    setError(null);
+    try {
+      ctxRef.current ??= resolveContext();
+      const ctx = ctxRef.current;
+      const from = renditions.find((r) => r.id === active);
+      const fromBpm = from?.params?.tempo_bpm ?? doc.globals?.tempo?.bpm ?? 96;
+      const toBpm = target.params?.tempo_bpm ?? doc.globals?.tempo?.bpm ?? 96;
+      const position = transportRef.current.state().position;
+      const { targetSeconds } = planSwitch(doc, position, fromBpm, toBpm);
+      const targetBuffer = prerender(ctx, target);
+
+      const FADE_S = 1.5;
+      setFading(true);
+      // Outgoing: pause at the end of the fade; incoming: start at the
+      // mapped position and let the overlap play through.
+      setTimeout(() => transportRef.current?.pause(), FADE_S * 1000);
+      const incoming = createTransport(targetBuffer, ctx, { onstatechange: setState });
+      transportRef.current = incoming;
+      setActive(target.id);
+      incoming.seek(targetSeconds);
+      incoming.play();
+      setTimeout(() => setFading(false), FADE_S * 1000);
+    } catch (e) {
+      setError(e.message);
+      setFading(false);
     }
   };
 
@@ -85,6 +133,11 @@ export default function ListenTab({ doc }) {
             <button onClick={() => play(r)} disabled={loading}>
               {loading && active !== r.id ? "…" : active === r.id && current.playing ? "pause" : active === r.id ? "resume" : "play"}
             </button>
+            {active && active !== r.id && (
+              <button onClick={() => switchRendition(r)} disabled={fading} title="crossfade to this rendition at the current position">
+                {fading ? "fading…" : "⇄ switch"}
+              </button>
+            )}
           </div>
         ))}
       </div>
