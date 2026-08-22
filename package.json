@@ -7,7 +7,8 @@
   "scripts": {
     "validate": "node tools/validate.mjs",
     "test": "node tools/test.mjs",
-    "expand": "node interpreter/expand.mjs"
+    "expand": "node interpreter/expand.mjs",
+    "render": "node player/render.mjs"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
