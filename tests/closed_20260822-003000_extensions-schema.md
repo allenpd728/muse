@@ -15,3 +15,16 @@
 
 Fold into the `npm test` harness (#3) as fixtures. Reference per-case checks via
 `node tools/validate.mjs <fixture> schema/extensions.schema.json` — 8/8 passed at authoring.
+
+---
+
+## Closed — 2026-08-22 (issue #35)
+
+Coverage landed:
+
+- `tests/extensions.test.mjs` — 11 checks: spec §2.7 example, empty object,
+  multiple namespaces, arbitrary content types (object/array/string/number/
+  null, nested), separator-rich namespace keys; rejection of uppercase keys,
+  leading-separator keys, spaces, empty keys, and non-object roots.
+
+Run: `npm test` (folds in `tests/extensions.test.mjs`).
