@@ -117,8 +117,10 @@ export function compile(graph, originalDoc = {}) {
       .filter((e) => e.from === n.id)
       .map((e) => ({ ref: e.data.ref, ...(e.data.variation !== undefined ? { variation: e.data.variation } : {}) }));
     if (uses.length) s.uses = uses;
+    else delete s.uses;
     const h = harmonyEdges.find((e) => e.from === n.id);
     if (h) s.harmony = h.data.ref;
+    else delete s.harmony;
     return s;
   });
   const orderEdges = [...graph.edges.filter((e) => e.type === "order")].sort((a, b) => a.data.index - b.data.index);

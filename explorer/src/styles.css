@@ -76,3 +76,10 @@ button:hover { border-color: var(--accent); }
 .field { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
 .field span { width: 110px; color: #9aa5ce; font-size: 12px; }
 .field input, .field select { flex: 1; background: #16181e; color: #d7dce4; border: 1px solid #2c313c; border-radius: 4px; padding: 4px 6px; }
+
+/* Composer MVP 3: edge/reference editing */
+.field-row { display: flex; gap: 6px; margin: 4px 0; }
+.field-row select { flex: 1; background: #16181e; color: #d7dce4; border: 1px solid #2c313c; border-radius: 4px; padding: 3px 4px; font-size: 12px; }
+.edge-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 12px; color: #9aa5ce; }
+.edge-row button { padding: 2px 6px; font-size: 11px; }
+.composer-inspector h4 { margin: 12px 0 4px; color: #9aa5ce; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }

@@ -5,10 +5,11 @@
 // inspector, never silently dropped. No audio; export is MVP 5.
 import React from "react";
 import { createRoot } from "react-dom/client";
-import ReactFlow, { Background, Controls } from "reactflow";
+import ReactFlow, { Background, Controls, addEdge } from "reactflow";
 import "reactflow/dist/style.css";
 import { docToGraph, compile } from "./graph.mjs";
 import { validateDocument } from "../validate.js";
+import { danglingRefs } from "@muse-tools/refs.mjs";
 import "../styles.css";
 
 // v0.2 section-role enum (schema/form.schema.json) — pinned in
@@ -53,6 +54,32 @@ const INSPECTOR_FIELDS = {
 let freshSeq = 0;
 const freshKey = (kind) => `${kind}.new_${++freshSeq}`;
 
+// --- MVP 3: edge/reference editing ---
+
+// §2.3 transform vocabulary for the suffix helper.
+export const TRANSFORMS = ["seq(+n)", "seq(-n)", "inv", "retro", "aug(n)", "dim(n)"];
+
+// The material id pool a uses ref may target (same pool the harness lints).
+const materialNodeIds = (graph) =>
+  graph.nodes.filter((n) => ["motif", "theme", "rhythm"].includes(n.kind)).map((n) => n.id);
+
+// Which edge type a reactflow connection creates, by endpoint kinds.
+export const edgeTypeFor = (graph, sourceId, targetId) => {
+  const kind = (id) => graph.nodes.find((n) => n.id === id)?.kind;
+  const [s, t] = [kind(sourceId), kind(targetId)];
+  if (s === "section" && ["motif", "theme", "rhythm"].includes(t)) return "uses";
+  if (s === "section" && t === "progression") return "harmony";
+  if (s === "section" && t === "section") return "order";
+  if (s === "theme" && ["motif", "theme", "rhythm"].includes(t)) return "phrase-motif";
+  return null;
+};
+
+// A ref string decomposed for the helper: base id + suffix chain.
+export const splitRef = (ref) => {
+  const [base, ...ops] = String(ref ?? "").split("#");
+  return { base, suffix: ops.length ? `#${ops.join("#")}` : "" };
+};
+
 const LAYOUT_X = { globals: 0, constraints: 0, motif: 0, theme: 320, rhythm: 0, progression: 320, section: 640, rendition: 960 };
 const LAYOUT_Y = { globals: 0, constraints: 160, motif: 320, rhythm: 320, progression: 320, section: 320, rendition: 320 };
 
@@ -88,13 +115,49 @@ const flowEdges = (graph) =>
     labelStyle: { fill: "#9aa5ce", fontSize: 10 },
   }));
 
-function Inspector({ node, onEdit }) {
+// Ref editor for one uses edge: base id (material pool dropdown) +
+// transform-suffix helper. Edits write back through onEditEdge.
+function UsesRefEditor({ edge, graph, onEditEdge }) {
+  const { base, suffix } = splitRef(edge.data.ref);
+  const poolKeys = materialNodeIds(graph).map((id) => id.split(":").slice(1).join(":"));
+  return (
+    <div className="field-row">
+      <select
+        value={base}
+        onChange={(e) => onEditEdge(edge, { ...edge.data, ref: `${e.target.value}${suffix}` })}
+      >
+        {!poolKeys.includes(base) && <option value={base}>{base} (dangling)</option>}
+        {poolKeys.map((key) => <option key={key} value={key}>{key}</option>)}
+      </select>
+      <select
+        value=""
+        title="append transform suffix"
+        onChange={(e) => {
+          if (!e.target.value) return;
+          const op = e.target.value.replace("n", "2");
+          onEditEdge(edge, { ...edge.data, ref: `${base}${suffix}#${op}` });
+        }}
+      >
+        <option value="">+ transform…</option>
+        {TRANSFORMS.map((t) => <option key={t} value={t}>{t}</option>)}
+      </select>
+      {suffix && (
+        <button title="clear transforms" onClick={() => onEditEdge(edge, { ...edge.data, ref: base })}>✕{suffix}</button>
+      )}
+    </div>
+  );
+}
+
+function Inspector({ node, graph, onEdit, onEditEdge, onRemoveEdge, onReorder }) {
   if (!node) return <p className="muted">select a node to edit its fields</p>;
   const fields = INSPECTOR_FIELDS[node.kind] ?? [];
+  const usesEdges = graph.edges.filter((e) => e.type === "uses" && e.from === node.id);
+  const harmonyEdge = graph.edges.find((e) => e.type === "harmony" && e.from === node.id);
+  const orderOut = graph.edges.filter((e) => e.type === "order" && e.from === node.id);
+  const orderIn = graph.edges.filter((e) => e.type === "order" && e.to === node.id);
   return (
     <div>
       <h3>{KIND_LABEL[node.kind] ?? node.kind} <span className="muted">{node.key ?? ""}</span></h3>
-      {fields.length === 0 && <p className="muted">no scalar fields on this node yet</p>}
       {fields.map(([name, type]) => (
         <label className="field" key={name}>
           <span>{name}</span>
@@ -117,6 +180,27 @@ function Inspector({ node, onEdit }) {
           )}
         </label>
       ))}
+      {node.kind === "section" && (
+        <>
+          <h4>uses</h4>
+          {usesEdges.length === 0 && <p className="muted">none — drag from this node to a motif/theme/rhythm</p>}
+          {usesEdges.map((e, i) => (
+            <div key={i} className="edge-row">
+              <UsesRefEditor edge={e} graph={graph} onEditEdge={onEditEdge} />
+              <button title="remove" onClick={() => onRemoveEdge(e)}>✕</button>
+            </div>
+          ))}
+          <h4>harmony</h4>
+          {harmonyEdge
+            ? <div className="edge-row"><span>{harmonyEdge.data.ref}</span><button title="remove" onClick={() => onRemoveEdge(harmonyEdge)}>✕</button></div>
+            : <p className="muted">none — drag from this node to a progression</p>}
+          <h4>form order</h4>
+          <div className="edge-row">
+            <button disabled={orderIn.length === 0} onClick={() => onReorder(node.id, -1)}>↑ earlier</button>
+            <button disabled={orderOut.length === 0} onClick={() => onReorder(node.id, +1)}>↓ later</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -165,6 +249,55 @@ function Composer() {
     });
   };
 
+  // --- MVP 3 operations ---
+
+  const keyOf = (nodeId) => nodeId.split(":").slice(1).join(":");
+
+  // reactflow drag-connect: typed by endpoint kinds; anything else rejected.
+  const onConnect = React.useCallback((conn) => {
+    const type = edgeTypeFor(graph, conn.source, conn.target);
+    if (!type) return;
+    const data =
+      type === "uses" ? { ref: keyOf(conn.target) }
+      : type === "harmony" ? { ref: keyOf(conn.target) }
+      : type === "order" ? { index: graph.edges.filter((e) => e.type === "order").length }
+      : { ref: keyOf(conn.target) };
+    // One harmony edge per section: replace, don't stack.
+    const edges = type === "harmony"
+      ? [...graph.edges.filter((e) => !(e.type === "harmony" && e.from === conn.source)), { from: conn.source, to: conn.target, type, data }]
+      : [...graph.edges, { from: conn.source, to: conn.target, type, data }];
+    applyGraph({ nodes: graph.nodes, edges });
+  }, [graph, doc]);
+
+  const editEdge = (edge, data) => {
+    applyGraph({
+      nodes: graph.nodes,
+      edges: graph.edges.map((e) => (e === edge ? { ...e, data } : e)),
+    });
+  };
+
+  const removeEdge = (edge) => {
+    applyGraph({ nodes: graph.nodes, edges: graph.edges.filter((e) => e !== edge) });
+  };
+
+  // Swap this section with its neighbor in form order: rebuild the order
+  // edge chain so compile() reproduces the swapped sequence.
+  const reorder = (nodeId, dir) => {
+    const orderEdges = [...graph.edges.filter((e) => e.type === "order")].sort((a, b) => a.data.index - b.data.index);
+    if (orderEdges.length === 0) return;
+    const seq = [orderEdges[0].from, ...orderEdges.map((e) => e.to)];
+    const i = seq.indexOf(nodeId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= seq.length) return;
+    [seq[i], seq[j]] = [seq[j], seq[i]];
+    const others = graph.edges.filter((e) => e.type !== "order");
+    const rebuilt = seq.slice(1).map((to, k) => ({ from: seq[k], to, type: "order", data: { index: k } }));
+    applyGraph({ nodes: graph.nodes, edges: [...others, ...rebuilt] });
+  };
+
+  // Live dangling-ref flags via the shared lint (same code as the harness).
+  const dangling = React.useMemo(() => (doc ? danglingRefs(doc) : []), [doc]);
+
   const selected = graph.nodes.find((n) => n.id === selectedId) ?? null;
 
   return (
@@ -196,10 +329,13 @@ function Composer() {
           <button key={kind} onClick={() => doc && addNode(kind)}>{label}</button>
         ))}
       </div>
-      {doc && issues.length > 0 && (
+      {doc && (issues.length > 0 || dangling.length > 0) && (
         <div className="view">
           {issues.map((i, n) => (
             <div className="issue" key={n}><span className="channel">[{i.channel}]</span>{i.message}</div>
+          ))}
+          {dangling.map((d, n) => (
+            <div className="issue" key={`d${n}`}><span className="channel">[refs]</span>{d.path}: {d.ref}</div>
           ))}
         </div>
       )}
@@ -210,6 +346,7 @@ function Composer() {
             edges={flowEdges(graph)}
             onNodeClick={(_, n) => setSelectedId(n.id)}
             onPaneClick={() => setSelectedId(null)}
+            onConnect={onConnect}
             fitView
             proOptions={{ hideAttribution: true }}
           >
@@ -218,7 +355,7 @@ function Composer() {
           </ReactFlow>
         </div>
         <aside className="composer-inspector">
-          <Inspector node={selected} onEdit={editField} />
+          <Inspector node={selected} graph={graph} onEdit={editField} onEditEdge={editEdge} onRemoveEdge={removeEdge} onReorder={reorder} />
         </aside>
       </div>
     </div>
