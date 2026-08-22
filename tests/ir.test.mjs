@@ -11,6 +11,7 @@ import {
   validateIR,
   normalizeIR,
 } from "../importer/ir.mjs";
+import { midiToIR } from "../importer/midi.mjs";
 
 let passed = 0, failed = 0;
 const check = (name, cond) => {
@@ -108,6 +109,39 @@ check("flags zero durationBeats", has(bad((d) => { d.parts[0].notes[0].durationB
 check("flags velocity out of range", has(bad((d) => { d.parts[0].notes[0].velocity = 200; }), "velocity"));
 check("flags spelling/midi mismatch", has(bad((d) => { d.parts[0].notes[0].spelling = { step: "E", alter: 0, octave: 5 }; }), "does not match midi"));
 check("flags unknown note field", has(bad((d) => { d.parts[0].notes[0].seconds = 1.2; }), "unknown field"));
+
+// --- Converter fuzzing + parser boundary (issue #49, per
+// tests/open_20260822-103259_ir.md) ---
+
+// Full-range pitch round-trip, not just spot checks.
+check("pitch↔midi round-trips for all 128 midi values",
+  Array.from({ length: 128 }, (_, m) => m).every((m) => pitchToMidi(midiToPitch(m)) === m));
+
+// Spelling sweep: steps × alters {-1, 0, 1} × octaves -1..9, in-range subset.
+// Every in-range spelling must agree with the pitch-string parser on the
+// equivalent string (C4 / C#4 / Cb4).
+check("spellingToMidi agrees with pitchToMidi across the sweep", (() => {
+  for (const step of ["C", "D", "E", "F", "G", "A", "B"]) {
+    for (const alter of [-1, 0, 1]) {
+      for (let octave = -1; octave <= 9; octave++) {
+        let midi;
+        try { midi = spellingToMidi({ step, alter, octave }); } catch { continue; } // out of 0-127
+        const str = `${step}${alter === 1 ? "#" : alter === -1 ? "b" : ""}${octave}`;
+        if (pitchToMidi(str) !== midi) return false;
+      }
+    }
+  }
+  return true;
+})());
+
+// Tick conversion round-trips at common PPQ resolutions.
+check("ticks↔beats round-trip at ppq 96/480/960", [96, 480, 960].every((ppq) =>
+  [0, 1, 240, 480, 1920, 65536].every((t) => beatsToTicks(ticksToBeats(t, ppq), ppq) === t)));
+
+// Parser boundary: real MIDI parser output is normalized and idempotent.
+// (validateIR(parserOutput) is pinned in tests/midi.test.mjs.)
+const parsed = midiToIR(await readFile(new URL("../importer/fixtures/midi-sample.mid", import.meta.url)));
+check("normalizeIR is idempotent on real MIDI parser output", eq(normalizeIR(parsed), parsed));
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
