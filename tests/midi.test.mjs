@@ -50,5 +50,29 @@ const bass = ir.parts[1].notes;
 check("bass note spans the whole fixture", bass.length === 1
   && bass[0].midi === 36 && bass[0].onsetBeat === 0 && bass[0].durationBeats === 4);
 
+// Residual coverage (issue #50, spec tests/open_20260822-104300_midi-parser.md).
+// Fixtures are hand-crafted raw MIDI (tonejs only writes format 1 at ppq 480);
+// regenerate: importer/fixtures/make-raw-midi-fixtures.mjs.
+
+const f0 = midiToIR(await readFile(new URL("../importer/fixtures/midi-format0-ppq96.mid", import.meta.url)));
+check("format 0 parses to one part", f0.parts.length === 1);
+check("ppq 96 division honored (96 ticks = 1 beat)", f0.parts[0].notes[0].durationBeats === 1);
+check("unnamed track gets fallback name", f0.parts[0].name === "Track 1");
+check("no program-change → program omitted (tonejs default 0 would lie)", f0.parts[0].program === undefined);
+check("format 0 IR validates", validateIR(f0).length === 0);
+
+const mid = midiToIR(await readFile(new URL("../importer/fixtures/midi-midpiece.mid", import.meta.url)));
+check("mid-piece meter change: both entries in beat order", mid.meterMap.length === 2
+  && mid.meterMap[0].beat === 0 && mid.meterMap[0].beats === 4 && mid.meterMap[0].unit === 4
+  && mid.meterMap[1].beat === 2 && mid.meterMap[1].beats === 3 && mid.meterMap[1].unit === 4);
+check("tempo only at beat 1: no beat-0 tempo inserted", mid.tempoMap.length === 1
+  && mid.tempoMap[0].beat === 1 && bpmClose(mid.tempoMap[0].bpm, 90));
+check("empty named track: kept, notes empty, validates", mid.parts.length === 1
+  && mid.parts[0].name === "Reeds" && mid.parts[0].notes.length === 0 && validateIR(mid).length === 0);
+
+let threw = null;
+try { midiToIR(Uint8Array.from([1, 2, 3, 4])); } catch (e) { threw = e; }
+check("garbage bytes throw (not a silent empty IR)", threw !== null);
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

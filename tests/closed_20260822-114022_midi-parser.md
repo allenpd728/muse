@@ -32,3 +32,16 @@ validity). This spec covers what it does not.
 Extend `tests/midi.test.mjs`; new fixtures alongside
 `importer/fixtures/midi-sample.mid` with generators per
 `make-midi-sample.mjs`. `npm test` picks the suite up automatically.
+
+## Resolution
+
+Residual coverage landed in `tests/midi.test.mjs` (issue #50): format 0,
+non-480 ppq, unnamed-track fallback, empty track, tempo-only-at-beat-1,
+mid-piece meter change, malformed input throws, and the program-default
+decision pinned — `program` is now emitted only when a program-change event
+exists in the file (tonejs defaults `instrument.number` to 0, which would
+silently claim acoustic grand; `importer/midi.mjs` detects real program
+events via a direct `midi-file` pass). New raw fixtures
+(`importer/fixtures/midi-format0-ppq96.mid`, `midi-midpiece.mid`) are built
+byte-by-byte in `make-raw-midi-fixtures.mjs` because tonejs only writes
+format 1 at ppq 480. 19/19 standalone; npm test green.
