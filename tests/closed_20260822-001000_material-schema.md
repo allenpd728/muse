@@ -28,3 +28,16 @@
 
 Fold into the `npm test` harness (#3) as fixtures. Reference per-case checks via
 `node tools/validate.mjs <fixture> schema/material.schema.json` — all passed at authoring.
+
+---
+
+## Closed — 2026-08-22 (issue #29)
+
+Coverage landed as `tests/material.test.mjs` (21 checks, folded into `npm test`
+via the `tests/*.test.mjs` fold-in): full spec §2.3 example, empty-object and
+top-level strictness, `kind` enum + required, the complete `motifRef` transform
+grammar (each transform, chained transforms, `#bogus`/bare-`#inv` rejection),
+and the numeric edges (`durations` 0/negative, `pattern` rest-0 vs negative,
+`bars_per_chord` 0). Every behavior in the spec above is covered; no residue.
+
+Run: `node tests/material.test.mjs` or `npm test`.
