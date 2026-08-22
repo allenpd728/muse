@@ -52,14 +52,23 @@ at a time.
 2. **Pick a task.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue.
-3. **Attempt the claim.** Add `status:claimed`, self-assign, and post a claim
+3. **When no task is available, fall through in priority order:**
+   - **(a) Open `Tests:` issues.** Claim and complete them one at a time, lowest
+     issue number first — writing the tests their spec calls for.
+   - **(b) Open blockers.** If no `Tests:` issues remain, work through
+     `status:blocked-needs-input` issues one at a time: attempt to resolve the
+     blocker (the spec may have been amended since it was filed), and if
+     resolvable, close the blocker and return the task to `status:available`.
+   - Only when tasks, `Tests:` issues, and blockers are all exhausted is the
+     queue empty and the session done.
+4. **Attempt the claim.** Add `status:claimed`, self-assign, and post a claim
    comment (`claimed by <run-id> at <UTC timestamp>`). Then re-fetch the issue:
    if the label or assignee doesn't match, another agent won — back off and pick
    a different task. GitHub serializes these writes, so exactly one agent wins.
-4. **Do the work.** Commit directly to `dev` (no PR — review happens
+5. **Do the work.** Commit directly to `dev` (no PR — review happens
    retrospectively on `dev`). Swap `status:claimed` → `status:done` and close the
    issue with a comment linking the commits.
-5. **Spec the tests.** Before closing out, write
+6. **Spec the tests.** Before closing out, write
    `tests/open_YYYYMMDD-HHMMSS_<task-slug>.md` describing the test coverage the
    work needs: behaviors to verify, edge cases, and how to invoke the tests.
    If the task introduced a behavior with no existing test coverage, the test
@@ -67,7 +76,7 @@ at a time.
    `Tests: <task title>` that links the test spec file, labels it
    `status:available`, and mark it `Blocked by` the task just completed.
    Completed task + filed test spec + linked test issue = a full unit of work.
-6. **Iterate.** If review later finds the work lacking, write a new task rather
+7. **Iterate.** If review later finds the work lacking, write a new task rather
    than reopening the old one.
 
 ## Test follow-ups
