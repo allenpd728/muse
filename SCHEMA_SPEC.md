@@ -192,6 +192,28 @@ Named parameter bundles a listener can select. Each rendition is a first-class o
 
 **Hard rule:** `style.references` describe styles, eras, and production techniques. Named-artist imitation ("sounds like <artist>") is out of spec without an attached license record (see §2.1 `license`).
 
+**Instrumentation depth (v0.3).** `params.instrumentation` strings stay valid for production contexts ("analog synth", "drum machine"). Renditions that need orchestral precision may instead (or additionally) carry structured entries:
+
+```jsonc
+"instrumentation": [
+  "drum machine",
+  {
+    "name": "Violin I",
+    "program": 48,                    // GM fallback — Player V1 renders this
+    "doubles": [ { "name": "piccolo", "program": 72 } ],
+    "techniques": {                   // sanctioned states the rendition may invoke
+      "divisi": "allowed",            // allowed | required — split a part into sub-voices
+      "mute": [ "con_sordino", "senza_sordino" ],
+      "bowing": [ "arco", "pizzicato", "sul_ponticello", "sul_tasto", "col_legno" ]
+    }
+  }
+]
+```
+
+Technique names are a controlled vocabulary: **`divisi`** (allowed/required), **mutes** (`con_sordino`, `senza_sordino`, `harmon`, `cup`, `straight`), **bowing** (`arco`, `pizzicato`, `sul_ponticello`, `sul_tasto`, `col_legno`, `spiccato`), **breath/attack** (`flutter_tongue`, `slap_tongue`, `overblown`), **production** (`sidechained`, `gated`, `doubt_tracked`). The list extends additively; unknown technique names are valid strings but conforming engines must ignore-and-record them (same discipline as unknown extension namespaces).
+
+Techniques map to the performance layer as articulation/controllers: the interpreter translates a sanctioned technique into `notes[].articulation` where one exists, otherwise into `controllers` (e.g. `timbre`) or part-level directives — and anything the active player cannot render is dropped with the decision recorded (Player V1 honors GM `program` only). This keeps the schema's expressive ceiling above any single engine's floor.
+
 ### 2.7 `extensions`
 
 Namespaced escape hatch, e.g. `"extensions": { "engine.audiocraft": { "cfg": 3.5 } }`. Conforming engines must ignore unknown namespaces, never fail on them.
@@ -226,6 +248,7 @@ A renderer is **Muse-conforming** if it:
 **Changelog**
 
 - **v0.3 (2026-08-22):** `constraints.tempo_shapes` added — per-section ritardando/accelerando/rubato constraints with bounded spans; conformance relation to §7 `tempo_map` stated (issue #75).
+- **v0.3 (2026-08-22):** structured instrumentation entries in `renditions[].params.instrumentation` (issue #76): GM program fallback, `doubles`, and a controlled technique vocabulary (`divisi`, mutes, bowing, breath/attack, production), with the honored-or-dropped-with-recording rule for performance-layer mapping.
 - **v0.2 (2026-08-22):** `form.sections[].role` enum broadened from pop-song vocabulary to a tradition-spanning taxonomy (universal / song form / classical / film / production roles), with pass-through semantics stated (issue #67).
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).

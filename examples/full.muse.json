@@ -130,6 +130,31 @@
         "swing": 0.62
       },
       "author": { "name": "Muse Examples" }
+    },
+    {
+      "id": "r.chamber",
+      "name": "Chamber",
+      "style": { "genre": "chamber strings", "era": "1910" },
+      "params": {
+        "tempo_bpm": 84,
+        "instrumentation": [
+          {
+            "name": "Violin I",
+            "program": 48,
+            "techniques": {
+              "divisi": "allowed",
+              "mute": ["con_sordino", "senza_sordino"],
+              "bowing": ["arco", "pizzicato", "sul_tasto"]
+            }
+          },
+          {
+            "name": "Cello",
+            "program": 42,
+            "techniques": { "bowing": ["arco", "sul_ponticello"] }
+          }
+        ]
+      },
+      "author": { "name": "Muse Examples" }
     }
   ],
   "extensions": {
