@@ -36,6 +36,15 @@ examples/invalid/*.muse.json
 .github/workflows/ci.yml
 ```
 
+## Integration review
+
+The last task in a batch is a **cross-task integration review** (this batch: issue
+#37), blocked by everything else in the batch. It reads the batch's full output
+together and catches convention drift / semantic mismatch — the things structural
+validation won't. Review is read-only; findings become new claimable corrective
+tasks. **Pattern for all future batches: the final task is the integration
+review, blocked by the rest of the batch.**
+
 ## Consequences for spec work
 
 Writing the schema will surface gaps/contradictions in SCHEMA_SPEC.md. When that
