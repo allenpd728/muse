@@ -34,3 +34,24 @@ New `tests/instrumentation.test.mjs` (schema-level acceptance/rejection) plus
 a parity block in the same file; `npm test` picks it up. Note: harness
 convention for rejection channels (`schema` channel sidecars) applies if
 fixtures land under `examples/invalid/`.
+
+---
+
+## Closed — 2026-08-22 (issue #85)
+
+Coverage landed: `tests/instrumentation.test.mjs` — 16 checks:
+
+- Acceptance: structured entries, free-text entries (anyOf keeps strings
+  legal), mixed lists, full techniques surface (doubles + all five keys).
+- Rejection: missing name, program out of range, divisi outside enum,
+  unknown property (sealed), unknown technique key, double missing name.
+- **Additive-vocabulary pin:** unknown technique *name* within a known key
+  is ACCEPTED (ignore-and-record discipline) — the schema must not
+  over-reject.
+- **Spec ↔ schema parity:** §2.6's bolded technique keys (divisi written
+  with nested backticks — regex accounts) set-equal the schema's
+  `techniques` properties.
+- **Full-example guards:** r.chamber keeps structured entries exercising
+  divisi + mute/bowing; r.synthwave/r.quartet stay free-text.
+
+Run: `npm test`.
