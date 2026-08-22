@@ -114,7 +114,15 @@ const logUsage = async (entry) => {
   await appendFile(logPath, JSON.stringify(entry) + "\n").catch(() => {});
 };
 
-export async function expand({ doc, renditionId, callModel, model, maxAttempts = 3, at }) {
+// Transient provider errors (adapters tag 429/5xx with err.transient) are
+// not validation failures: bounded exponential backoff retry, and the
+// validation-attempt budget isn't burned. maxAttempts is explicit param,
+// else MUSE_MAX_ATTEMPTS, else 3.
+const TRANSIENT_BACKOFF_MS = [1000, 2000, 4000];
+
+export async function expand({ doc, renditionId, callModel, model, maxAttempts, at, sleep }) {
+  const budget = maxAttempts ?? (Number.parseInt(process.env.MUSE_MAX_ATTEMPTS ?? "", 10) || 3);
+  const pause = sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   const rendition = resolveRendition(doc, renditionId);
   const perfSchema = await readJson(new URL("../schema/performance.schema.json", import.meta.url));
   const prompt = buildPrompt({ doc, rendition, perfSchema, constraintSummary: summarizeConstraints(doc) });
@@ -122,11 +130,19 @@ export async function expand({ doc, renditionId, callModel, model, maxAttempts =
 
   let feedback = null;
   let lastErrors = [];
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  for (let attempt = 1; attempt <= budget; attempt++) {
     const messages = feedback ? { ...prompt, user: `${prompt.user}\n\nprevious attempt failed validation:\n${feedback}` } : prompt;
     let perf;
     try {
-      const raw = await callModel(messages, { attempt });
+      let raw;
+      for (let t = 0; ; t++) {
+        try { raw = await callModel(messages, { attempt }); break; }
+        catch (e) {
+          if (!e?.transient || t >= TRANSIENT_BACKOFF_MS.length) throw e;
+          await logUsage({ at: new Date().toISOString(), model, attempt, ok: false, error: e.message, transient: true });
+          await pause(TRANSIENT_BACKOFF_MS[t]);
+        }
+      }
       await logUsage({ at: new Date().toISOString(), model, attempt, ok: true });
       perf = parseModelOutput(raw);
     } catch (e) {
@@ -144,12 +160,21 @@ export async function expand({ doc, renditionId, callModel, model, maxAttempts =
     lastErrors = errors;
     feedback = errors.join("\n");
   }
-  const err = new Error(`expansion failed after ${maxAttempts} attempts:\n${lastErrors.join("\n")}`);
+  const err = new Error(`expansion failed after ${budget} attempts:\n${lastErrors.join("\n")}`);
   err.validationErrors = lastErrors;
   throw err;
 }
 
 // --- Default model adapter (env-configured; inject callModel to bypass) ---
+
+// Non-OK responses throw with status + body for the retry loop; 429/5xx are
+// tagged transient so expand() backs off instead of burning the attempt
+// budget.
+const httpError = async (provider, res) => {
+  const err = new Error(`${provider} ${res.status}: ${await res.text()}`);
+  err.transient = res.status === 429 || res.status >= 500;
+  return err;
+};
 
 const anthropicCall = async ({ model, apiKey, baseUrl, prompt }) => {
   const res = await fetch(`${baseUrl}/v1/messages`, {
@@ -162,7 +187,7 @@ const anthropicCall = async ({ model, apiKey, baseUrl, prompt }) => {
       messages: [{ role: "user", content: prompt.user }],
     }),
   });
-  if (!res.ok) throw new Error(`anthropic ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw await httpError("anthropic", res);
   const data = await res.json();
   return data.content?.map((b) => b.text ?? "").join("") ?? "";
 };
@@ -180,7 +205,7 @@ const openaiCall = async ({ model, apiKey, baseUrl, prompt }) => {
       response_format: { type: "json_object" },
     }),
   });
-  if (!res.ok) throw new Error(`openai ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw await httpError("openai", res);
   const data = await res.json();
   return data.choices?.[0]?.message?.content ?? "";
 };
@@ -198,7 +223,7 @@ const geminiCall = async ({ model, apiKey, baseUrl, prompt }) => {
       generationConfig: { responseMimeType: "application/json" },
     }),
   });
-  if (!res.ok) throw new Error(`gemini ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw await httpError("gemini", res);
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
 };
@@ -242,7 +267,7 @@ if (invokedDirectly) {
   const [docPath, renditionId, outPath] = argv;
   const manual = process.env.MUSE_MANUAL === "1" || process.argv.includes("--manual");
   if (!docPath) {
-    console.error("usage: node interpreter/expand.mjs <doc.muse.json> [rendition-id] [out.muse.perf.json] [--manual]");
+    console.error("usage: node interpreter/expand.mjs <doc.muse.json> [rendition-id] [out.muse.perf.json] [--manual]\n  env: MUSE_PROVIDER, MUSE_MODEL, provider key, MUSE_BASE_URL, MUSE_MAX_ATTEMPTS (default 3)");
     process.exit(1);
   }
   const doc = await readJson(docPath);
