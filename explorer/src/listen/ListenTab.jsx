@@ -6,6 +6,7 @@ import React from "react";
 import { expandOffline } from "../../../interpreter/offline.mjs";
 import { renderToBuffer, createTransport, resolveContext } from "./player.js";
 import { planSwitch, crossfadeGains } from "./crossfade.js";
+import { render, encodeWav } from "../../../player/render-core.mjs";
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
@@ -44,14 +45,31 @@ export default function ListenTab({ doc }) {
   const stop = () => { transportRef.current?.stop(); };
 
   // Pre-render a rendition into the buffer cache (A/B switching must not
-  // wait on expansion at switch time).
+  // wait on expansion at switch time). The perf doc is cached alongside —
+  // the WAV download reuses it (provenance already stamped).
+  const perfsRef = React.useRef(new Map());
   const prerender = (ctx, rendition) => {
     if (buffersRef.current.has(rendition.id)) return buffersRef.current.get(rendition.id);
     const perf = expandOffline(doc, rendition);
     if (!(perf.notes?.length > 0)) throw new Error("expansion produced no notes — this document's material is too sparse for the offline interpreter (see #91)");
+    perfsRef.current.set(rendition.id, perf);
     const buffer = renderToBuffer(ctx, perf);
     buffersRef.current.set(rendition.id, buffer);
     return buffer;
+  };
+
+  // WAV download (task 4): encode the active rendition's render client-side
+  // — same encodeWav the node CLI uses, no port.
+  const downloadWav = () => {
+    const perf = perfsRef.current.get(active);
+    if (!perf) return;
+    const bytes = encodeWav(render(perf));
+    const blob = new Blob([bytes], { type: "audio/wav" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${(doc.metadata?.title ?? "muse").replace(/\s+/g, "-")}.${active}.wav`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
 
   const play = async (rendition) => {
@@ -158,6 +176,7 @@ export default function ListenTab({ doc }) {
             <span className="muted">§ {sectionAt(doc, current.position, activeRendition?.params?.tempo_bpm)}</span>
           )}
           <button onClick={stop}>stop</button>
+          <button onClick={downloadWav} title="download this rendition as WAV">⬇ wav</button>
         </div>
       )}
     </div>
