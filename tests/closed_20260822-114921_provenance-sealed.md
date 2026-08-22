@@ -25,3 +25,13 @@
 
 `npm test`; invalid-example pair folds into the harness `mustReject` loop,
 unit cases into `tests/metadata.test.mjs`.
+
+## Resolution
+
+Unit cases landed in `tests/metadata.test.mjs` (issue #53) rather than an
+invalid-example pair — the seal lives on the nested provenance item, so the
+unit channel is the tighter pin: extra property rejected; all five defined
+fields valid; event-only entry valid; sibling seals (composer, license)
+regression-guarded; and the #19 heads-up case — an importer-shaped entry
+with filename/format riding in `notes` — proven valid under the seal.
+39/39 standalone; npm test green.

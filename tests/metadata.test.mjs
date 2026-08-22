@@ -86,6 +86,21 @@ check("unknown top-level property rejected", !validate(patched({ extra: true }))
 check("unknown license property rejected", !validate(patched({ license: { renditions: "closed", extra: true } })));
 check("provenance item missing event rejected", !validate(patched({ provenance: [{ actor: "x" }] })));
 
+// Provenance sealed (issue #45; residual coverage issue #53)
+check("provenance entry with extra property rejected", !validate(patched({ provenance: [{ event: "authored", surprise: true }] })));
+check("provenance entry with all five fields valid", validate(patched({
+  provenance: [{ event: "authored", actor: "a", at: "2026-08-22T00:00:00Z", ai: true, notes: "n" }],
+})));
+check("provenance entry with only event valid", validate(patched({ provenance: [{ event: "authored" }] })));
+// Sibling seals stay sealed (regression guard against loosening the file)
+check("composer extra property still rejected", !validate(patched({ composer: { name: "C", surprise: true } })));
+check("license extra property still rejected", !validate(patched({ license: { renditions: "closed", surprise: true } })));
+// #19 heads-up: the importer's provenance shape (event/actor/at/ai + notes
+// carrying filename/format) validates under the seal.
+check("importer-shaped provenance entry validates (filename/format in notes)", validate(patched({
+  provenance: [{ event: "import", actor: "importer", at: "2026-08-22T00:00:00Z", ai: false, notes: "source: chorale.mid (MIDI)" }],
+})));
+
 // §2.8 convention-not-enforcement pin (issue #51): internal ids are dotted
 // slugs by convention only — the schemas deliberately do not enforce it.
 check("non-slug section id validates (§2.8 convention, not enforcement)",
