@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://muse.dev/schema/material.schema.json",
+  "title": "Muse material",
+  "description": "Reusable musical vocabulary — themes, motifs, rhythm cells, harmony (SCHEMA_SPEC.md §2.3). Everything in `form` references material by id.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "motifs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["pitch", "rhythm", "pitch_rhythm", "timbre", "harmonic"] },
+          "pitches": { "type": "array", "items": { "type": "string" } },
+          "durations": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 }, "description": "In beats." },
+          "contour": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "phrases"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "phrases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "motifs": {
+                  "type": "array",
+                  "description": "Motif references, optionally with transform suffixes (motif.a#seq(+2), #inv, #retro, #aug(2), #dim(0.5)).",
+                  "items": { "$ref": "#/$defs/motifRef" }
+                }
+              }
+            }
+          },
+          "cadence": { "type": "string" }
+        }
+      }
+    },
+    "rhythms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pattern"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "pattern": { "type": "array", "items": { "type": "number", "minimum": 0 } },
+          "grid": { "type": "string", "description": "e.g. 8n, 16n." }
+        }
+      }
+    },
+    "harmony": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "progressions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "chords"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "chords": { "type": "array", "items": { "type": "string" } },
+              "bars_per_chord": { "type": "number", "exclusiveMinimum": 0 }
+            }
+          }
+        },
+        "vocabulary": { "type": "string", "description": "Free-text or formal grammar ref." }
+      }
+    }
+  },
+  "$defs": {
+    "motifRef": {
+      "type": "string",
+      "description": "A motif id, optionally followed by one or more transform suffixes.",
+      "pattern": "^[A-Za-z0-9_.-]+(#(seq\\([+-]?\\d+\\)|inv|retro|aug\\(\\d+(\\.\\d+)?\\)|dim\\(\\d+(\\.\\d+)?\\)))*$"
+    }
+  }
+}
