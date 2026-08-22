@@ -24,3 +24,10 @@ what remains.
 
 Extend `tests/play-smoke.test.mjs` / `explorer/src/listen/listen-smoke.test.js`;
 `npm test` and `cd explorer && npm test` pick them up automatically.
+
+## Resolution
+
+Coverage landed via issue #109 (sibling agent, commit bbfb5f5): amplitude/RMS
+floors per rendition, tempo-map interpolation in rendered output, listener
+smoke across both renditions, and the play CLI failure channel. Spec file
+closed post-hoc — the work predates this rename.
