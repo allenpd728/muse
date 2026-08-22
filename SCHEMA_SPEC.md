@@ -100,6 +100,8 @@ The reusable musical vocabulary of the work. Everything in `form` references mat
 }
 ```
 
+`pitches` are scientific pitch notation, 12-TET: a letter A–G, optional `#`/`b` accidental, signed octave (middle C = C4). The same grammar bounds `constraints.register` (§2.5) — one shared definition in the schemas. Microtonality is out of scope here (§6).
+
 **Transforms** are suffix expressions applied at the reference site: `motif.a#seq(+2)` (sequence up a step), `#inv` (inversion), `#retro` (retrograde), `#aug(2)` (augmentation), `#dim(0.5)` (diminution). The transform set is the mechanism for **variations** — a core primitive, not an afterthought.
 
 ### 2.4 `form` — sections and structure
@@ -204,6 +206,7 @@ A renderer is **Muse-conforming** if it:
 **Changelog**
 
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
+- **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
 
 ## 6. Open questions for v0.x
 

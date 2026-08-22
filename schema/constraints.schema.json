@@ -27,8 +27,8 @@
       "additionalProperties": {
         "type": "array",
         "prefixItems": [
-          { "type": "string", "description": "low bound, e.g. C4" },
-          { "type": "string", "description": "high bound, e.g. A5" }
+          { "$ref": "material.schema.json#/$defs/pitch", "description": "low bound, e.g. C4" },
+          { "$ref": "material.schema.json#/$defs/pitch", "description": "high bound, e.g. A5" }
         ],
         "minItems": 2,
         "maxItems": 2

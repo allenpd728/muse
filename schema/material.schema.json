@@ -15,7 +15,7 @@
         "properties": {
           "id": { "type": "string", "minLength": 1 },
           "kind": { "type": "string", "enum": ["pitch", "rhythm", "pitch_rhythm", "timbre", "harmonic"] },
-          "pitches": { "type": "array", "items": { "type": "string" } },
+          "pitches": { "type": "array", "items": { "$ref": "#/$defs/pitch" } },
           "durations": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 }, "description": "In beats." },
           "contour": { "type": "string" },
           "tags": { "type": "array", "items": { "type": "string" } }
@@ -87,6 +87,11 @@
       "type": "string",
       "description": "A motif id, optionally followed by one or more transform suffixes.",
       "pattern": "^[A-Za-z0-9_.-]+(#(seq\\([+-]?\\d+\\)|inv|retro|aug\\(\\d+(\\.\\d+)?\\)|dim\\(\\d+(\\.\\d+)?\\)))*$"
+    },
+    "pitch": {
+      "type": "string",
+      "description": "Scientific pitch notation, 12-TET: letter A-G, optional # or b accidental, signed octave (middle C = C4). Shared with constraints.register bounds; same grammar as importer/ir.mjs.",
+      "pattern": "^[A-G](?:#|b)?-?\\d+$"
     }
   }
 }
