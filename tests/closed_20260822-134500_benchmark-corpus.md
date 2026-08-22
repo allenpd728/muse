@@ -35,3 +35,25 @@ authoring; full `npm test` 48/48 green).
 
 `npm test` once the corpus loop lands; directly:
 `for f in benchmark/corpus/*.muse.json; do node tools/validate.mjs "$f"; done`
+
+---
+
+## Closed — 2026-08-22 (issue #78)
+
+Coverage landed: `tests/corpus.test.mjs` — 46 checks:
+
+- All 10 corpus entries validated through the same three channels as the
+  harness example loop: root schema (real CLI), `danglingRefs`, semantics.
+- Provenance invariant: every entry carries `event: "import"` with
+  `ai: false`.
+- README table accuracy: row count == file count; every file listed.
+- Re-import determinism smoke (bwv269, bwv316): re-imported output validates
+  and is content-identical modulo per-import freshness (provenance `at`,
+  `metadata.created`, the fresh work ULID — pinned as the only sanctioned
+  drift). Haydn excluded per the README heap-scaling note.
+
+The metrics-harness wiring note is already satisfied: #72 landed
+`benchmark/metrics.mjs` scoring ≥2 corpus entries in
+`tests/benchmark.test.mjs`.
+
+Run: `npm test`.
