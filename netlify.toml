@@ -1,0 +1,4 @@
+[build]
+  base = "explorer"
+  command = "npm ci && npm run build"
+  publish = "dist"

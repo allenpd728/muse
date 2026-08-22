@@ -1,0 +1,68 @@
+:root {
+  color-scheme: dark;
+  --bg: #14161a;
+  --panel: #1c1f26;
+  --border: #2c313c;
+  --text: #d7dce4;
+  --muted: #8b93a1;
+  --accent: #7aa2f7;
+  --error: #f7768e;
+  --ok: #9ece6a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 1rem; margin: 0; }
+header .meta { color: var(--muted); font-size: 0.8rem; }
+.loader { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); align-items: center; }
+.loader input[type="text"] {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  border-radius: 4px;
+}
+button {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+.tabs { display: flex; gap: 0.25rem; padding: 0.5rem 1rem 0; }
+.tabs button { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.tabs button.active { background: var(--border); border-color: var(--accent); }
+.view { border-top: 1px solid var(--border); padding: 1rem; }
+.muted { color: var(--muted); }
+.error { color: var(--error); }
+.ok { color: var(--ok); }
+.issue { padding: 0.35rem 0.5rem; border-left: 3px solid var(--error); margin: 0.35rem 0; background: var(--panel); }
+.issue .channel { color: var(--muted); margin-right: 0.5rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+.card h3 { margin: 0 0 0.35rem; font-size: 0.95rem; }
+.card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.6rem; font-size: 0.8rem; }
+.card dt { color: var(--muted); }
+.card dd { margin: 0; }
+.tree { font-size: 0.8rem; }
+.tree details { margin-left: 1rem; }
+.tree summary { cursor: pointer; }
+.tree .key { color: var(--accent); }
+.tree .val { color: var(--text); }
+.graph { height: 420px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
