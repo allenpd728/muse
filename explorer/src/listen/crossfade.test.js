@@ -62,4 +62,32 @@ describe("switch planning", () => {
     const { targetSeconds } = planSwitch(doc, 7.5, 96, 96);
     expect(targetSeconds).toBeCloseTo(7.5, 10);
   });
+  // Spec: tests/open_20260822-161506_listener-ab.md residual pins.
+  test("exact integer bar position is exact (no off-by-one at seams)", () => {
+    // 4/4 at 120bpm: bar 4 lands at exactly 8s in both directions.
+    const { bar, targetSeconds } = planSwitch(doc, 8, 120, 100);
+    expect(bar).toBe(4);
+    expect(targetSeconds).toBeCloseTo(barToPosition(doc, 4, 100), 10);
+    expect(Number.isInteger(bar)).toBe(true);
+  });
+  test("zero position maps to zero regardless of tempo", () => {
+    const { bar, targetSeconds } = planSwitch(doc, 0, 96, 60);
+    expect(bar).toBe(0);
+    expect(targetSeconds).toBe(0);
+  });
+  test("position past the piece end still maps (clamping is the transport's job, not the math's)", () => {
+    const { bar } = planSwitch(doc, 1000, 96, 88);
+    expect(bar).toBeCloseTo(positionToBar(doc, 1000, 96), 10);
+    expect(bar).toBeGreaterThan(0);
+  });
+  test("multi-hop cycling preserves the bar across three tempos (Chamber lineage)", () => {
+    // A→B→C→A across 100/88/72: the bar coordinate is the invariant.
+    const ab = planSwitch(doc, 10, 100, 88);
+    const bc = planSwitch(doc, ab.targetSeconds, 88, 72);
+    const ca = planSwitch(doc, bc.targetSeconds, 72, 100);
+    expect(ab.bar).toBeCloseTo(positionToBar(doc, 10, 100), 10);
+    expect(bc.bar).toBeCloseTo(ab.bar, 10);
+    expect(ca.bar).toBeCloseTo(ab.bar, 10);
+    expect(ca.targetSeconds).toBeCloseTo(10, 10);
+  });
 });
