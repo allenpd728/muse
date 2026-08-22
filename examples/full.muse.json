@@ -78,7 +78,7 @@
         "id": "chorus.1",
         "role": "chorus",
         "bars": 8,
-        "uses": [{ "ref": "theme.1", "variation": "developed#aug(2)+orn" }],
+        "uses": [{ "ref": "theme.1", "variation": "developed, ornamented" }],
         "harmony": "prog.chorus",
         "energy": 0.9
       }

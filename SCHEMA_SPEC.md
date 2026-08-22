@@ -121,7 +121,7 @@ The reusable musical vocabulary of the work. Everything in `form` references mat
       "id": "chorus.1",
       "role": "chorus",
       "bars": 8,
-      "uses": [ { "ref": "theme.1", "variation": "developed#aug(2)+orn" } ],
+      "uses": [ { "ref": "theme.1#aug(2)", "variation": "developed, ornamented" } ],
       "energy": 0.9
     }
   ],
@@ -129,6 +129,8 @@ The reusable musical vocabulary of the work. Everything in `form` references mat
   "repetition": { "verse.1": { "min": 2, "max": 4 } }
 }
 ```
+
+`uses[].ref` follows the transform-ref grammar of §2.3 (id + optional `#seq/#inv/#retro/#aug/#dim` suffixes). `variation` is free text describing the treatment — it is not transform syntax and is not validated against the transform grammar.
 
 `order` and `repetition` allow the form itself to be a bounded space (e.g., verse count may vary 2–4× across renditions) rather than a fixed sequence.
 
@@ -208,6 +210,7 @@ A renderer is **Muse-conforming** if it:
 - **v0.1 (2026-08-22):** `metadata.id` grammar extended to accept the `muse:work:` prefix shown in the §2.1 example (issue #43); identifier conventions stated in new §2.8.
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
 - **v0.1 (2026-08-22):** `metadata.provenance` items sealed (`additionalProperties: false`), matching every other fixed-shape object (issue #45).
+- **v0.1 (2026-08-22):** transform-ref grammar enforced on `form.sections[].uses[].ref` via shared `$defs/materialRef`; `uses[].variation` pinned as free text (issue #46).
 
 ## 6. Open questions for v0.x
 

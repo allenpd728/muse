@@ -29,8 +29,7 @@
               "additionalProperties": false,
               "properties": {
                 "ref": {
-                  "type": "string",
-                  "minLength": 1,
+                  "$ref": "material.schema.json#/$defs/materialRef",
                   "description": "Material id, optionally with transform suffix (motif.a#seq(+2)). Resolves against material ids — checked by the harness, not the schema."
                 },
                 "variation": { "type": "string" }

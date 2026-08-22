@@ -39,7 +39,7 @@
                 "motifs": {
                   "type": "array",
                   "description": "Motif references, optionally with transform suffixes (motif.a#seq(+2), #inv, #retro, #aug(2), #dim(0.5)).",
-                  "items": { "$ref": "#/$defs/motifRef" }
+                  "items": { "$ref": "#/$defs/materialRef" }
                 }
               }
             }
@@ -83,9 +83,9 @@
     }
   },
   "$defs": {
-    "motifRef": {
+    "materialRef": {
       "type": "string",
-      "description": "A motif id, optionally followed by one or more transform suffixes.",
+      "description": "A material id (motif, theme, rhythm), optionally followed by one or more transform suffixes. Shared by themes[].phrases[].motifs[] and form.sections[].uses[].ref.",
       "pattern": "^[A-Za-z0-9_.-]+(#(seq\\([+-]?\\d+\\)|inv|retro|aug\\(\\d+(\\.\\d+)?\\)|dim\\(\\d+(\\.\\d+)?\\)))*$"
     },
     "pitch": {
