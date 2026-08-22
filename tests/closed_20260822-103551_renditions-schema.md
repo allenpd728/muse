@@ -39,3 +39,14 @@ This spec covers what that suite does not.
 
 Add cases to `tests/renditions.test.mjs` (or a new `tests/*.test.mjs` file);
 the harness (`npm test`) picks up every `tests/*.test.mjs` automatically.
+
+## Resolution
+
+Residual coverage landed in `tests/renditions.test.mjs` (issue #34): swing
+bounds, style/params must-be-object, non-string/empty references and
+instrumentation entries, root-is-array, non-object items, numeric era pinned
+as rejected (spec question if ever wanted), and an explicit pin that the §2.6
+hard rule stays semantic — artist-phrased references pass the schema and are
+the lint's job. Root $ref compose check in `tests/renditions-integration.test.mjs`.
+All green standalone and under `npm test`. Duplicate rendition ids remain a
+candidate for the code-level xref lint (not enforceable in draft 2020-12).
