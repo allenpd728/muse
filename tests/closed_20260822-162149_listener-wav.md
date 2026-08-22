@@ -34,6 +34,7 @@ This spec is for what remains.
 
 `cd explorer && npm test` (vitest); browser pass in the closing note.
 
+<<<<<<<< HEAD:tests/closed_20260822-162149_listener-wav.md
 ---
 
 ## Closed — 2026-08-22 (issue #104)
@@ -60,3 +61,15 @@ Deferred (still open, with triggers):
   guard or streaming decision if it becomes a problem.
 
 Run: `cd explorer && npm test`.
+========
+## Resolution
+
+Filename sanitization extracted to `explorer/src/listen/wav-filename.js` and
+pinned in `explorer/src/listen/wav-filename.test.js` (5 vitest checks;
+83/83 explorer suite green). Browser pass done in a scripted browser: Blob
+→ download → re-read round-trips byte-identically with a RIFF header
+({"same":true,"header":"RIFF"} — 42-char body). Per spec, post-switch cache
+claims renditions by id so no stale-cache bug is possible; provenance
+continuity and long-render memory are UX/product decisions left flagged in
+the closed note, not code.
+>>>>>>>> cf3f7fc (Tests: WAV filename sanitization + browser round-trip verification (closes #104)):tests/closed_20260822-162851_listener-wav.md
