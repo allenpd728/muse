@@ -217,8 +217,8 @@ export const defaultModelConfig = (env = process.env) => {
     return { model, callModel: (prompt) => openaiCall({ model, apiKey, baseUrl, prompt }) };
   }
   if (provider === "gemini") {
-    const apiKey = env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY is required for MUSE_PROVIDER=gemini");
+    const apiKey = env.GEMINI_API_KEY ?? env.GOOGLE_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY (or GOOGLE_API_KEY alias) is required for MUSE_PROVIDER=gemini");
     const baseUrl = env.MUSE_BASE_URL ?? "https://generativelanguage.googleapis.com";
     return { model, callModel: (prompt) => geminiCall({ model, apiKey, baseUrl, prompt }) };
   }
