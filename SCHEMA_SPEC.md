@@ -211,6 +211,7 @@ A renderer is **Muse-conforming** if it:
 - **v0.1 (2026-08-22):** shared 12-TET pitch grammar pinned for `material.motifs[].pitches` and `constraints.register` bounds (issue #44).
 - **v0.1 (2026-08-22):** `metadata.provenance` items sealed (`additionalProperties: false`), matching every other fixed-shape object (issue #45).
 - **v0.1 (2026-08-22):** transform-ref grammar enforced on `form.sections[].uses[].ref` via shared `$defs/materialRef`; `uses[].variation` pinned as free text (issue #46).
+- **v0.1 (2026-08-22):** §7 performance layer drafted (v0) from `docs/scope-batch3.md` (issue #21).
 
 ## 6. Open questions for v0.x
 
@@ -219,16 +220,48 @@ A renderer is **Muse-conforming** if it:
 - Whether `constraints` should support engine-checkable predicates (e.g., "chorus must be ≥ +6 dB denser than verse") as a typed DSL.
 - Minimal motif encoding for non-pitched / timbral material.
 
-## 7. Performance layer (planned)
+## 7. Performance layer (draft v0)
 
-A companion spec will define the **performance document**: the concrete event
-format an interpreter produces from a schema + rendition and a player renders
-to audio. Expressive-MIDI-as-JSON: note events with pitch/onset/duration/
-velocity/articulation, tempo and dynamics curves, instrument/patch assignments,
-mixing directives. Prior art to curate: Magenta NoteSequence (absolute-time
+> **Draft v0, unstable.** Shapes below follow `docs/scope-batch3.md`; v0.x
+> may break freely, additive-only discipline starts at v1.
+
+A **performance document** (`*.muse.perf.json`) is the concrete event format an
+interpreter produces from a schema + rendition and a player renders to audio.
+Expressive-MIDI-as-JSON. Prior art curated: Magenta NoteSequence (absolute-time
 note model), MIDI 2.0 (per-note controllers), MNX (JSON notation modeling).
 Feasibility grounding: expressive performance rendering literature (Performance
 RNN et al.) demonstrates score → expressive performance is tractable.
 
 The schema defines the space; the performance document is a point in it. Both
 sides of that contract — interpreter and player — validate against it.
+
+**Two clocks, both stored.** Seconds are authoritative for playback; beats are
+retained per event and in the tempo map for structural traceability — the
+conformance harness measures motif recall and structure fidelity in beat space.
+
+```jsonc
+{
+  "muse_perf_version": "0.1.0",       // independent of muse_version
+  "metadata": {
+    "source":      { "schema_id": "muse:work:01J…", "rendition_id": "r.synthwave" },
+    "interpreter": { "model": "…", "at": "2026-08-22T00:00:00Z" }
+  },
+  "tempo_map": [ { "time": 0.0, "beat": 0, "bpm": 96 } ],
+  "parts": [
+    { "id": "p.lead", "name": "Lead",
+      "instrument": { "name": "violin", "program": 40, "sample_set": "vsco2-ce" },
+      "mix": { "gain": 0.8, "pan": 0.0, "reverb_send": 0.3 } }
+  ],
+  "notes": [
+    { "part": "p.lead", "pitch": 62, "pitch_name": "D4",
+      "onset": 0.0, "duration": 0.3125, "onset_beat": 0, "duration_beats": 0.5,
+      "velocity": 90, "articulation": "tenuto",
+      "controllers": { "pitch_bend": [ ] } }   // optional; MIDI 2.0 lineage
+  ],
+  "dynamics": [ { "time": 0.0, "part": "p.lead", "level": 0.6 } ]  // part omitted = global
+}
+```
+
+`pitch_name` reuses the §2.3 pitch grammar — one pitch language across schema,
+importer IR, and performance layer. Reference integrity: `notes[].part` and
+`dynamics[].part` resolve against `parts[].id`.
