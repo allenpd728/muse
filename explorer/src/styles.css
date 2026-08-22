@@ -83,3 +83,6 @@ button:hover { border-color: var(--accent); }
 .edge-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 12px; color: #9aa5ce; }
 .edge-row button { padding: 2px 6px; font-size: 11px; }
 .composer-inspector h4 { margin: 12px 0 4px; color: #9aa5ce; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Composer MVP 4: material editors */
+.field input.invalid { border-color: #f7768e; }
