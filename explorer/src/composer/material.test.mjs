@@ -83,4 +83,18 @@ describe("material edits through compile", () => {
     const out = compile(edited, full);
     expect(validateDocument(out)).toEqual([]);
   });
+
+  it("clearing a motif's pitches entirely is schema-legal (info, not error)", () => {
+    const graph = docToGraph(full);
+    const motif = graph.nodes.find((n) => n.kind === "motif" && n.key === "motif.a");
+    const edited = {
+      nodes: graph.nodes.map((n) => (n.id === motif.id ? { ...n, fields: { ...n.fields, pitches: [] } } : n)),
+      edges: graph.edges,
+    };
+    const out = compile(edited, full);
+    // Schema allows empty arrays — the composer surfaces this as info, not
+    // an error (benchmark recall would degrade to unfound downstream).
+    expect(validateDocument(out)).toEqual([]);
+    expect(out.material.motifs.find((m) => m.id === "motif.a").pitches).toEqual([]);
+  });
 });

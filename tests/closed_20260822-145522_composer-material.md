@@ -29,3 +29,25 @@ what remains.
 ## How to run
 
 `cd explorer && npm test` (vitest); browser pass in the closing note.
+
+---
+
+## Closed — 2026-08-22 (issue #95)
+
+Coverage landed (appended to `explorer/src/composer/material.test.mjs`,
+now 10 checks):
+
+- **Empty-list legality pinned:** clearing a motif's pitches entirely is
+  schema-legal (empty array validates; the composer surfaces it as info,
+  not error — benchmark recall degrades downstream, by design).
+
+Deferred (still open, with triggers):
+
+- **UI-level edit round-trip + list/scalar resync** — same DOM-renderer
+  dependency as #93/#94 (jsdom/happy-dom decision for the human).
+- **Grid mode** — only text landed; pin per-cell behavior if a grid
+  editor is added.
+- **Motif kind transitions** — kind field editing is post-MVP scope; pin
+  when it lands.
+
+Run: `cd explorer && npm test`.
