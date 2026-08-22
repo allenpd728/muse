@@ -78,5 +78,21 @@ check("must_contain motif.a realized in lead", synth.notes.some((n) => n.part ==
   }
 }
 
+// Fallback realization (issue #91): corpus imports (motifs, no themes/uses)
+// must never render silent; some imports lack sections entirely.
+{
+  const chorales = ["bwv269", "bwv316", "bwv26.6", "bwv292", "bwv331", "bwv344"];
+  for (const name of chorales) {
+    const doc = JSON.parse(await readFile(new URL(`../benchmark/corpus/${name}.muse.json`, import.meta.url), "utf8"));
+    const perf = expandOffline(doc, doc.renditions[0]);
+    check(`corpus ${name} renders >0 notes via fallback`, perf.notes.length > 0);
+  }
+  const bwv269 = JSON.parse(await readFile(new URL("../benchmark/corpus/bwv269.muse.json", import.meta.url), "utf8"));
+  const n = expandOffline(bwv269, bwv269.renditions[0]).notes.length;
+  check("bwv269 note count in a sane band of the source (~229)", n >= 20 && n <= 460);
+  // Fallback must not fire when uses exist: full example pinned above
+  // (base/seq/inv realization checks already cover it).
+}
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
