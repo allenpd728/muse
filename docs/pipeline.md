@@ -22,21 +22,21 @@ TASK_WORKFLOW.md: status sweep is a session duty). Status values:
 | Step | Tool | Status | Notes |
 |---|---|---|---|
 | 1. Author | external DAW/notation (MusicXML/MIDI out) | ✅ done | any tool with MusicXML/MIDI export works |
-| 2. Import | `importer/` (MIDI/MusicXML → IR → schema) | ✅ done | Batch 2; large scores need `--max-old-space-size` |
-| 3. Refine | manual JSON edit + explorer inspection | ⚠️ partial | composer tool scoped (#74); MVP graph model + lossless round-trip done (#79), shell next (#80) |
-| 4. Validate | `tools/validate.mjs`, `schema/`, semantics lint | ✅ done | Batch 1; 48 suite groups green; v0.3 adds tempo_shapes, structured instrumentation, mix topology (#75–#77) |
-| 5. Interpret | `interpreter/offline.mjs` / `expand.mjs` | ⚠️ partial | hand-authored examples render; imported corpus → 0 notes (#88) |
-| 6. Play | `player/render.mjs` → WAV | ✅ done | deterministic synthesis placeholder; demo WAVs in `docs/demo/` |
-| 7. Listen | — | 🔄 in progress | scoped (#89); core + tab done (#97–#98), A/B + WAV next (#99–#100) |
+| 2. Import | `importer/` (MIDI/MusicXML → IR → schema) | ✅ done | Batch 2; themes assembled + uses wired (#92); large scores need `--max-old-space-size` |
+| 3. Refine | composer tool (`explorer/src/composer/`) | ✅ done | full MVP: graph model (#79), shell (#80), edge editing (#81), material editors (#82), validation + export (#83) |
+| 4. Validate | `tools/validate.mjs`, `schema/`, semantics lint | ✅ done | Batch 1; 57 suites green; v0.3 adds tempo_shapes, structured instrumentation, mix topology (#75–#77, tests #84–#87) |
+| 5. Interpret | `interpreter/offline.mjs` / `expand.mjs` | ✅ done | offline fallback realization (#91); LLM harness with retry loop; Gemini free-tier adapter (#106/#110), manual paste mode (#108/#111); live E2E pending key (#113) |
+| 6. Play | `player/render.mjs` → WAV | ✅ done | render-core split (browser-safe) with honor-or-drop techniques (#86); demo WAVs in `docs/demo/` |
+| 7. Listen | `explorer/src/listen/` | ✅ done | playback core (#97), Listen tab (#98), A/B rendition switch (#99), WAV download (#100) |
 
 ## Supporting surfaces
 
 | Surface | Status | Notes |
 |---|---|---|
-| Explorer (`dev--muse-qa-58fd708e.netlify.app`) | ✅ done | read-only browse/validate; QA preview only |
-| Benchmark corpus (10 public-domain imports) | ⚠️ partial | validates; audible pending #88 |
-| Conformance metrics harness | ✅ done | #72 landed (154e10e); test follow-up #90 available |
-| CI (GitHub Actions) | 🚫 blocked | account billing lock — #42, needs human |
+| Explorer (`dev--muse-qa-58fd708e.netlify.app`) | ✅ done | read-only browse/validate + composer + listener; QA preview only |
+| Benchmark corpus (10 public-domain imports) | ✅ done | validates + audible (themes assembled #92, fallback realization #91); metrics score all entries |
+| Conformance metrics harness | ✅ done | #72 landed (154e10e); residual coverage #90 closed — motif recall (incl. rhythm-grid), structure fidelity, tempo-shape conformance, harmonic fidelity |
+| CI (GitHub Actions) | 🚫 blocked | account billing lock — #42, needs human (workflow registered, runs blocked at startup; evidence bundle ready for support ticket) |
 
 ## Update rule
 
