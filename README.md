@@ -26,6 +26,7 @@ Muse is built as four layers (status details in [docs/pipeline.md](docs/pipeline
 `tools/play.mjs` and `interpreter/expand.mjs` share the same provider order — **offline → Gemini free tier → paid adapters**:
 
 - **Offline** (default): deterministic rule-based expander, no API key.
+- **Manual paste** (`node interpreter/expand.mjs <doc> --manual`, or `MUSE_MANUAL=1`): prints the prompt, reads the model's JSON response from stdin, runs the same validate→feedback→retry loop. Zero API key — the transport is the human clipboard.
 - **`MUSE_PROVIDER=gemini`** + `GEMINI_API_KEY`: Google AI Studio free tier; requests structured JSON (`responseMimeType: application/json`). Default model: `gemini-2.0-flash`.
 - **`MUSE_PROVIDER=anthropic`** + `ANTHROPIC_API_KEY`, or **`MUSE_PROVIDER=openai`** + `OPENAI_API_KEY`: paid adapters.
 
