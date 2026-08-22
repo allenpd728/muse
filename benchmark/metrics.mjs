@@ -118,14 +118,81 @@ export function structureFidelity(schema, perf) {
   };
 }
 
+// Tempo-shape conformance (spec §2.5, v0.3): a perf tempo_map must realize
+// every constraints.tempo_shapes entry — rit./accel. as a monotone ramp
+// ending at target_bpm within the span; rubato within the deviation band,
+// returning to base tempo at section end.
+export function tempoShapeConformance(schema, perf) {
+  const shapes = schema.constraints?.tempo_shapes ?? {};
+  const map = [...(perf.tempo_map ?? [])].sort((a, b) => a.beat - b.beat);
+  const barBeats = beatsPerBar(schema.globals?.meter);
+  const sections = new Map((schema.form?.sections ?? []).map((s) => [s.id, s]));
+  const repetition = schema.form?.repetition ?? {};
+  // Section spans in the expanded order (repetition min applied, matching
+  // the interpreter's expansion rule); a repeated section's span covers its
+  // first through last occurrence.
+  const spans = new Map();
+  let bar = 0;
+  for (const id of schema.form?.order ?? []) {
+    const s = sections.get(id);
+    if (!s) continue;
+    const bars = s.bars ?? 4;
+    const reps = repetition[id]?.min ?? 1;
+    for (let r = 0; r < reps; r++) {
+      const prev = spans.get(id);
+      spans.set(id, {
+        start: Math.min(prev?.start ?? Infinity, bar * barBeats),
+        end: Math.max(prev?.end ?? -Infinity, (bar + bars) * barBeats),
+      });
+      bar += bars;
+    }
+  }
+
+  const detail = [];
+  for (const [sectionId, shape] of Object.entries(shapes)) {
+    const span = spans.get(sectionId);
+    if (!span) { detail.push({ section: sectionId, kind: shape.kind, conformant: false, reason: "section not in form" }); continue; }
+    const inSpan = map.filter((p) => p.beat >= span.start - EPS && p.beat <= span.end + EPS);
+    if (shape.kind === "ritardando" || shape.kind === "accelerando") {
+      const dir = shape.kind === "ritardando" ? -1 : +1;
+      const points = inSpan.length ? inSpan : map;
+      const monotone = points.every((p, i) => i === 0 || dir * (p.bpm - points[i - 1].bpm) >= -EPS);
+      const final = points.at(-1);
+      const reaches = final && Math.abs(final.bpm - shape.target_bpm) <= EPS;
+      detail.push({
+        section: sectionId, kind: shape.kind,
+        conformant: Boolean(monotone && reaches),
+        monotone, final_bpm: final?.bpm, target_bpm: shape.target_bpm,
+      });
+    } else if (shape.kind === "rubato") {
+      const base = map.filter((p) => p.beat < span.start - EPS).at(-1)?.bpm ?? map[0]?.bpm;
+      const within = inSpan.every((p) => Math.abs(p.bpm - base) <= shape.deviation_bpm + EPS);
+      const last = inSpan.at(-1);
+      const returns = last && Math.abs(last.bpm - base) <= EPS;
+      detail.push({
+        section: sectionId, kind: "rubato",
+        conformant: Boolean(within && returns),
+        base_bpm: base, deviation_bpm: shape.deviation_bpm,
+      });
+    } else {
+      detail.push({ section: sectionId, kind: shape.kind, conformant: false, reason: "unknown kind" });
+    }
+  }
+  const conformant = detail.filter((d) => d.conformant).length;
+  return { score: detail.length ? conformant / detail.length : 1, targets: detail.length, detail };
+}
+
 export const scorePerformance = (schema, perf) => {
   const motif = motifRecall(schema, perf);
   const structure = structureFidelity(schema, perf);
+  const tempoShapes = tempoShapeConformance(schema, perf);
   return {
     motif_recall: Math.round(motif.score * 1000) / 1000,
     structure_fidelity: Math.round(structure.score * 1000) / 1000,
+    tempo_shapes: Math.round(tempoShapes.score * 1000) / 1000,
     per_motif: motif.detail,
     structure,
+    tempo_shape_detail: tempoShapes.detail,
   };
 };
 

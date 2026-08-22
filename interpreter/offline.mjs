@@ -85,11 +85,37 @@ export function expandOffline(doc, rendition, { at = "2026-08-22T00:00:00Z" } = 
     const reps = repetition[id]?.min ?? 1;
     return Array.from({ length: reps }, () => id);
   });
+  // Realize constraints.tempo_shapes into the tempo_map (spec §2.5: the
+  // schema constrains, the performance realizes — rit./accel. appear as a
+  // monotone ramp ending at target_bpm within the span; rubato deviates
+  // within the band and returns to tempo at section end).
+  const tempoShapes = doc.constraints?.tempo_shapes ?? {};
+  const tempoMap = [{ time: 0.0, beat: 0, bpm }];
   let bar = 0;
   for (const sectionId of expandOrder) {
     const section = sectionsById.get(sectionId);
     if (!section) continue;
     const sectionBars = section.bars ?? 4;
+    const shape = tempoShapes[sectionId];
+    if (shape) {
+      const startBeat = bar * barBeats;
+      const endBeat = (bar + sectionBars) * barBeats;
+      const spanBeats = shape.span === "final_bars" || shape.span === "opening_bars"
+        ? Math.min(sectionBars, 2) * barBeats // bar-count scoping: up to 2 bars each side
+        : endBeat - startBeat;
+      if (shape.kind === "ritardando" || shape.kind === "accelerando") {
+        const rampStart = shape.span === "final_bars" ? endBeat - spanBeats : startBeat;
+        const rampEnd = shape.span === "opening_bars" ? startBeat + spanBeats : endBeat;
+        tempoMap.push({ time: rampStart * spb, beat: rampStart, bpm: tempoMap.at(-1).bpm });
+        tempoMap.push({ time: rampEnd * spb, beat: rampEnd, bpm: shape.target_bpm });
+      } else if (shape.kind === "rubato") {
+        const base = tempoMap.at(-1).bpm;
+        const dev = shape.deviation_bpm;
+        tempoMap.push({ time: startBeat * spb, beat: startBeat, bpm: base + dev });
+        tempoMap.push({ time: (startBeat + (endBeat - startBeat) / 2) * spb, beat: startBeat + (endBeat - startBeat) / 2, bpm: base - dev });
+        tempoMap.push({ time: endBeat * spb, beat: endBeat, bpm: base });
+      }
+    }
     const sectionStartBeat = bar * barBeats;
     const energy = section.energy ?? 0.5;
     const velocity = Math.round(55 + 45 * energy * density);
@@ -152,7 +178,7 @@ export function expandOffline(doc, rendition, { at = "2026-08-22T00:00:00Z" } = 
       source: { schema_id: doc.metadata?.id ?? "unknown", rendition_id: rendition?.id ?? "r.default" },
       interpreter: { model: "offline-expander-v0", at },
     },
-    tempo_map: [{ time: 0.0, beat: 0, bpm }],
+    tempo_map: tempoMap,
     parts,
     notes: notes.sort((a, b) => a.onset - b.onset || a.pitch - b.pitch),
     dynamics: [

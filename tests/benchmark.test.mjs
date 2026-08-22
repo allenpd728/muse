@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { motifRecall, structureFidelity, scorePerformance, referencePerformance } from "../benchmark/metrics.mjs";
+import { motifRecall, structureFidelity, scorePerformance, referencePerformance, tempoShapeConformance } from "../benchmark/metrics.mjs";
 import { expandOffline } from "../interpreter/offline.mjs";
 
 const full = JSON.parse(await readFile(new URL("../examples/full.muse.json", import.meta.url), "utf8"));
@@ -103,6 +103,55 @@ check("no form declared scores 1", structureFidelity({ material: {} }, perf([]))
   check("full example synthwave: motif_recall 1", r.motif_recall === 1);
   check("full example synthwave: structure_fidelity 1 (repetition min honored)",
     r.structure_fidelity === 1);
+  check("full example synthwave: tempo_shapes conformance 1 (cadenza rit. realized)",
+    r.tempo_shapes === 1);
+}
+
+// Tempo-shape conformance (v0.3, issue #84): the semantic half of the
+// constraints.tempo_shapes contract.
+{
+  const shapeSchema = (shape) => ({
+    material: {},
+    form: { sections: [{ id: "s1", role: "verse", bars: 4 }], order: ["s1"] },
+    constraints: { tempo_shapes: { s1: shape } },
+    globals: { meter: { beats: 4, unit: 4 } },
+  });
+  const ramp = (from, to, beats) => ({
+    tempo_map: [{ time: 0, beat: 0, bpm: from }, { time: beats * 0.5, beat: beats, bpm: to }],
+    notes: [],
+  });
+  check("ritardando: monotone ramp to target conforms",
+    tempoShapeConformance(shapeSchema({ kind: "ritardando", target_bpm: 72 }), ramp(96, 72, 16)).score === 1);
+  check("accelerando: monotone ramp up to target conforms",
+    tempoShapeConformance(shapeSchema({ kind: "accelerando", target_bpm: 120 }), ramp(96, 120, 16)).score === 1);
+  check("ritardando: ramp not reaching target fails", (() => {
+    const r = tempoShapeConformance(shapeSchema({ kind: "ritardando", target_bpm: 72 }), ramp(96, 80, 16));
+    return r.score === 0 && r.detail[0].conformant === false;
+  })());
+  check("ritardando: non-monotone ramp fails", (() => {
+    const wobble = { tempo_map: [{ time: 0, beat: 0, bpm: 96 }, { time: 4, beat: 8, bpm: 100 }, { time: 8, beat: 16, bpm: 72 }], notes: [] };
+    return tempoShapeConformance(shapeSchema({ kind: "ritardando", target_bpm: 72 }), wobble).score === 0;
+  })());
+  check("rubato: bounded deviation returning to base conforms", (() => {
+    const rub = { tempo_map: [
+      { time: 0, beat: 0, bpm: 100 }, { time: 4, beat: 8, bpm: 96 }, { time: 8, beat: 16, bpm: 100 },
+    ], notes: [] };
+    return tempoShapeConformance(shapeSchema({ kind: "rubato", deviation_bpm: 6 }), rub).score === 1;
+  })());
+  check("rubato: deviation beyond band fails", (() => {
+    const rub = { tempo_map: [
+      { time: 0, beat: 0, bpm: 100 }, { time: 4, beat: 8, bpm: 88 }, { time: 8, beat: 16, bpm: 100 },
+    ], notes: [] };
+    return tempoShapeConformance(shapeSchema({ kind: "rubato", deviation_bpm: 6 }), rub).score === 0;
+  })());
+  check("rubato: not returning to base tempo fails", (() => {
+    const rub = { tempo_map: [
+      { time: 0, beat: 0, bpm: 100 }, { time: 4, beat: 8, bpm: 96 }, { time: 8, beat: 16, bpm: 96 },
+    ], notes: [] };
+    return tempoShapeConformance(shapeSchema({ kind: "rubato", deviation_bpm: 6 }), rub).score === 0;
+  })());
+  check("no tempo_shapes → score 1 (vacuous)",
+    tempoShapeConformance(schema([motif]), perf([])).score === 1);
 }
 
 // DoD: ≥2 corpus entries scored end-to-end — reference performance (the
