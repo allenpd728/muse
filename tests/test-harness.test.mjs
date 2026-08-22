@@ -89,6 +89,55 @@ check("empty sections and must_contain: no dangles", dangles({
   form: { sections: [] },
   constraints: { must_contain: [] },
 }).length === 0);
+
+// --- Reference surfaces added in #47 ---
+const withSections = {
+  material,
+  form: {
+    sections: [{ id: "verse.1" }, { id: "chorus.1" }],
+    order: ["verse.1", "chorus.1", "verse.1"],
+    repetition: { "verse.1": { min: 2, max: 4 } },
+  },
+  constraints: {
+    tempo_lock: { "chorus.1": [92, 104] },
+    register: { "theme.1": ["C4", "A5"] },
+  },
+};
+check("all five surfaces resolve when ids exist", dangles(withSections).length === 0);
+
+check("theme phrase motif ref resolves against material ids", dangles({
+  material,
+  form: { sections: [{ id: "s1" }], order: ["s1"] },
+}).length === 0);
+check("theme phrase motif ref to unknown id dangles", dangles({
+  material: { themes: [{ id: "theme.1", phrases: [{ motifs: ["motif.ghost"] }] }] },
+  form: { sections: [{ id: "s1" }], order: ["s1"] },
+}).includes("motif.ghost"));
+check("theme phrase motif ref strips transform suffix", dangles({
+  material: { ...material, themes: [{ id: "theme.1", phrases: [{ motifs: ["motif.a#inv"] }] }] },
+  form: { sections: [{ id: "s1" }], order: ["s1"] },
+}).length === 0);
+
+check("form.order ghost section dangles", dangles({
+  ...withSections,
+  form: { ...withSections.form, order: ["verse.1", "section.ghost"] },
+}).includes("section.ghost"));
+check("form.repetition ghost key dangles", dangles({
+  ...withSections,
+  form: { ...withSections.form, repetition: { "section.ghost": { min: 1, max: 2 } } },
+}).includes("section.ghost"));
+check("constraints.tempo_lock ghost key dangles", dangles({
+  ...withSections,
+  constraints: { ...withSections.constraints, tempo_lock: { "section.ghost": [90, 100] } },
+}).includes("section.ghost"));
+check("constraints.register ghost material key dangles", dangles({
+  ...withSections,
+  constraints: { ...withSections.constraints, register: { "motif.ghost": ["C4", "A5"] } },
+}).includes("motif.ghost"));
+check("order/repetition/tempo_lock/register absent: no dangles, no crash", dangles({
+  material,
+  form: { sections: [{ id: "s1" }] },
+}).length === 0);
 check("pinned: harmony as object is flagged (form.schema.json types harmony as string; spec §2.5 cross-ref requires it to resolve)", dangles({
   material,
   form: { sections: [{ id: "s1", harmony: { ref: "prog.verse" } }] },
