@@ -46,3 +46,25 @@ assert exit codes. Either shape lands under `npm test`.
 The harness intentionally spawns `tools/validate.mjs` as a child process so the
 CLI contract (exit codes, `valid:`/`invalid:` output) is exercised by the same
 suite — tests written for #26's spec should slot into the same loops.
+
+---
+
+## Closed — 2026-08-22 (issue #27)
+
+Coverage landed:
+
+- `tests/test-harness.test.mjs` — 18 unit checks against `danglingRefs()`
+  (exported from `tools/test.mjs`, now import-safe behind an
+  `invokedDirectly` guard). Covers: uses-ref resolution incl. transform
+  suffixes and multi-`#` base-id pinning, harmony refs resolving against
+  progression ids only, must_contain resolution, missing-section no-crash,
+  sparse-entry skipping, empty-array edge cases.
+- Invalid-example rejection channel (schema fail OR dangling refs OR
+  unparseable) and `.expected.json` sidecar assertions remain covered by the
+  harness's own `mustReject` loop, exercised end-to-end once #14 lands
+  `examples/invalid/` fixtures.
+- Pins recorded in test names: `harmony` as non-string is flagged; progression
+  ids as `uses[].ref` dangle (progressions are referenced via section
+  `harmony` only).
+
+Run: `npm test` (folds in `tests/test-harness.test.mjs`).

@@ -7,6 +7,7 @@
 import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
 const SCHEMA = "schema/muse.schema.json";
@@ -42,7 +43,7 @@ const progressionIds = (doc) =>
 
 const baseRef = (ref) => String(ref).split("#")[0];
 
-function danglingRefs(doc) {
+export function danglingRefs(doc) {
   const ids = materialIds(doc);
   const progs = progressionIds(doc);
   const out = [];
@@ -62,6 +63,13 @@ const listJson = async (dir) =>
   (await readdir(dir)).filter((f) => f.endsWith(".muse.json")).sort();
 
 // --- Main ---
+
+// Unit tests import danglingRefs() without running the harness (see
+// tests/test-harness.test.mjs, per tests/open_20260822-013951_test-harness.md).
+const invokedDirectly =
+  !!process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invokedDirectly) {
 const name = (p) => path.basename(p);
 
 // 1. Fixtures: a valid doc, a schema-invalid doc, and a schema-valid doc with
@@ -140,3 +148,4 @@ for (const f of (await readdir("tests")).filter((x) => x.endsWith(".test.mjs")).
 
 console.log(`# ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
+}
