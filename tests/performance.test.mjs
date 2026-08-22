@@ -64,5 +64,14 @@ check("unknown top-level member rejected", !validate((() => { const d = clone();
 check("optional controllers validate", validate((() => { const d = clone(); d.notes[0].controllers = { pressure: [0.5, 0.7] }; return d; })()));
 check("empty notes array valid (rest-only performance)", validate((() => { const d = clone(); d.notes = []; return d; })()));
 
+// v0.3 instrumentation depth (issue #76)
+check("instrument divisi valid", validate((() => { const d = clone(); d.parts[0].instrument.divisi = 2; return d; })()));
+check("instrument divisi 1 rejected", !validate((() => { const d = clone(); d.parts[0].instrument.divisi = 1; return d; })()));
+check("instrument doubles valid", validate((() => { const d = clone(); d.parts[0].instrument.doubles = ["piccolo"]; return d; })()));
+check("instrument doubles empty-string entry rejected", !validate((() => { const d = clone(); d.parts[0].instrument.doubles = [""]; return d; })()));
+check("instrument techniques valid", validate((() => { const d = clone(); d.parts[0].instrument.techniques = ["pizzicato", "sul_ponticello"]; return d; })()));
+check("unknown technique rejected", !validate((() => { const d = clone(); d.parts[0].instrument.techniques = ["sul_"]; return d; })()));
+check("instrument unknown member still rejected (sealed)", !validate((() => { const d = clone(); d.parts[0].instrument.bogus = 1; return d; })()));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
