@@ -9,6 +9,7 @@
     "test": "node tools/test.mjs"
   },
   "dependencies": {
+    "@tonejs/midi": "^2.0.28",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1"
   }
