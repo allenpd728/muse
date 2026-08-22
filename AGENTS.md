@@ -38,12 +38,13 @@ Components, in dependency order:
 
 ## Build / test
 
-Nothing to build yet — the repo currently contains documents only. When tooling lands:
+- `npm test` — the harness (`tools/test.mjs`): fixture self-tests, every `examples/*.muse.json` validated (schema + cross-refs + semantics), every `examples/invalid/*.muse.json` rejected with `.expected.json` sidecar messages, then every `tests/*.test.mjs` suite spawned and folded in. New suites land as `tests/<name>.test.mjs` and are picked up automatically.
+- `npm run validate -- <doc> [schema]` — the validator CLI (`tools/validate.mjs`); exit 0 valid, 1 invalid, readable ajv errors.
+- `npm run test:explorer` — the explorer/composer/listener suites (vitest, `explorer/` package).
+- `npm run expand` / `npm run render` / `npm run play` — interpreter harness, player CLI, and the end-to-end demo (schema → expansion → WAV).
+- Benchmark conformance: `node benchmark/metrics.mjs <schema.muse.json> <performance.json>` — motif recall, structure fidelity, tempo-shape conformance, harmonic fidelity.
 
-- Schema validation: JSON Schema validator against example documents in `examples/` (planned).
-- Engine conformance: motif-recall and structure-fidelity harness (planned).
-
-Update this section as tooling is added; do not leave it stale.
+CI runs `npm ci && npm test && npm --prefix explorer ci && npm run test:explorer` on push to `dev` and PRs (`.github/workflows/ci.yml`).
 
 ## Repository layout
 
@@ -61,6 +62,6 @@ tools/                # validate/test/semantics/refs CLIs + play.mjs (schema→a
 importer/             # MIDI/MusicXML → IR → .muse.json (cli, parsers, synthesize, fixtures)
 interpreter/          # expand.mjs (LLM harness + adapters) + offline.mjs (no-key reference)
 player/               # render.mjs — performance document → WAV (V1 synthesis)
-explorer/             # Vite+React static app: read-only browser + listener tab
+explorer/             # Vite+React static app: read-only browser, composer (node editor), listener (playback + A/B + WAV)
 benchmark/            # corpus/ (10 public-domain imports) + metrics.mjs conformance scoring
 ```
