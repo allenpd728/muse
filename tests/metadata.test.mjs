@@ -8,6 +8,11 @@ const schema = JSON.parse(await readFile(new URL("../schema/metadata.schema.json
 const ajv = new Ajv({ allErrors: true, strict: false });
 addFormats(ajv); // schema uses format: date-time
 const validate = ajv.compile(schema);
+// Form schema loaded for the §2.8 convention-not-enforcement pin (issue #51).
+// form.schema.json refs material's materialRef — pre-register the sibling first.
+ajv.addSchema(JSON.parse(await readFile(new URL("../schema/material.schema.json", import.meta.url), "utf8")));
+const formSchema = JSON.parse(await readFile(new URL("../schema/form.schema.json", import.meta.url), "utf8"));
+const validateForm = ajv.compile(formSchema);
 
 let passed = 0, failed = 0;
 const check = (name, cond) => {
@@ -61,6 +66,16 @@ for (const ch of ["I", "L", "O", "U"]) {
   check(`ULID with excluded char '${ch}' rejected`, !validate(patched({ id: ch + base.id.slice(1) })));
 }
 
+// Prefixed form (issue #43 / spec §2.1+§2.8; residual coverage issue #51)
+check("muse:work: + ULID valid (spec §2.1 example form)", validate(patched({ id: `muse:work:${base.id}` })));
+check("muse:work: + UUID valid (prefix composes with both id kinds)", validate(patched({ id: "muse:work:3f6b2a10-7c4d-4e5f-9a8b-0c1d2e3f4a5b" })));
+check("wrong namespace prefix rejected", !validate(patched({ id: `muse:track:${base.id}` })));
+check("prefixed ULID wrong length rejected", !validate(patched({ id: `muse:work:${base.id.slice(0, 25)}` }))
+  && !validate(patched({ id: `muse:work:${base.id}0` })));
+check("prefixed lowercase ULID rejected", !validate(patched({ id: `muse:work:${base.id.toLowerCase()}` })));
+check("prefixed malformed UUID rejected", !validate(patched({ id: "muse:work:3f6b2a10-7c4d-4e5f-9a8b" })));
+check("double prefix rejected", !validate(patched({ id: `muse:work:muse:work:${base.id}` })));
+
 // Formats and lengths
 check("created not RFC 3339 rejected", !validate(patched({ created: "2026-08-21" })));
 check("empty title rejected", !validate(patched({ title: "" })));
@@ -70,6 +85,11 @@ check("empty composer.name rejected", !validate(patched({ composer: { name: "" }
 check("unknown top-level property rejected", !validate(patched({ extra: true })));
 check("unknown license property rejected", !validate(patched({ license: { renditions: "closed", extra: true } })));
 check("provenance item missing event rejected", !validate(patched({ provenance: [{ actor: "x" }] })));
+
+// §2.8 convention-not-enforcement pin (issue #51): internal ids are dotted
+// slugs by convention only — the schemas deliberately do not enforce it.
+check("non-slug section id validates (§2.8 convention, not enforcement)",
+  validateForm({ sections: [{ id: "verse one!", role: "verse" }], order: ["verse one!"] }));
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
