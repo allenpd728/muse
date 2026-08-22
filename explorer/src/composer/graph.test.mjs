@@ -35,4 +35,16 @@ describe("composer graph round-trip", () => {
     for (const t of ["phrase-motif", "uses", "harmony", "order"])
       expect(types.has(t), `edge type ${t}`).toBe(true);
   });
+
+  // Edge-wins semantics (issue #94 pin): removing all uses/harmony edges
+  // clears the stale projected fields on compile — no ghost references
+  // survive an edge deletion.
+  test("edge removal clears projected uses/harmony (edge-wins semantics)", () => {
+    const doc = readJson("public/examples/full.muse.json");
+    const g = docToGraph(doc);
+    const noUses = compile({ nodes: g.nodes, edges: g.edges.filter((e) => e.type !== "uses") }, doc);
+    for (const s of noUses.form.sections) expect(s.uses).toBeUndefined();
+    const noHarmony = compile({ nodes: g.nodes, edges: g.edges.filter((e) => e.type !== "harmony") }, doc);
+    for (const s of noHarmony.form.sections) expect(s.harmony).toBeUndefined();
+  });
 });

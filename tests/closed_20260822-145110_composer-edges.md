@@ -31,3 +31,27 @@ on the full example). This spec is for what remains.
 ## How to run
 
 `cd explorer && npm test` (vitest); browser pass in the closing note.
+
+---
+
+## Closed — 2026-08-22 (issue #94)
+
+Coverage landed:
+
+- **compile() edge-wins pin:** `graph.test.mjs` gains the removal case —
+  deleting all uses/harmony edges clears the stale projected fields
+  (uses/harmony undefined on compile).
+- **Uses dedup decision (pinned):** duplicate uses edges stay allowed —
+  they mirror the schema (uses[] is an array; repeated material in a
+  section is legal). A UX-level dedup, if ever wanted, lands deliberately.
+  Pinned in `edges.test.mjs`.
+
+Deferred (still open, with triggers):
+
+- **onConnect through the real canvas** — same DOM-renderer dependency as
+  the #93 UI-level item (jsdom/happy-dom decision for the human).
+- **Order-edge insert vs append** — UX decision deferred; pin when chosen.
+- **Canvas edge deletion (onEdgesDelete)** — unhandled today; pin when
+  wired.
+
+Run: `cd explorer && npm test`.

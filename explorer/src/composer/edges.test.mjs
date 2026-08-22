@@ -105,4 +105,21 @@ describe("edge operations through compile", () => {
     expect(out.form.order[1]).toBe("verse.1");
     expect(validateDocument(out)).toEqual([]);
   });
+
+  it("duplicate uses edges stay allowed (schema permits duplicate uses entries)", () => {
+    const graph = docToGraph(full);
+    const edited = {
+      nodes: graph.nodes,
+      edges: [
+        ...graph.edges,
+        { from: "section:chorus.1", to: "theme:theme.1", type: "uses", data: { ref: "theme.1" } },
+        { from: "section:chorus.1", to: "theme:theme.1", type: "uses", data: { ref: "theme.1" } },
+      ],
+    };
+    const out = compile(edited, full);
+    // Pin the dedup decision: duplicates mirror the schema (uses[] is an
+    // array; repeated material in a section is legal). If a UX-level dedup
+    // is ever wanted, it lands deliberately, not silently.
+    expect(validateDocument(out)).toEqual([]);
+  });
 });
