@@ -4,14 +4,16 @@ Context and conventions for AI agents (and humans) working in this repository.
 
 ## What this project is
 
-Muse is a **schema-first generative music platform**. Composers author a semantic schema describing a composition (tempo, meter, form, sections, themes, motifs, variations, rhythms, harmony, constraints); a generative audio engine renders the schema in real time; listeners choose among sanctioned **renditions** (genre/style treatments) of the same work. The schema — not audio, not a prompt — is the canonical release artifact.
+Muse is a **schema-first generative music platform**. A `.muse.json` file captures what makes a piece *this* piece (themes, motifs, form, harmony, constraints) and leaves open what a performer would decide (voicing, orchestration, microtiming, dynamics). Any capable model expands it into a performance; any conforming player renders it. The schema — not audio, not a prompt — is the canonical release artifact. See [`docs/vision.md`](docs/vision.md) for the full product thesis.
 
-Four layers, in dependency order:
+Components, in dependency order:
 
 1. **Semantic schema** — spec lives in [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md). Everything else conforms to it.
-2. **Composer interface** — node-based visual editor that compiles to the schema (not yet built).
-3. **Generative audio engine** — renders schema + rendition params to audio (not yet built).
-4. **Listener front end** — rendition selection and playback (not yet built).
+2. **Performance layer** — concrete expressive event format (spec gap; to be authored).
+3. **Importer** — MIDI/MusicXML → `.muse.json` (not yet built).
+4. **Interpreter** — any LLM expands schema + rendition into the performance layer (not yet built).
+5. **Player** — V1 synthesis/samples, V2 optional audio-model plugins (not yet built).
+6. **Composer interface** — node-based editor; deferred in favor of the importer.
 
 ## Ground rules
 
@@ -47,10 +49,12 @@ SCHEMA_SPEC.md        # normative spec (this is the source of truth)
 PRIOR_ART_REVIEW.md   # landscape research
 TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
 README.md             # vision + architecture
+docs/                 # vision, milestone scope docs
 blockers/             # open_/closed_ blocker reports needing human input
 examples/             # example .muse.json documents (planned)
 schema/               # JSON Schema validation files (planned)
-composer/             # node-based authoring UI (planned)
-engine/               # generative rendering engine (planned)
-listener/             # listener-facing app (planned)
+tools/                # validator CLI + test harness (planned)
+importer/             # MIDI/MusicXML → .muse.json (planned)
+player/               # performance renderer (planned)
+composer/             # node-based authoring UI (deferred)
 ```

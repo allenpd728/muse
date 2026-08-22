@@ -198,3 +198,17 @@ A renderer is **Muse-conforming** if it:
 - Representation of microtonality/tuning systems beyond 12-TET.
 - Whether `constraints` should support engine-checkable predicates (e.g., "chorus must be ≥ +6 dB denser than verse") as a typed DSL.
 - Minimal motif encoding for non-pitched / timbral material.
+
+## 7. Performance layer (planned)
+
+A companion spec will define the **performance document**: the concrete event
+format an interpreter produces from a schema + rendition and a player renders
+to audio. Expressive-MIDI-as-JSON: note events with pitch/onset/duration/
+velocity/articulation, tempo and dynamics curves, instrument/patch assignments,
+mixing directives. Prior art to curate: Magenta NoteSequence (absolute-time
+note model), MIDI 2.0 (per-note controllers), MNX (JSON notation modeling).
+Feasibility grounding: expressive performance rendering literature (Performance
+RNN et al.) demonstrates score → expressive performance is tractable.
+
+The schema defines the space; the performance document is a point in it. Both
+sides of that contract — interpreter and player — validate against it.
