@@ -31,3 +31,7 @@ assertions.
 ajv draft 2020-12 support comes from `ajv/dist/2020.js`; a regression to plain
 `ajv` import surfaces as "no schema with key or ref .../2020-12/schema" — pin
 that in a test.
+
+## Resolution
+
+Landed in `tests/validate-cli.test.mjs` — 10 cases, all passing (`node tests/validate-cli.test.mjs`). Covers valid/missing-required/wrong-type/non-JSON/missing-file/malformed-schema/no-arg/empty-object/unknown-props/default-schema-path. Folds into the #3 harness when it lands.
