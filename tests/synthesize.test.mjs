@@ -152,5 +152,66 @@ const solo = synthesize({
 }, { source: "solo" });
 check("uncontained 3-note pattern extracts on its own", (solo.material?.motifs ?? []).some((m) => m.pitches.join() === "C4,D4,E4"));
 
+// --- Theme assembly + uses wiring (issue #92) ---
+
+// IR designed so extraction yields overlapping motifs: the ABCD figure and
+// its BCD suffix both recur, so the kept set contains chainable motifs.
+const chainIr = {
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [{ beat: 0, beats: 4, unit: 4 }],
+  keyMap: [],
+  parts: [{
+    id: "t", name: "T",
+    // A B C D | A B C D | B C D | B C D  (quarter notes)
+    notes: [60, 62, 64, 65, 60, 62, 64, 65, 62, 64, 65, 62, 64, 65].map((m, i) => quarter(m, i)),
+  }],
+};
+const chained = synthesize(chainIr, { source: "chain" });
+const chainedThemes = chained.material?.themes ?? [];
+check("overlapping motifs assemble into ≥1 theme", chainedThemes.length >= 1);
+check("theme references real motif ids (no dangling refs)", (() => {
+  const motifIds = new Set((chained.material?.motifs ?? []).map((m) => m.id));
+  return chainedThemes.every((t) => t.phrases.every((p) => p.motifs.every((r) => motifIds.has(r.split("#")[0]))));
+})());
+check("section uses wired when themes exist",
+  (chained.form?.sections?.[0]?.uses ?? []).length >= 1);
+check("theme assembly marked in extensions.importer.inferred",
+  (chained.extensions?.importer?.inferred ?? []).some((i) => i.path === "material.themes")
+  && (chained.extensions?.importer?.inferred ?? []).some((i) => i.path === "form.sections[].uses"));
+{
+  const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const path = await import("node:path");
+  const tmp = await mkdtemp(path.join(tmpdir(), "muse-synth-"));
+  try {
+    const p = path.join(tmp, "chained.muse.json");
+    await writeFile(p, JSON.stringify(chained));
+    const r = spawnSync(process.execPath, ["tools/validate.mjs", p, "schema/muse.schema.json"], { encoding: "utf8" });
+    check("assembled doc validates against the root schema", r.status === 0);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+}
+
+// No overlap → no themes, sections fall back to the bare motif pool.
+const noChain = synthesize({
+  tempoMap: [{ beat: 0, bpm: 100 }],
+  meterMap: [{ beat: 0, beats: 4, unit: 4 }],
+  keyMap: [],
+  parts: [{
+    id: "t", name: "T",
+    // Two unrelated figures, each repeated: C-E-G twice, D-F-A twice.
+    notes: [60, 64, 67, 60, 64, 67, 62, 65, 69, 62, 65, 69].map((m, i) => quarter(m, i)),
+  }],
+}, { source: "nochain" });
+check("no overlap → no themes, uses wired to bare motif pool",
+  (noChain.material?.themes ?? []).length === 0
+  && (noChain.form?.sections?.[0]?.uses ?? []).every((u) => u.ref.startsWith("motif.")));
+
+// Determinism: same IR → same themes (modulo provenance/id freshness).
+const again = synthesize(chainIr, { source: "chain" });
+check("theme assembly deterministic",
+  JSON.stringify(again.material?.themes) === JSON.stringify(chained.material?.themes));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

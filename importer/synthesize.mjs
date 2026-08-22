@@ -12,6 +12,53 @@ import { midiToPitch, normalizeIR, validateIR } from "./ir.mjs";
 const motifKey = (seq) =>
   seq.map((n, i) => (i === 0 ? `d${n.durationBeats}` : `${n.midi - seq[i - 1].midi},d${n.durationBeats}`)).join("|");
 
+// Chain motifs into themes by suffix/prefix overlap: if motif A's last k
+// notes (pitches + durations) equal motif B's first k, a phrase runs A
+// then B (the overlap is the seam, not a repeat). Greedy longest-first
+// chaining; a theme needs ≥2 motifs. Deterministic for a fixed motif set.
+const assembleThemes = (motifs, { minOverlap = 2 } = {}) => {
+  const sig = (m) => m.pitches.map((p, i) => `${p}/${m.durations?.[i] ?? 1}`);
+  const overlap = (a, b) => {
+    const [sa, sb] = [sig(a), sig(b)];
+    for (let k = Math.min(sa.length, sb.length) - 1; k >= minOverlap; k--)
+      if (sa.slice(-k).join("|") === sb.slice(0, k).join("|")) return k;
+    return 0;
+  };
+  const unused = new Map(motifs.map((m) => [m.id, m]));
+  const themes = [];
+  while (true) {
+    // Seed with the longest unused motif; extend right then left.
+    const seed = [...unused.values()].sort((a, b) => b.pitches.length - a.pitches.length)[0];
+    if (!seed) break;
+    unused.delete(seed.id);
+    const chain = [seed.id];
+    let right = seed;
+    while (true) {
+      const next = [...unused.values()]
+        .map((m) => ({ m, k: overlap(right, m) }))
+        .filter((x) => x.k > 0)
+        .sort((a, b) => b.k - a.k || b.m.pitches.length - a.m.pitches.length)[0]?.m;
+      if (!next) break;
+      chain.push(next.id);
+      unused.delete(next.id);
+      right = next;
+    }
+    let left = seed;
+    while (true) {
+      const prev = [...unused.values()]
+        .map((m) => ({ m, k: overlap(m, left) }))
+        .filter((x) => x.k > 0)
+        .sort((a, b) => b.k - a.k || b.m.pitches.length - a.m.pitches.length)[0]?.m;
+      if (!prev) break;
+      chain.unshift(prev.id);
+      unused.delete(prev.id);
+      left = prev;
+    }
+    if (chain.length >= 2) themes.push({ id: `theme.${themes.length + 1}`, phrases: [{ motifs: chain }] });
+  }
+  return themes;
+};
+
 const extractMotifs = (parts, { minLen = 3, minOccurrences = 2 } = {}) => {
   const counts = new Map(); // key -> { count, firstSeq }
   for (const part of parts) {
@@ -96,10 +143,29 @@ export function synthesize(ir, { title = "Imported work", source = "unknown" } =
     inferred.push({ path: "material.motifs", reason: `heuristic extraction: ${motifs.length} repeated interval/duration pattern(s) (≥3 notes, ≥2 occurrences, transposition counts)` });
   }
 
+  // Theme assembly (issue #92, scope doc: heuristic, marked, never silent):
+  // chain motifs by suffix/prefix overlap — the extractMotifs kept-set
+  // produces exactly these nested variants of the same underlying phrase.
+  // Sections then use the assembled theme (or the bare pool when nothing
+  // chains), so imports carry realizable structure.
+  const themes = assembleThemes(motifs);
+  if (themes.length) {
+    material.themes = themes;
+    inferred.push({ path: "material.themes", reason: `heuristic assembly: ${themes.length} theme(s) chained from motifs by suffix/prefix overlap — phrase structure needs cleanup` });
+  }
+
   let form;
   if (detectSections(doc.parts, beatsPerBarOf(globals.meter))) {
+    const section = { id: "section.1", role: "custom", bars: globals.duration_bars };
+    if (themes.length) {
+      section.uses = themes.map((t) => ({ ref: t.id }));
+      inferred.push({ path: "form.sections[].uses", reason: "sections wired to assembled themes — placement is whole-section, not per-occurrence" });
+    } else if (motifs.length) {
+      section.uses = motifs.map((m) => ({ ref: m.id }));
+      inferred.push({ path: "form.sections[].uses", reason: "no theme chains found; sections wired to the bare motif pool" });
+    }
     form = {
-      sections: [{ id: "section.1", role: "custom", bars: globals.duration_bars }],
+      sections: [section],
       order: ["section.1"],
     };
     inferred.push({ path: "form.sections", reason: "repeated bar content detected; collapsed to one custom section — role and structure need cleanup" });
