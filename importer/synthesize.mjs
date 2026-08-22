@@ -75,7 +75,7 @@ export function synthesize(ir, { title = "Imported work", source = "unknown" } =
   if (!doc.tempoMap.length) inferred.push({ path: "globals.tempo.bpm", reason: "no tempo in source; defaulted to 120" });
   const bpms = doc.tempoMap.map((t) => t.bpm);
   const tempo = { bpm: openingTempo };
-  if (Math.min(...bpms) !== Math.max(...bpms)) tempo.range = [Math.min(...bpms), Math.max(...bpms)];
+  if (bpms.length > 1 && Math.min(...bpms) !== Math.max(...bpms)) tempo.range = [Math.min(...bpms), Math.max(...bpms)];
 
   const globals = { tempo, duration_bars: 1 };
   if (doc.meterMap.length) {
