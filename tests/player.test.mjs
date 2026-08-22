@@ -90,5 +90,45 @@ check("no clipping beyond [-1, 1] after soft clip", peak(left) <= 1 && peak(righ
   check("empty notes render silence", rms(el) < 1e-6);
 }
 
+// --- Residual coverage (issue #66, per
+// tests/open_20260822-123200_player.md) ---
+
+// tempo_map disagreement: note seconds are authoritative for playback.
+{
+  const skewed = clone();
+  skewed.tempo_map = [{ time: 0, beat: 0, bpm: 30 }]; // half speed — must NOT change output
+  const [sl, sr2] = render(skewed, { sampleRate: SR });
+  check("tempo_map disagrees with note seconds: renders by note seconds",
+    sl.every((v, i) => v === left[i]) && sr2.every((v, i) => v === right[i]));
+}
+
+// Controllers forward-compat: V1 ignores per-note controllers entirely.
+{
+  const withCtl = clone();
+  withCtl.notes.forEach((n, i) => { n.controllers = { pitch_bend: [0, i % 2], pressure: [0.5] }; });
+  const [cl, cr2] = render(withCtl, { sampleRate: SR });
+  check("per-note controllers never change V1 output",
+    cl.every((v, i) => v === left[i]) && cr2.every((v, i) => v === right[i]));
+}
+
+// Articulation extremes fuzz: staccatissimo at minimal durations, legato
+// overlaps, simultaneous onsets — finite output, no buffer overruns.
+{
+  const extremes = clone();
+  extremes.notes = [];
+  for (let i = 0; i < 40; i++) {
+    extremes.notes.push({
+      part: "p.lead", pitch: 40 + (i % 40), pitch_name: "E2",
+      onset: i * 0.01, duration: i % 3 === 0 ? 0.02 : 0.5, // overlapping + tiny
+      onset_beat: i * 0.016, duration_beats: 0.032, velocity: 40 + (i % 80),
+      articulation: ["normal", "staccatissimo", "legato", "marcato"][i % 4],
+    });
+  }
+  const [el, er] = render(extremes, { sampleRate: SR });
+  const finite = (ch) => ch.every((v) => Number.isFinite(v));
+  check("articulation/duration extremes render finite, bounded output",
+    finite(el) && finite(er) && peak(el) <= 1 && peak(er) <= 1);
+}
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
