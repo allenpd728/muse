@@ -4,13 +4,39 @@
 // key {key, scale} → IR {tonic, mode}. Output is normalized IR — nothing
 // downstream sees ticks or seconds.
 import pkg from "@tonejs/midi";
+import midiParsePkg from "midi-file";
 import { normalizeIR, ticksToBeats } from "./ir.mjs";
 
 const { Midi } = pkg;
+const { parseMidi } = midiParsePkg;
+
+// tonejs's Instrument defaults number to 0 when the track has no
+// program-change event, which is indistinguishable from an explicit acoustic
+// grand. Decision (tested in tests/midi.test.mjs): `program` is emitted only
+// when a program-change event actually exists in the file — a part that never
+// chose an instrument gets none.
+const programTicks = (input) => {
+  const ticksPerProgram = new Map();
+  try {
+    for (const track of parseMidi(input instanceof ArrayBuffer ? new Uint8Array(input) : input).tracks) {
+      let abs = 0;
+      for (const ev of track) {
+        abs += ev.deltaTime;
+        if (ev.type === "programChange" && !ticksPerProgram.has(ev.programNumber))
+          ticksPerProgram.set(ev.programNumber, abs);
+      }
+    }
+  } catch {
+    // parseMidi already failed or the file is malformed — tonejs will surface
+    // the real error when midiToIR constructs the Midi instance below.
+  }
+  return [...ticksPerProgram.entries()].sort((a, b) => a[1] - b[1]).map(([program]) => program);
+};
 
 // input: Buffer/Uint8Array of a .mid file.
 export function midiToIR(input) {
   const midi = new Midi(input);
+  const programs = programTicks(input);
   const ppq = midi.header.ppq;
   const beat = (ticks) => ticksToBeats(ticks, ppq);
 
@@ -37,7 +63,7 @@ export function midiToIR(input) {
           velocity: Math.round(n.velocity * 127),
         })),
       };
-      if (t.instrument && Number.isInteger(t.instrument.number)) part.program = t.instrument.number;
+      if (programs[i] !== undefined) part.program = programs[i];
       return part;
     }),
   });
