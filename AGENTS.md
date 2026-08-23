@@ -62,9 +62,12 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 
 ## Build / test
 
-Nothing to build yet — documents + corpus only. Phase 0 (W-series) adds the
-first code; CI returns with it. Update this section as tooling lands; do not
-leave it stale.
+Phase 0 tooling has begun landing. Python 3.11+.
+
+- **tools/ir (W1, landed):** `pip install -r tools/ir/requirements.txt`, then
+  `cd tools/ir && python -m pytest`. 58 tests, ~11 s (parses Beethoven 9).
+- CI returns as tooling grows. Update this section as tooling lands; do not
+  leave it stale.
 
 ## Repository layout
 
@@ -78,8 +81,10 @@ docs/design/          # design-doc scaffolds + dependency index (30 tasks)
 docs/tech-stack.md    # borrow/build index: software, protocols, specs
 docs/literature-review-w1.md  # pre-W1 lit review (IR, compression, patterns)
 corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
+tools/ir/             # W1 event-stream IR + MusicXML/MIDI parsers (pytest suite)
+tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
 blockers/             # open_/closed_ blocker reports
-tests/closed/         # empty; schema-era specs removed (git history retains)
+tests/                # open_/closed_ test specs (runtime tests live beside the code)
 ```
