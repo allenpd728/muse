@@ -1,9 +1,8 @@
-# Bug — unified test runner masks pytest exit codes
+# Bug (CLOSED — fixed by 4fcc582, #191) — unified test runner masks pytest exit codes
 
 **Found:** 2026-08-23, run=20260823-2312-h8pk, while gathering gate
 evidence for #165.
-**Disposition:** commented on #176 (Tests: unified test runner — the
-owning in-flight claim) 2026-08-23.
+**Disposition:** fixed on `dev` at `4fcc582` (#191, closed status:done).
 
 ## Symptom
 
