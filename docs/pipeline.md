@@ -6,8 +6,8 @@ Status column is updated by the docs-coherence sweep duty.
 
 ## Locked decisions
 
-- **Two-stream format.** `.mu` = roll stream (fixed score, our MusicXML) +
-  seed stream (interpretive space) + plaintext rights manifest. Zip container.
+- **Three-component format.** `.mu` = score (fixed work, our MusicXML) +
+  prompt (interpretive space) + plaintext rights manifest. Zip container.
 - **MusicXML is the existing roll.** The compressor adapts it; we are not in
   the business of scanning historic documents.
 - **The deterministic player is the baseline** — "our MIDI player," free,
@@ -55,13 +55,13 @@ justified by Phase 0 evidence (a construct without corpus evidence doesn't ship)
 | P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | todo |
 
 **Phase 2 done when:** every corpus `.mu` round-trips through the player and
-the diff tool confirms the roll stream reconstructs the source losslessly.
+the diff tool confirms the score reconstructs the source losslessly.
 
 ## Phase 3 — Compressor (proprietary)
 
 | Task | What it is | Status |
 |---|---|---|
-| C1 — Packer | Event stream → roll encoding. Lossless round-trip on the whole corpus. | todo |
+| C1 — Packer | Event stream → score encoding. Lossless round-trip on the whole corpus. | todo |
 | C2 — Pattern compressor | W3's detected patterns → language constructs. The AI-in-the-loop: compress → expand → diff → adjust. | todo |
 | C3 — Seed authoring | Human-in-loop interpretive annotation (the conductor layer). Founder evaluates by ear against known scores. | todo |
 | C4 — Manifest writer | Rights, provenance, AI disclosure, signatures. | todo |

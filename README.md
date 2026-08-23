@@ -1,10 +1,11 @@
 # Muse
 
-**An executable music format.** A `.mu` file is the compressed, executable
-encoding of a musical work — the roll and the seed in one container. Any
-conforming player reads the **roll stream** (the fixed structure: our
-MusicXML-class score) for exact mechanical playback; an LLM player reads the
-**seed stream** (the interpretive space) and brings the work to life.
+**An executable music format.** A `.mu` file packages a musical work as three
+components: the **score** (the fixed work — our compressed MusicXML), the
+**prompt** (the interpretive space), and the **manifest** (plaintext rights).
+Any conforming player reads the score for exact mechanical playback; an LLM
+player reads score + prompt and brings the work to life — slowly,
+deliberately. A performance is an event, not a render.
 
 > **Status: private development, docs + corpus phase.** The repo holds the
 > design documents, the work-tracking process, and the reference corpus.
@@ -21,24 +22,26 @@ space alongside the notes.
 MusicXML (the existing roll)
     │
     ▼  compressor (proprietary, AI-assisted)
-.mu file = roll stream + seed stream + rights manifest
+.mu file = score + prompt + manifest
     │
-    ├─▶ deterministic player (free, reference) — reads the roll.
+    ├─▶ deterministic player (free, reference) — reads the score.
     │    "Our MIDI player." Proves the format, verifies encodings.
     │
-    └─▶ LLM player (the product) — reads roll + seed.
-         "The musician." Brings the work to life.
+    └─▶ LLM player (the product) — reads score + prompt.
+         "The musician." Brings the work to life — slowly, deliberately.
+         A performance is an event, not a render.
 ```
 
 Technology advancing hardware by changing the software: the deterministic
 player never changes; the rolls keep getting better.
 
-## The two streams
+## The components
 
-| Stream | Contains | Read by |
+| Component | Contains | Read by |
 |---|---|---|
-| **Roll** | Notes, structure, form, dynamics — the fixed score | Deterministic player |
-| **Seed** | Interpretive space: sanctioned ranges, performance philosophy, what may vary | LLM player |
+| **Score** | Notes, structure, form, dynamics — the fixed work | Deterministic player |
+| **Prompt** | Interpretive space: sanctioned ranges, performance philosophy, what may vary | LLM player |
+| **Manifest** | License, provenance, AI disclosure, hashes | Anyone — plaintext |
 
 ## Components
 
@@ -65,8 +68,8 @@ lives in [docs/pipeline.md](docs/pipeline.md).
 ## Principles
 
 1. **Format-first.** The spec is the platform. Everything else is a client.
-2. **Determinism is the baseline.** Same file → same roll playback, everywhere.
-3. **The seed is the product.** The LLM player grows what the roll fixes.
+2. **Determinism is the baseline.** Same file → same score playback, everywhere.
+3. **The prompt is the product.** The LLM player grows what the score fixes.
 4. **Composer-owned, rights-carrying.** Plaintext manifest: license,
    provenance, AI disclosure. No artist lookalikes without license.
 5. **Own the format, not the models.** LLMs are the utility; Muse is the radio.

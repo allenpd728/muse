@@ -12,35 +12,37 @@ better performance. Technology advancing hardware by changing only the
 software.
 
 MusicXML is the existing roll — the full score, verbose, uncompressed. Muse
-compresses and adapts it into `.mu`: a portable, executable container holding
-**two streams**:
+packages and adapts it into `.mu`: a portable container holding **three
+components**:
 
-- **The roll stream** — the fixed score. Our MusicXML: notes, structure,
-  dynamics, compressed and packaged. Any deterministic player reads it and
-  plays the work exactly, identically, everywhere. This is the baseline —
+- **The score** — the fixed work. Our MusicXML: notes, structure,
+  dynamics, packaged. Any deterministic player reads it and plays the work
+  exactly, identically, everywhere. This is the baseline —
   our MIDI player — free, open, and what proves the format works.
-- **The seed stream** — the interpretive space. What may vary, within what
-  sanctions, guided by what philosophy. An LLM player reads the seed, bounded
-  by the roll, and **brings the work to life**. This is the product.
+- **The prompt** — the interpretive space. What may vary, within what
+  sanctions, guided by what philosophy. An LLM player reads score + prompt
+  and **brings the work to life** — slowly, deliberately. A performance is an
+  event, not a render. This is the product.
+- **The manifest** — rights, provenance, AI disclosure, in plaintext.
 
 The deterministic player is never the product — it is the root system, the
 conformance proof, the free tier. The LLM player is the musician: the bloom.
 
 ## The conductor, not the cover
 
-Interpretation in Muse is **conducting, not genre covers**. The seed stream
+Interpretation in Muse is **conducting, not genre covers**. The prompt
 carries performance philosophy — tempo architecture, dynamic shaping,
 articulation stance — as explicit, inspectable, licensed data. Wildly
 different readings are valid when they satisfy the work's assertions: the
 Gould/Bernstein case is in-spec by design. The encoder is the composer's
 advocate, and advocacy includes the freedom to argue.
 
-Because the seed stream is data, **different LLMs are different conductors**.
+Because the prompt is data, **different LLMs are different conductors**.
 The same `.mu` interpreted by different models produces measurably different
 performances — a controlled experiment in machine musicality. The format
 preserves the differences; audiences decide which readings resonate.
 
-## The event, not the stream
+## The event, not the stream of tracks
 
 Muse's unveiling is a **performance event**, not an app launch. The precedent
 is 1957's Illiac Suite and the 1962 Gould/Bernstein controversy: computer
@@ -50,8 +52,10 @@ the coverage.
 
 This changes the quality bar: the deterministic baseline only needs to be
 correct; the LLM player's render must be **worth a concert hall** — sample
-tier or better, expression fully dialed. The expansion may take minutes on a
-workstation. That is fine. Performances are not notifications.
+tier or better, expression fully dialed. **The growing takes time.** The LLM
+player is not a renderer producing a track; it is a performer preparing a
+performance — the giant computer in the music hall. Minutes of deliberation
+are a feature: art is not mass production.
 
 ## The corpus and the Ninth
 
