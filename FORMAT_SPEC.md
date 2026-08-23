@@ -164,6 +164,34 @@ zero on the corpus, 2026-08-23 W3 report) is driven by analyzer evidence.
 - **Out:** language constructs (S4), score packing (S2), prompt/seed
   encoding (S3), container/manifest (S5).
 
+### 4.6 The packing (S2, pinned 2026-08-23)
+
+`roll.bin` carries the §4 content model as:
+
+```
+MUR1 | varint(compressed_length) | zlib(payload)
+```
+
+- **Varints**: unsigned LEB128 (7-bit groups, MSB continuation); signed via
+  zigzag. Integers only — the §4 tick contract holds on disk.
+- **Payload layout**: string table (UTF-8, length-prefixed, deduped) →
+  JSON meta (sorted keys, minimal separators: source_format, ppq, title,
+  warnings) → maps (delta-encoded ticks: tempo, meter, key) → parts.
+- **Parts**: id/name (string table), instrument flags, per-note columnar
+  stream — onset deltas (zigzag), presence bitmap for optional fields
+  (pitch, velocity, articulations, notations, source_id), duration, voice.
+  Dynamics delta-encoded with dictionary-coded text; hairpins
+  start-delta + optional end + dictionary-coded kind.
+- **Entropy coding**: zlib level 9 over the whole payload (stdlib; an
+  off-the-shelf coder, per the design doc's open question — a custom
+  coder is a post-v1 optimization, never a correctness issue).
+- **Lossless by construction and by proof**: every corpus file
+  round-trips losslessly (W4 recall = precision = 1.0 through the
+  `tools/muse_roll/cli.py verify` gate; B9 verified structurally
+  encode→decode→canonical-compare). Ratios vs. source: Bach ~10–12% of
+  .mxl, Byrd MIDI ~14–22%, Schubert 9.6%, Beethoven 5 0.26%,
+  Beethoven 9 0.24% (68.8 MB → 168 KB).
+
 ## 5. The prompt (model)
 
 The prompt declares the **sanctioned space** — what a performance may

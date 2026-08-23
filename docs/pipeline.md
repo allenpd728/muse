@@ -46,7 +46,7 @@ a pattern-frequency report that drives Phase 1 language decisions.
 | Task | What it is | Status |
 |---|---|---|
 | S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | **done** (#137 → [FORMAT_SPEC](../../FORMAT_SPEC.md) §4 + [tools/s1_stream](../tools/s1_stream/)) |
-| S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | **filed #138, available** |
+| S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | **done (#138 → FORMAT_SPEC §4.6 + [tools/muse_roll](../tools/muse_roll/))** |
 | S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **decomposed #139 → S3.1–S3.6 (#142–#147); .1–.5 done, .6 open (#147)** |
 | S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | **done (#140 → FORMAT_SPEC §5.1 + [tools/muse_ops](../tools/muse_ops/))** |
 | S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **done (#141 → FORMAT_SPEC §7.1 + [tools/muse_mu](../tools/muse_mu/))** |
