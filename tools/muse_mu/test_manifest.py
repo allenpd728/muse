@@ -128,11 +128,12 @@ class TestContainer:
             read_mu(str(path))
 
     def test_hash_mismatch_detected(self, tmp_path):
+        # a zip whose roll.bin content differs from the manifest's hash
         path = str(tmp_path / "work.mu")
-        write_mu(path, make_manifest(), MEMBERS)
-        # tamper with roll.bin inside the zip
-        with zipfile.ZipFile(path, "a") as z:
-            z.writestr("roll.bin", b"tampered")
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("manifest.json", make_manifest().to_json())
+            z.writestr("roll.bin", b"tampered-content")
+            z.writestr("seed.bin", MEMBERS["seed.bin"])
         with pytest.raises(ManifestError, match="hash mismatch"):
             read_mu(path)
 

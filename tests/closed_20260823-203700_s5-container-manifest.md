@@ -1,7 +1,17 @@
-# Test spec — S5 container + manifest (issue #141)
+# Test spec — S5 container + manifest (issue #141) — CLOSED
 
 Written by the completing agent per TASK_WORKFLOW step 6. S5 landed with 28
 tests (`cd tools/muse_mu && python -m pytest`, <1s).
+
+**Resolution (Tests: #152, 2026-08-23):** all four gaps closed, 36 tests
+total. Landed: golden .mu fixture (`tests/fixtures/bwv227.1.minimal.mu`,
+740 bytes, verified byte-exact with reproducibility from pinned
+FIXTURE_INPUTS); canonicalization adversarial cases (unicode title,
+insertion-order independence, whitespace sensitivity); zip metadata
+decisions pinned — duplicate member names fail loudly (zipfile.read would
+silently return the last entry) and explicit directory entries are layout
+noise, not content; real-payload shape (.mu from the actual corpus mxl +
+seed yaml, hashes verified).
 
 ## Landed coverage (tools/muse_mu/test_manifest.py)
 
