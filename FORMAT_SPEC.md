@@ -82,22 +82,87 @@ renders), each recording the seed settings and content hash it was produced
 from. Cached computation, never the definition of the work. Zero-compute
 first listen.
 
-## 4. The score (encoding sketch)
+## 4. The score — event-stream format (S1, pinned from Phase 0 evidence)
 
-Baseline content model — what MusicXML carries that we preserve:
+The `roll.bin` payload is the **event stream** every decoder↔renderer
+party shares: the on-disk freeze of the in-memory IR that all Phase 0
+tools consume (tools/ir/muse_ir). The packing (S2) serializes this stream
+columnar+delta+dictionary+entropy; this section pins the **content model
+and the layout contract** those codes encode.
 
-- **Parts** with instrument identity (name, GM program where applicable).
-- **Notes**: pitch, onset, duration, velocity — integer ticks (PPQ) and fixed
-  point; no float nondeterminism.
-- **Maps**: tempo, meter, key — full maps, not flattened opening values
-  (mid-piece changes are preserved, unlike the old importer).
-- **Expression**: dynamics markings and hairpins, articulations, fermatas,
-  repeats and endings — the notated performance layer.
-- **Structure**: measures, sections, repeat topology.
+### 4.1 Content model (what the stream carries)
+
+- **Parts**: `id`, `name`, `instrument {name?, gm_program?}`,
+  `inferred_voice` flag, ordered `notes[]`, per-part `dynamics[]`,
+  `hairpins[]` (start/end-linked). Parts are one per instrument/voice
+  (MIDI sources: one per note-bearing track).
+- **Notes**: `pitch` (MIDI number, or null sentinel for rests/unpitched),
+  `onset`, `duration` — **integer ticks only**; `voice`; `velocity` (0..127
+  or null, with `velocity_inferred` when synthesized); `articulations`
+  (preserved raw); `notations` flags (tie start/stop, slur start/stop,
+  fermata, hairpin membership, grace, chord, unpitched).
+- **Full maps** — mid-piece changes preserved, never flattened:
+  - `tempo`: (tick, milli-bpm = bpm × 1000) fixed point
+  - `meter`: (tick, numerator, denominator)
+  - `key`: (tick, fifths, mode) — **multi-valued per tick** (transposing
+    instruments legitimately disagree; every distinct value is kept)
+- **Meta**: `source_format` (musicxml|midi), `ppq` (integer ticks per
+  quarter — for MusicXML the LCM of the file's divisions values; for MIDI
+  the file's own ticks-per-beat), `title?`, `warnings[]`.
+
+**Fidelity rule (evidence: corpus README + W3 report).** Every written
+`<note>` element maps to exactly one note event — ties are start/stop
+flags, never merged; rests are first-class events; chord members share
+onsets; grace notes carry duration 0; unpitched percussion is a class,
+not a rest. A compressor that drops or merges events fails the W4
+ground-truth diff, which counts rests and unpitched as matchable
+entities.
+
+### 4.2 Tick and curve resolution (facts from corpus)
+
+- **ppq bounds (measured)**: Bach — 2; Byrd (MIDI) — 192; Beethoven 9 —
+  24; Schubert — LCM value from mixed divisions. v0 therefore accepts
+  source ppq as-is; the packer's tick domain is per-work and recorded in
+  meta (S1 does not normalize a canonical ppq — re-flation is
+  source-exact by construction).
+- **Dynamics**: discrete text markings at tick positions (p..ffffffff;
+  measured maxima are per-part lists). Hairpins are start/end-linked
+  entries with start tick and end tick (open-ended at source closed at
+  part end with a warning).
+- **Tempo curves (S3/L1 layer, not here)** — the score carries the marked
+  tempo map only; continuous tempo shaping is a prompt-side parameter and
+  never bakes into the score stream.
+
+### 4.3 Ordering and validation (decoder contract)
+
+- Notes are sorted by (onset, pitch, velocity, lexicographic notations,
+  voice, source tie-break) — a total, deterministic order; decoders may
+  rely on it.
+- Maps are tick-ordered, `tempo` and `meter` single-valued per tick (same-
+  tick conflicts resolve first-wins with a warning at import time).
+- `Work.validate()` invariants (negative onset/duration, pitch/velocity
+  range, ordered maps, unique part ids) are checked at encode time;
+  malformed input fails loudly with `IRParseError`, never partial data.
+
+### 4.4 Golden vectors (conformance)
+
+Per task: (source → canonical JSON dump) pairs pinned by W4's diff tool.
+Generators/verifiers: [`tools/s1_stream/muse_stream`](../tools/s1_stream/).
+JSON is the human-readable interchange encoding only; the binary layout
+belongs to S2. Canonical form: `json.dumps(sort_keys=True,
+separators) + "\n"`; integers only.
 
 Packing: columnar arrays, delta-encoded onsets, dictionary-coded repeated
-patterns, entropy-coded residual. The pattern-factoring layer (sequences,
-transposed repeats, imitative entries) is driven by analyzer evidence (W3).
+patterns, entropy-coded residual (S2). The pattern-factoring layer
+(sequences, transposed repeats, ostinati — imitative entries measured at
+zero on the corpus, 2026-08-23 W3 report) is driven by analyzer evidence.
+
+### 4.5 Scope
+
+- **In:** parts, notes, full maps, dynamics, hairpins, articulations,
+  notations flags, meta.
+- **Out:** language constructs (S4), score packing (S2), prompt/seed
+  encoding (S3), container/manifest (S5).
 
 ## 5. The prompt (model)
 

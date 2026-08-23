@@ -74,6 +74,9 @@ Phase 0 tooling has begun landing. Python 3.11+.
   (exit 0/1).
 - **tools/muse_diff (W4, landed):** `python3 tools/muse_diff/cli.py <a> <b>
   [--self-test]` exit 0 when identical; `cd tools/muse_diff && python -m pytest`.
+- **tools/s1_stream (S1, landed):** golden vectors + verifier per FORMAT_SPEC §4.4;
+  `cd tools/s1_stream && python -m pytest`. CLI:
+  `PYTHONPATH=../ir:. python -m muse_stream.golden generate|verify`.
 - CI returns as tooling grows. Update this section as tooling lands; do not
   leave it stale.
 
@@ -92,6 +95,9 @@ corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
 tools/ir/             # W1 event-stream IR + MusicXML/MIDI parsers (pytest suite)
 tools/corpus_loader/  # W2 corpus loader CLI (the known-answer gate)
 tools/muse_diff/      # W4 IR↔IR diff tool (recall/precision in tick space)
+tools/s1_stream/      # S1 golden vectors + verifier (FORMAT_SPEC §4.4)
+tools/muse_analyze/   # W3 pattern analyzer → analysis report
+tools/muse_viz/       # W5 piano-roll renderer (matplotlib)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
