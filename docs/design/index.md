@@ -37,6 +37,11 @@ earlier); draft-of-draft dependency chains are acceptable, final-form
 dependencies are deferred to approval. Issues get filed only against
 approved drafts.
 
+**One claim per agent at a time.** An agent holds exactly one
+`status:claimed` across the tracker; finish (commit + close + unblock
+dependents) before claiming the next. Parallel is safe because each agent
+respects the rule.
+
 ## Dependency matrix
 
 | Task | Doc | Upstream (needs) | Downstream (feeds) | Maturity |

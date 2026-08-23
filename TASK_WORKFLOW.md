@@ -72,6 +72,14 @@ The claim lock applies to **any issue an agent is actively working** — a task,
 `Tests:` follow-up, or a blocker-resolution — not just tasks. The mechanics are
 identical for all three; only the "done" action differs.
 
+**One claim per agent at a time.** An agent holds **exactly one** `status:claimed`
+label across the entire issue tracker: one task, one Tests: follow-up, or one
+blocker — never two at once. Finish the claimed item (commit + close + unblock
+dependents) before claiming the next. Parallel agents are safe because **each**
+agent respects this rule; one agent doing many subtasks serially is the correct
+pattern, not a violation. An agent holding two claims simultaneously strands
+the queue and must be swept (its older claim is void on the next sweep).
+
 1. **Sweep stale claims.** Before selecting work, list all `status:claimed` issues.
    For each, if the claim comment is older than **1 hour** with no activity since
    (no commits on the PR, no new comments), the claim is void: remove
