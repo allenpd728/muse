@@ -72,6 +72,6 @@ pip install -r tools/ir/requirements.txt
 cd tools/ir && python -m pytest
 ```
 
-58 tests: corpus known-answer conformance (all five works), MusicXML/MIDI unit
-tests, model invariant tests. The full suite runs in ~11 s, Beethoven 9
+107 tests: corpus known-answer conformance (all five works), MusicXML/MIDI
+unit tests, model invariant tests. The full suite runs in ~11 s, Beethoven 9
 included.

@@ -2,6 +2,7 @@
 
 IR → piano-roll plots. Founder review aid. matplotlib; 52-part-safe via
 part selection (`--first N` / `--parts id1,id2`) and per-note alpha.
+Design: [docs/design/w5-visualizer.md](../../docs/design/w5-visualizer.md).
 
 ## Usage
 
@@ -9,15 +10,30 @@ part selection (`--first N` / `--parts id1,id2`) and per-note alpha.
 python3 tools/muse_viz/cli.py <file> [--parts P1,P2] [--first N] [--out x.png]
 ```
 
-Renders each part as a lane; notes as bars positioned by onset and pitch.
-Rests/unpitched map to sentinel lanes (rest −1, unpitched −2; the landed IR
-marks unpitched via the `unpitched` notation flag). `render()` returns a
+## API
+
+```python
+from muse_viz import render, PianoRollConfig
+
+render(work, PianoRollConfig(parts=["P1", "P2"], out="chorale.png",
+                             title="Bach BWV227.1", alpha=0.6))
+```
+
+Each part renders as a lane; notes as bars positioned by onset and duration.
+Rests (`pitch=None`) and unpitched percussion map to sentinel lanes
+(`-1` / `-2`) — no crash, distinct positions. `render()` returns a
 `RenderResult(path, parts_rendered, events)`.
 
-Dependencies: `pip install matplotlib` (Agg backend, no service deps).
+## Architecture
+
+matplotlib Agg backend (no runtime service deps). One subplot per part,
+sharex=False (parts may have different ranges). Color via `tab20` cycling
+by part-id hash. Zero-duration notes clamped to width=1.
 
 ## Tests
 
-```
-cd tools/muse_viz && python -m pytest
-```
+11 tests: chorale/Byrd render, Beethoven 9 subset, None-pitch robustness,
+zero-duration clamp, part selection. Test spec:
+[tests/open_20260823-192000_w5-visualizer.md](../../tests/open_20260823-192000_w5-visualizer.md).
+
+Dependencies: `pip install matplotlib`.
