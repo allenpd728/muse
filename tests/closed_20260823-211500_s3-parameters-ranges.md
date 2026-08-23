@@ -1,7 +1,15 @@
-# Test spec — S3.2 parameters + ranges
+# Test spec — S3.2 parameters + ranges — CLOSED
 
 **Task:** #143 (S3.2 — Parameters + ranges)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #157, 2026-08-23):** landed as
+`tools/muse_seed/test_params.py` — 17 tests covering all three spec
+sections: budget calibration (tempo budgets match era percentages with the
+Vienna 4x22 classical pin [62, 129] @ 96; velocity matches Magaloff
+percentages; chord spread universal 16–17ms), validation (all four range
+types reject out-of-bounds loudly, unknown era rejected), era coverage
+(all four eras, complete budget fields). Package: 115 passed, 1 skipped.
 
 ## What to verify
 
