@@ -1,8 +1,10 @@
 """W2 loader tests: registry coverage, check gate, CLI contract."""
 
+import io
 import os
 import subprocess
 import sys
+import time
 
 import pytest
 
@@ -10,6 +12,8 @@ MODULE = os.path.join(os.path.dirname(__file__), "muse_corpus.py")
 sys.path.insert(0, os.path.dirname(__file__))
 
 import muse_corpus as mc  # noqa: E402
+
+BYRD_FILES = [f for wid, t, f, pins in mc.iter_files() if wid == "byrd-mass3v"]
 
 
 class TestRegistry:
@@ -49,6 +53,39 @@ class TestCheck:
             mc.check_file("bach/nope.mxl",
                           {"parts": 0, "notes": 0, "dynamics": 0, "hairpins": 0})
 
+    def test_run_check_failure_path_on_fixture_root(self, tmp_path):
+        """A fixture corpus root with a corrupted file must fail the gate."""
+        bad_dir = tmp_path / "byrd"
+        bad_dir.mkdir()
+        (bad_dir / "1-Kyrie.mid").write_bytes(b"corrupted midi bytes")
+        out = io.StringIO()
+        n, failures = mc.run_check(root=str(tmp_path), out=out)
+        assert n == len(list(mc.iter_files()))
+        assert failures and any("1-Kyrie.mid" in f and "parse failed" in f for f in failures)
+
+    def test_run_check_reports_missing_not_parse(self, tmp_path):
+        out = io.StringIO()
+        n, failures = mc.run_check(root=str(tmp_path), out=out)
+        assert failures and all("file missing" in f for f in failures[:2])
+
+
+class TestBudget:
+    def test_byrd_files_parse_within_budget(self):
+        """Wall-clock guard: the six Byrd MIDIs parse far under a minute.
+        Full-corpus check budget (~21s incl. B9) is pinned in the README."""
+        t0 = time.monotonic()
+        for f in BYRD_FILES:
+            mc.load_file(f)
+        assert time.monotonic() - t0 < 30
+
+
+class TestWarningsContract:
+    def test_surfaces_known_parser_warnings(self, capsys):
+        rc = mc.main(["load", "schubert-d810"])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "conflicting tempo" in out  # Schubert's known warning must surface
+
 
 class TestCLI:
     def run_cli(self, *argv):
@@ -84,3 +121,18 @@ class TestCLI:
         r = self.run_cli("check")
         assert r.returncode == 0
         assert r.stdout.count("OK ") == len(list(mc.iter_files()))
+
+    def test_update_pins_reports_current(self, capsys):
+        rc = mc.main(["update-pins"])
+        assert rc == 0
+        assert "current" in capsys.readouterr().out
+
+    def test_update_pins_prints_drift_when_present(self, monkeypatch, capsys):
+        # Temptation: mutate a registry pin and watch the report catch it.
+        entry = mc.WORKS["bach-bwv227"]
+        monkeypatch.setitem(entry["files"][0][1], "notes", 999999)
+        rc = mc.main(["update-pins"])
+        assert rc == 0
+        out = capsys.readouterr().out
+        assert "bwv227.1.mxl" in out
+        assert "notes: 999999 -> 279" in out

@@ -102,9 +102,9 @@ def summarize(work):
     }
 
 
-def check_file(relpath, pins):
+def check_file(relpath, pins, root=None):
     """Assert one corpus file against its pins. Returns its summary."""
-    path = os.path.join(CORPUS_ROOT, relpath)
+    path = os.path.join(root or CORPUS_ROOT, relpath)
     if not os.path.exists(path):
         raise CheckFailure(f"{relpath}: file missing from corpus/")
     try:
@@ -120,6 +120,21 @@ def check_file(relpath, pins):
     if mismatches:
         raise CheckFailure(f"{relpath}: {'; '.join(mismatches)}")
     return got
+
+
+def run_check(root=None, out=sys.stdout):
+    """Run the check gate; returns the failures list (empty when green)."""
+    failures = []
+    n = 0
+    for _work_id, _title, relpath, pins in iter_files():
+        n += 1
+        try:
+            got = check_file(relpath, pins, root=root)
+            print(f"OK  {relpath}: {got['parts']} parts, {got['notes']} notes, "
+                  f"{got['dynamics']} dynamics, {got['hairpins']} hairpins", file=out)
+        except CheckFailure as e:
+            failures.append(str(e))
+    return n, failures
 
 
 def cmd_list(_args):
@@ -153,17 +168,36 @@ def cmd_load(args):
     return failures
 
 
-def cmd_check(_args):
-    failures = []
-    n = 0
+PIN_KEYS = ("parts", "notes", "dynamics", "hairpins")
+
+
+def measure_file(relpath):
+    """Re-measure one corpus file through the IR — the pin update path."""
+    got = summarize(load_file(relpath))
+    return {k: got[k] for k in PIN_KEYS}
+
+
+def cmd_update_pins(_args):
+    changed = 0
     for _work_id, _title, relpath, pins in iter_files():
-        n += 1
-        try:
-            got = check_file(relpath, pins)
-            print(f"OK  {relpath}: {got['parts']} parts, {got['notes']} notes, "
-                  f"{got['dynamics']} dynamics, {got['hairpins']} hairpins")
-        except CheckFailure as e:
-            failures.append(str(e))
+        measured = measure_file(relpath)
+        if measured != pins:
+            changed += 1
+            print(f"{relpath}: pins drifted")
+            for k in PIN_KEYS:
+                if measured[k] != pins[k]:
+                    print(f"  {k}: {pins[k]} -> {measured[k]}")
+    if changed:
+        print(f"\n{changed} file(s) drifted. Pins change only by deliberate "
+              f"corpus action — if the diffs above are expected, update WORKS "
+              f"in muse_corpus.py with the measured values and review the diff.")
+    else:
+        print("All pins match — registry is current.")
+    return 0
+
+
+def cmd_check(_args):
+    n, failures = run_check()
     if failures:
         print("\nFAILURES:", file=sys.stderr)
         for f in failures:
@@ -180,8 +214,11 @@ def main(argv=None):
     p_load = sub.add_parser("load", help="IR summary for one work")
     p_load.add_argument("work", help="work id from 'list'")
     sub.add_parser("check", help="known-answer assertions across the registry")
+    sub.add_parser("update-pins", help="re-measure pins; print drift for review")
     args = ap.parse_args(argv)
-    return {"list": cmd_list, "load": cmd_load, "check": cmd_check}[args.cmd](args)
+    handlers = {"list": cmd_list, "load": cmd_load, "check": cmd_check,
+                "update-pins": cmd_update_pins}
+    return handlers[args.cmd](args)
 
 
 if __name__ == "__main__":

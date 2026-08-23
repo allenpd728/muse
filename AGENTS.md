@@ -67,7 +67,8 @@ Phase 0 tooling has begun landing. Python 3.11+.
 - **tools/ir (W1, landed):** `pip install -r tools/ir/requirements.txt`, then
   `cd tools/ir && python -m pytest`. 58 tests, ~11 s (parses Beethoven 9).
 - **tools/corpus_loader (W2, landed):** `python3 tools/corpus_loader/muse_corpus.py
-  <list|load|check>`; `check` is the corpus known-answer gate (exit 0/1).
+  <list|load|check|update-pins>`; `check` is the corpus known-answer gate
+  (exit 0/1).
 - **tools/muse_diff (W4, landed):** `python3 tools/muse_diff/cli.py <a> <b>
   [--self-test]` exit 0 when identical; `cd tools/muse_diff && python -m pytest`.
 - CI returns as tooling grows. Update this section as tooling lands; do not
