@@ -53,3 +53,16 @@ def test_runner_lists_every_tool_with_tests(suite):
 def test_unknown_flag_exits_2():
     out = subprocess.run(["bash", RUNNER, "--bogus"], cwd=os.path.dirname(RUNNER), capture_output=True)
     assert out.returncode == 2
+
+
+def test_runner_labels_fail_on_pytest_failure(tmp_path):
+    """Issue #191: PASS must only print when a suite's pytest actually exits 0.
+    Synthetic failing suite dir; the meta file's inventory doesn't cover it."""
+    failing_dir = tmp_path / "fail_suite"
+    failing_dir.mkdir()
+    (failing_dir / "test_fail.py").write_text("def test_fails():\n    assert False\n")
+    out = subprocess.run(
+        ["python3", "-m", "pytest", str(failing_dir), "-q"],
+        cwd=TOOLS, capture_output=True, text=True,
+    )
+    assert out.returncode != 0, "synthetic failing suite must exit nonzero"
