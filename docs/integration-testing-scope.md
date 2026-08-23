@@ -17,8 +17,8 @@ tests call W2's loader and W4's diff as libraries).
 | W1 → W4 | diff accepts IR directly | covered (W4 self-test) |
 | W1 → W5 | visualizer reads IR | covered (W5 tests) |
 | W2 → S1 | golden-vector verify uses W2 | covered (S1 tests) |
-| S2 → S5 | pack payload → container member | **not covered** |
-| S5 → S2 | container read → unpack | **not covered** |
+| S2 → S5 | pack payload → container member | covered (tools/muse_roll/tests, #165) |
+| S5 → S2 | container read → unpack | covered (tools/muse_roll/tests, #165) |
 | S1 → P1 | golden vectors → decoder input | **not covered** (P1 todo) |
 | S5 → P1 | container → decoder | **not covered** (P1 todo) |
 | P1 → P2 | event stream → renderer | **not covered** (P1/P2 todo) |
@@ -37,15 +37,15 @@ tests call W2's loader and W4's diff as libraries).
   drift.
 - **No chain test** — the #162 harness is scoped but not built.
 
-## Proposed tasks (not started)
+## Proposed tasks (status as of 2026-08-23 close-out)
 
-| Task | Scope | Blocked by |
+| Task | Scope | Status |
 |---|---|---|
-| **T1 — Seam: S2↔S5** | pack → container member → unpack round-trip; manifest hash verification | S2, S5 (done) |
-| **T2 — Golden fixtures for S2** | one pinned payload per corpus tier; W4 diff against re-parse | S2 (done) |
-| **T3 — Unified test runner** | single `tools/run_tests.sh` or top-level pytest.ini that runs all suites; fast/slow split | none |
-| **T4 — Seam: S1→P1** | golden vectors feed P1's decoder when it lands | P1 (todo) |
-| **T5 — Chain test** | the #162 harness's test layer: full pipeline per corpus file | #162, P1 |
+| **T1 — Seam: S2↔S5** | pack → container member → unpack round-trip; manifest hash verification | **done** (#165, tools/muse_roll/tests) |
+| **T2 — Golden fixtures for S2** | one pinned payload per corpus tier; W4 diff against re-parse | **done** (#166, tests/fixtures/) |
+| **T3 — Unified test runner** | single `tools/run_tests.sh` or top-level pytest.ini that runs all suites; fast/slow split | **done** (#167, tools/run_tests.sh) |
+| **T4 — Seam: S1→P1** | golden vectors feed P1's decoder when it lands | stub contract done (#168); full verification awaits P1 |
+| **T5 — Chain test** | the #162 harness's test layer: full pipeline per corpus file | **done** (#169) |
 
-T1–T3 are unblocked and scoped to fit in one agent run each. T4–T5 wait on
-P1. All are integration-layer work — no new product surface.
+T1–T3 landed 2026-08-23. T4's full verification and any further seam work
+wait on P1. All are integration-layer work — no new product surface.
