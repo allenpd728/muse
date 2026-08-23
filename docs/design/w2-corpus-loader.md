@@ -1,6 +1,6 @@
 # W2 — Corpus loader design doc
 
-**Phase 0 — Analysis workbench. Status: draft (was scaffold).**
+**Phase 0 — Analysis workbench. Status: implemented (dev, issue #125).**
 
 Evidence base: W1's draft pins the IR and conformance table; this loader
 consumes it. W1 is itself a draft, so W2's draft depends on W1's final form
@@ -50,3 +50,17 @@ pin set; the loader registry reuses it.
 - All five works load; known-answer assertions (note/part counts) green;
   loud failure on malformed/corpus-drift inputs; test specs open per
   TASK_WORKFLOW.
+
+## Event log (implementation, 2026-08-23)
+
+- Landed as `tools/corpus_loader/muse_corpus.py` (single-file module,
+  mirroring `tools/muse_diff/cli.py` conventions). `sys.path` bridge to
+  `tools/ir` per the W4 pattern; repo-wide packaging arrives with CI.
+- Pins measured against the landed W1 IR (`tools/ir` — the #128
+  implementation), not the earlier `tools/muse_ir/`: written-event counts
+  (Bach mvt 3 = 377 events/5 parts, mvt 11 = 190), plus dynamics and
+  hairpin pins (Schubert 441 hairpins, B9 1,013).
+- `load <work>` surfaces `source_format=midi` with an inference-risk note
+  (draft open question resolved: propagate, per the draft position).
+- B9 parses in ~13s in this sandbox, so the gate pins the full corpus — no
+  size-guard needed; a future budget guard lives in the Tests: follow-up.

@@ -32,11 +32,11 @@ Status column is updated by the docs-coherence sweep duty.
 
 | Task | What it is | Status |
 |---|---|---|
-| W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | todo |
-| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | todo |
-| W3 — Analyzer | Pattern detector over the IR: exact repeats, transposed repeats, sequences, mirror/retrograde candidates, ostinati. Outputs per-work statistics + pattern inventory. | todo |
-| W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | todo |
-| W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | todo |
+| W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | **done** (#123 + review follow-up #128 → [tools/ir](../tools/ir/)) |
+| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | **done (#125)** |
+| W3 — Analyzer | Pattern detector over the IR: exact repeats, transposed repeats, sequences, mirror/retrograde candidates, ostinati. Outputs per-work statistics + pattern inventory. | **done #131** (tools/muse_analyze/, docs/analysis-report.md) |
+| W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | **done #126** (tools/muse_diff/) |
+| W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | **done #127** (tools/muse_viz/) |
 
 **Phase 0 done when:** the analyzer has run across all five works and produced
 a pattern-frequency report that drives Phase 1 language decisions.
@@ -45,11 +45,11 @@ a pattern-frequency report that drives Phase 1 language decisions.
 
 | Task | What it is | Status |
 |---|---|---|
-| S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | todo |
-| S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | todo |
-| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | todo |
-| S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | todo |
-| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | todo |
+| S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | **done** (#137 → [FORMAT_SPEC](../../FORMAT_SPEC.md) §4 + [tools/s1_stream](../tools/s1_stream/)) |
+| S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | **done (#138 → FORMAT_SPEC §4.6 + [tools/muse_roll](../tools/muse_roll/))** |
+| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **decomposed #139 → S3.1–S3.6 (#142–#147); .1–.5 done, .6 open (#147)** |
+| S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | **done (#140 → FORMAT_SPEC §5.1 + [tools/muse_ops](../tools/muse_ops/))** |
+| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **done (#141 → FORMAT_SPEC §7.1 + [tools/muse_mu](../tools/muse_mu/))** |
 
 **Phase 1 done when:** FORMAT_SPEC.md v1.0 is written, with every construct
 justified by Phase 0 evidence (a construct without corpus evidence doesn't ship).
@@ -69,8 +69,8 @@ the diff tool confirms the score reconstructs the source losslessly.
 
 | Task | What it is | Status |
 |---|---|---|
-| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | todo |
-| C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | todo |
+| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | **done (#148)** |
+| C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | **done #153** (tools/muse_author/) |
 | C3 — Expression-budget calibration | Delta-analysis-informed budget suggestions per era/style. | todo |
 | C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | todo |
 
@@ -82,7 +82,7 @@ against S3 — the founder's ear gates quality. Design docs:
 
 | Task | What it is | Status |
 |---|---|---|
-| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | todo |
+| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | **done #173** (tools/muse_mockup/) |
 | L2 — Performance renderer | Mockup → audio via sfizz + SFZ samples (SSO/VPO tier). The "worth listening to" bar. | todo |
 | L3 — Model comparison rig | Same score+seed, different LLMs → different mockups. Blind A/B listening. | todo |
 | L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | todo |
@@ -124,6 +124,20 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 [design/l5-sample-waiver.md](design/l5-sample-waiver.md),
 [design/s6-vocal-text.md](design/s6-vocal-text.md),
 [design/e4-extension.md](design/e4-extension.md).
+
+## Phase 2.5 — Integration (chained, gated, explorable)
+
+| Task | What it is | Status |
+|---|---|---|
+| E2E chain harness | corpus source → IR → pack → container → decode → render, determinism-checked; the compose-proof for the landed parts. | **done** ([#162](https://github.com/allenpd728/muse/issues/162), tools/muse_chain/ + docs/chain-report.md) |
+| CI conformance gate | W2/S1/S2/S5/chain gates run on every push; nothing guards merges today. | **done** ([#163](https://github.com/allenpd728/muse/issues/163), .github/workflows/) |
+| Frontend explorer | QA-only static site: corpus browser + patterns + piano-rolls + pack stats (+audio when P2 lands). | **done** ([#164](https://github.com/allenpd728/muse/issues/164), docs/explorer/ + tools/muse_explorer/) |
+| Integration testing scope | seam map + task breakdown; T1–T3 unblocked, T4–T5 wait on P1. | [docs/integration-testing-scope.md](integration-testing-scope.md) |
+| T1 — Seam S2↔S5 | pack → container member → unpack round-trip, W4-diffed | claimed [#165](https://github.com/allenpd728/muse/issues/165) |
+| T2 — S2 golden fixtures | pinned payload per corpus tier; drift fails byte-exact compare | **done** ([#166](https://github.com/allenpd728/muse/issues/166), tests/fixtures/) |
+| T3 — Unified test runner | one command for all suites; fast/slow split; substrate for #163 | **done** ([#167](https://github.com/allenpd728/muse/issues/167), tools/run_tests.sh) |
+| T4 — Seam S1→P1 | golden vectors feed P1 decoder when it lands | **done as stub contract** ([#168](https://github.com/allenpd728/muse/issues/168), DECODER swap pin); full verification awaits P1 |
+| T5 — Chain test | full pipeline per corpus file via #162 + P1 | **done** ([#169](https://github.com/allenpd728/muse/issues/169), chain-report full registry) |
 
 ## Explicitly not (yet)
 

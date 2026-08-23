@@ -27,3 +27,14 @@ readable member — a lawyer reads it with a text editor.
 
 - Spec section written; validator accepts/rejects example manifests
   correctly.
+
+## Event log (implementation, 2026-08-23)
+
+- Spec landed as FORMAT_SPEC §7.1 (v0.x addition, per the changelog rule).
+  Validator + container toolkit: `tools/muse_mu/manifest.py`.
+- Decisions: SHA-256 for member hashes; signature = optional HMAC-SHA256
+  over canonical JSON (minus the signature field); PKI deferred.
+- Provenance field set mirrors the S3.3 philosophy provenance where they
+  overlap (author, license_ref) plus the manifest-only `ai_involvement`
+  enum (none|assisted|generated), `source`, `tools` — the §3 draft's
+  "source, tools, AI involvement disclosure" concretized.

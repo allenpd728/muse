@@ -19,6 +19,11 @@ engineering design doc): problem, goals/non-goals, dependencies, interfaces,
 acceptance criteria. The GitHub issue links the design doc; it does not
 embed a narrative.
 
+**Documentation deliverable:** every code task ships a `README.md` in its
+tool directory (usage, API, dependencies) and a test spec in `tests/`.
+The doc is part of the Definition of Done — code without its doc is
+incomplete. Design docs live here; user-facing docs live with the code.
+
 Supporting evidence: [../literature-review-w1.md](../literature-review-w1.md)
 (pre-draft lit review for W1/S-series scope), plus
 [../prior-art-spike.md](../prior-art-spike.md) (renderer/mockup component
@@ -32,12 +37,17 @@ earlier); draft-of-draft dependency chains are acceptable, final-form
 dependencies are deferred to approval. Issues get filed only against
 approved drafts.
 
+**One claim per agent at a time.** An agent holds exactly one
+`status:claimed` across the tracker; finish (commit + close + unblock
+dependents) before claiming the next. Parallel is safe because each agent
+respects the rule.
+
 ## Dependency matrix
 
 | Task | Doc | Upstream (needs) | Downstream (feeds) | Maturity |
 |---|---|---|---|---|
-| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | draft |
-| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | draft |
+| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | done (#123/#128) |
+| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | done (#125) |
 | W3 — Pattern analyzer | [w3-pattern-analyzer](w3-pattern-analyzer.md) | W1, W2 | S1–S5, W5, C3 | draft |
 | W4 — Diff tool | [w4-diff-tool](w4-diff-tool.md) | W1 | S2, P3, C2, L1 | draft |
 | W5 — Visualizer | [w5-visualizer](w5-visualizer.md) | W1 (+W3 overlays) | founder review | draft |
@@ -48,13 +58,13 @@ approved drafts.
 | S5 — Container + manifest | [s5-container-manifest](s5-container-manifest.md) | — (spec fields) | P1, C4 | scaffold |
 | P1 — Reference decoder | [p1-reference-decoder](p1-reference-decoder.md) | S1, S2, S5 | P2, L-series | scaffold |
 | P2 — Reference renderer | [p2-reference-renderer](p2-reference-renderer.md) | S1 | P3, L2 | scaffold |
-| P3 — Conformance suite | [p3-conformance-suite](p3-conformance-suite.md) | P1 | CI gate | scaffold |
+| P3 — Conformance suite | [p3-conformance-suite](p3-conformance-suite.md) | P1, P2 | CI gate | scaffold |
 | C1 — Seed format impl. | [c1-seed-format-impl](c1-seed-format-impl.md) | S3 | C2, C3, C4, L1 | scaffold |
 | C2 — AI-assisted authoring | [c2-ai-assisted-authoring](c2-ai-assisted-authoring.md) | C1, W1, W4 | feeds seeds | scaffold |
 | C3 — Budget calibration | [c3-expression-budget-calibration](c3-expression-budget-calibration.md) | C1 + delta corpora | feeds seeds | scaffold |
 | C4 — Assertion authoring | [c4-assertion-authoring](c4-assertion-authoring.md) | C1 | L1 | scaffold |
 | L1 — Mockup harness | [l1-mockup-harness](l1-mockup-harness.md) | C1–C4, S1, P2 | L2, L3, L4 | scaffold |
-| L2 — Performance renderer | [l2-performance-renderer](l2-performance-renderer.md) | L1 | L3, E1 | scaffold |
+| L2 — Performance renderer | [l2-performance-renderer](l2-performance-renderer.md) | L1, P2 | L3, E1 | scaffold |
 | L3 — Model comparison rig | [l3-model-comparison](l3-model-comparison.md) | L1, L2 | E1 | scaffold |
 | L4 — Distiller | [l4-distiller](l4-distiller.md) | L1, C1 | E1 | scaffold |
 | E1 — The work | [e1-the-work](e1-the-work.md) | L1–L4 | E2, E3 | scaffold |
