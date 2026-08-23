@@ -1,21 +1,15 @@
 {
   "name": "muse",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Schema-first generative music platform — validator and tooling",
+  "description": "Executable music format — symbolic parsers (compressor input stage)",
   "scripts": {
-    "validate": "node tools/validate.mjs",
-    "test": "node tools/test.mjs",
-    "expand": "node interpreter/expand.mjs",
-    "render": "node player/render.mjs",
-    "test:explorer": "npm --prefix explorer test",
-    "play": "node tools/play.mjs"
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
+    "@xmldom/xmldom": "^0.8.15",
     "fflate": "^0.8.3",
     "midi-file": "^1.2.4",
     "musicxml-interfaces": "^0.0.21"

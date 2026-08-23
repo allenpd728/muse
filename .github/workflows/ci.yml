@@ -17,5 +17,3 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npm test
-      - run: npm --prefix explorer ci
-      - run: npm run test:explorer

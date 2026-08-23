@@ -38,13 +38,9 @@ Components, in dependency order:
 
 ## Build / test
 
-- `npm test` — the harness (`tools/test.mjs`): fixture self-tests, every `examples/*.muse.json` validated (schema + cross-refs + semantics), every `examples/invalid/*.muse.json` rejected with `.expected.json` sidecar messages, then every `tests/*.test.mjs` suite spawned and folded in. New suites land as `tests/<name>.test.mjs` and are picked up automatically.
-- `npm run validate -- <doc> [schema]` — the validator CLI (`tools/validate.mjs`); exit 0 valid, 1 invalid, readable ajv errors.
-- `npm run test:explorer` — the explorer/composer/listener suites (vitest, `explorer/` package).
-- `npm run expand` / `npm run render` / `npm run play` — interpreter harness, player CLI, and the end-to-end demo (schema → expansion → WAV).
-- Benchmark conformance: `node benchmark/metrics.mjs <schema.muse.json> <performance.json>` — motif recall, structure fidelity, tempo-shape conformance, harmonic fidelity.
+> **Mid-pivot state.** The repo is transitioning from the JSON-schema pipeline to the executable-format design (see conversation notes; pivot spec pending). The old pipeline (schema/, tools/, interpreter/, player/, explorer/, benchmark/, examples/) was removed; only the symbolic parsers survive as the future compressor's input stage.
 
-**CI = Netlify build gate.** The site build command (top of `netlify.toml`) runs `npm ci && npm test && npm --prefix explorer ci && npm run test:explorer` before the explorer build; a failing test fails the build and blocks the `dev--` QA deploy. The gate applies to pushes to `dev` (the only allowed branch). The `.github/workflows/ci.yml` definition remains in the repo but cannot run while the account billing lock stands (#42); swap routes back if billing is resolved.
+- `npm test` — runs every `tests/*.test.mjs` suite via `node --test` (parser, IR, pitch-grammar, lockfile suites).
 
 ## Repository layout
 
