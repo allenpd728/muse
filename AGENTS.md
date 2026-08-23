@@ -107,7 +107,7 @@ tools/muse_diff/      # W4 IR↔IR diff tool (recall/precision in tick space)
 tools/s1_stream/      # S1 golden vectors + verifier (FORMAT_SPEC §4.4)
 tools/muse_analyze/   # W3 pattern analyzer → analysis report
 tools/muse_viz/       # W5 piano-roll renderer (matplotlib)
-tools/muse_pack/      # S2 roll encoding (columnar + zlib)
+tools/muse_roll/      # S2 roll encoding (MUR1 varint columnar + zlib)
 tools/muse_mu/        # S5 container + manifest
 tools/muse_seed/      # S3 seed format + C1 validator
 tools/muse_seed_cli/  # C1 seed CLI

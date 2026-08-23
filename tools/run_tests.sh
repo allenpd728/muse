@@ -28,7 +28,7 @@ SUITES=(
   "muse_author:muse_author"
   "s1_stream:s1_stream/tests"
   "muse_viz:muse_viz"
-  "muse_pack:muse_pack/tests"
+  "muse_roll:muse_roll"
 )
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
