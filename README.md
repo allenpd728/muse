@@ -27,9 +27,9 @@ MusicXML (the existing roll)
     ├─▶ deterministic player (free, reference) — reads the score.
     │    "Our MIDI player." Proves the format, verifies encodings.
     │
-    └─▶ LLM player (the product) — reads score + prompt.
-         "The musician." Brings the work to life — slowly, deliberately.
-         A performance is an event, not a render.
+    └─▶ LLM player (the product) — reads score + prompt, produces a
+         mockup (the session file: tempo map, curves, balance), rendered
+         through samples. "The musician." A performance is an event.
 ```
 
 Technology advancing hardware by changing the software: the deterministic
@@ -40,7 +40,7 @@ player never changes; the rolls keep getting better.
 | Component | Contains | Read by |
 |---|---|---|
 | **Score** | Notes, structure, form, dynamics — the fixed work | Deterministic player |
-| **Prompt** | Interpretive space: sanctioned ranges, performance philosophy, what may vary | LLM player |
+| **Prompt** | Interpretive space: sanctioned ranges, performance philosophy, what may vary. Authored from any source (MusicXML, DAW session, MIDI) via the shared IR. | LLM player |
 | **Manifest** | License, provenance, AI disclosure, hashes | Anyone — plaintext |
 
 ## Components

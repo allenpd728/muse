@@ -73,12 +73,13 @@ with the diff tool green — Beethoven 9 included.
 
 | Task | What it is | Status |
 |---|---|---|
-| L1 — Expansion harness | `.mu` (roll + seed) → expressive performance. LLM as interpreter, bounded by roll constraints. Generate → validate → fix loop. | todo |
-| L2 — Performance renderer | Expressive event stream → audio at sample tier. The "worth listening to" bar. | todo |
+| L1 — Mockup harness | score + prompt → mockup (the session file: tempo map, curves, velocities, balance). LLM as session musician, bounded by assertions. Generate → validate → fix. | todo |
+| L2 — Performance renderer | Mockup → audio via SFZ samples (sfizz tier — open source, no DAW engineering). The "worth listening to" bar. | todo |
 | L3 — Model comparison rig | Same `.mu`, different LLMs → different performances. Blind listening evaluation. The "culture" experiment. | todo |
 
-**Phase 4 done when:** one corpus work, rendered by the LLM player, passes
-the founder's by-ear evaluation as a musical performance — not a mockup.
+**Phase 4 done when:** one corpus work, performed by the LLM player, passes
+the founder's by-ear evaluation as a musical performance — not a mockup in
+the pejorative sense, but a reading worth a hall.
 
 ## Explicitly not (yet)
 
