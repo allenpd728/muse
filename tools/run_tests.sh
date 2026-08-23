@@ -30,6 +30,8 @@ SUITES=(
   "muse_viz:muse_viz"
   "muse_roll:muse_roll"
 )
+# Chain smoke (fast tier): e2e on the small registry, W4 verify PASS.
+SUITES+=("chain_smoke:muse_chain/test_chain_smoke.py")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
 )
