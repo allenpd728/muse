@@ -1,8 +1,16 @@
-# Test spec — W2 corpus loader (issue #125)
+# Test spec — W2 corpus loader (issue #125) — CLOSED
 
 Written by the completing agent per TASK_WORKFLOW step 6. W2 landed with 10
 pytest tests (`cd tools/corpus_loader && python -m pytest`, ~21s; the
 subprocess CLI tests re-parse the corpus).
+
+**Resolution (Tests: #130, 2026-08-23):** all four gaps closed. Suite now at
+16 tests, ~42s. Landed: failure-path coverage via `run_check(root=...)` on
+fixture roots (corrupted + missing files), a wall-clock budget guard on the
+Byrd files, the `--update-pins` command (prints drift for review; pins change
+only by deliberate corpus action), and the Schubert conflicting-tempo warnings
+contract. The `load_work()` cached library API was deliberately not built —
+the check gate meets its budget without it.
 
 ## Landed coverage (tools/corpus_loader/test_muse_corpus.py)
 
