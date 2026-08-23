@@ -35,15 +35,18 @@ class DiffReport:
 
 
 def _notes_flat(work):
-    """(part_id, note) sorted by onset then pitch — deterministic."""
+    """(part_id, note) sorted by onset then pitch — deterministic.
+
+    Robust to either IR layout (tools/muse_ir had -1/-2 sentinels; tools/ir
+    uses is_rest/is_unpitched properties with pitch possibly None).
+    """
     flat = []
     for p in work.parts:
         for n in p.notes:
-            if n.is_rest:          # rests compared separately? keep them: same rule
-                pass
-            flat.append((p.id, n))
-    flat.sort(key=lambda x: (x[1].onset, x[1].pitch, x[1].voice or 0))
-    return flat
+            raw_pitch = n.pitch if n.pitch is not None else -1
+            flat.append((p.id, n, raw_pitch))
+    flat.sort(key=lambda x: (x[1].onset, x[2], x[1].voice or 0))
+    return [(pid, n) for pid, n, _ in flat]
 
 
 def diff(work_a, work_b, tolerance_ticks: int = 0) -> DiffReport:
@@ -55,10 +58,12 @@ def diff(work_a, work_b, tolerance_ticks: int = 0) -> DiffReport:
     matched = 0
 
     for pa, na in a:
+        pa_pitch = na.pitch if na.pitch is not None else -1
         best = None
         for j in list(unmatched_b):
             pb, nb = b[j]
-            if na.pitch != nb.pitch:
+            pb_pitch = nb.pitch if nb.pitch is not None else -1
+            if pa_pitch != pb_pitch:
                 continue
             if abs(na.onset - nb.onset) <= tolerance_ticks:
                 if best is None or abs(na.onset - nb.onset) < abs(na.onset - b[best][1].onset):
