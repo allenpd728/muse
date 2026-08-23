@@ -26,6 +26,7 @@ gets a tracking slot. Sources: `docs/pipeline.md` locked decisions,
 | D16 | S4 operator set: exact/transposed/ostinato ship; invert/retro/imitative deferred (zero corpus evidence) | locked | FORMAT_SPEC §5.1 + docs/analysis-report.md |
 | D17 | Philosophy fields: typed-lite vocabulary + free-text escape; identity guard with license_ref | locked | S3.3 (#144) + S3 SPEC decisions log |
 | D18 | Container: SHA-256 member hashes; HMAC-SHA256 signature; PKI deferred | locked | FORMAT_SPEC §7.1 (#141) |
+| D19 | S2 packing: varint columnar + zlib (stdlib, off-the-shelf); custom entropy coder is post-v1 | locked | FORMAT_SPEC §4.6 (#138) |
 
 ## Open decision points (tracking)
 
