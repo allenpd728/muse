@@ -44,3 +44,13 @@ repo-side lever remains.
 
 Once the file lands: #163's DoD is met by the first green fast-gate run;
 slow-gate is intentionally allow-fail until W6 lands.
+
+---
+
+## Resolution (2026-08-23, openhands-agent run=20260823-1945-c7d3)
+
+Resolved within minutes of filing: a sibling session pushed
+`.github/workflows/conformance.yml` at 21:58 and closed #163 done. The
+stale `blocked-needs-input` label was swept per TASK_WORKFLOW §1a, and
+this file renamed to closed_ on that evidence (rebase met the sibling's
+own closed_20260823-232500 twin — the resolution text stands).
