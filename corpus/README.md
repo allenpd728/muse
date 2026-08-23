@@ -23,8 +23,10 @@ those works.
 
 ## Quality notes (measured)
 
-- Bach: SATB separated, tempo marks present; **no dynamics** — chorales are
-  typically unmarked; fine for pitch/rhythm/form tests.
+- Bach: SATB separated (mvt 3 is the SSATB fantasia — 5 parts, 377 notes;
+  mvts 1/7/11: 4 parts, 279/307/190 notes); tempo marks only in mvts 1 & 3
+  (7 & 11 carry none); **no dynamics** — chorales are typically unmarked;
+  fine for pitch/rhythm/form tests.
 - Byrd: MIDI only (no MusicXML found without a CAPTCHA wall — CPDL is behind
   Cloudflare). No dynamics. Tests the polyphonic-inference path.
 - Schubert: OpenScore professional encoding, tempo marks; dynamics sparse.
