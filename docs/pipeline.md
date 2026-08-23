@@ -133,7 +133,7 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 | CI conformance gate | W2/S1/S2/S5/chain gates run on every push; nothing guards merges today. | **done** ([#163](https://github.com/allenpd728/muse/issues/163), .github/workflows/) |
 | Frontend explorer | QA-only static site: corpus browser + patterns + piano-rolls + pack stats (+audio when P2 lands). | **done** ([#164](https://github.com/allenpd728/muse/issues/164), docs/explorer/ + tools/muse_explorer/) |
 | Integration testing scope | seam map + task breakdown; T1–T3 unblocked, T4–T5 wait on P1. | [docs/integration-testing-scope.md](integration-testing-scope.md) |
-| T1 — Seam S2↔S5 | pack → container member → unpack round-trip, W4-diffed | claimed [#165](https://github.com/allenpd728/muse/issues/165) |
+| T1 — Seam S2↔S5 | pack → container member → unpack round-trip, W4-diffed | **done** ([#165](https://github.com/allenpd728/muse/issues/165), tools/muse_roll/tests/) |
 | T2 — S2 golden fixtures | pinned payload per corpus tier; drift fails byte-exact compare | **done** ([#166](https://github.com/allenpd728/muse/issues/166), tests/fixtures/) |
 | T3 — Unified test runner | one command for all suites; fast/slow split; substrate for #163 | **done** ([#167](https://github.com/allenpd728/muse/issues/167), tools/run_tests.sh) |
 | T4 — Seam S1→P1 | golden vectors feed P1 decoder when it lands | **done as stub contract** ([#168](https://github.com/allenpd728/muse/issues/168), DECODER swap pin); full verification awaits P1 |
