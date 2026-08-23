@@ -1,7 +1,19 @@
-# muse_seed — S3.1 container & encoding
+# muse_seed — S3.1 container & encoding + C1 CLI
 
 Seed bytes reader/writer + validator per
 [docs/design/s3-seed-format/SPEC.md](../../docs/design/s3-seed-format/SPEC.md).
+
+## C1 CLI
+
+```bash
+python3 tools/muse_seed/cli.py validate <seed.yaml> [--work <corpus-file>]
+python3 tools/muse_seed/cli.py show <seed.yaml>
+```
+
+`validate` runs the full chain — schema (S3.1) → era budgets (S3.2) →
+philosophy vocabulary (S3.3) → variation points (S3.4) → assertions against
+the loaded corpus work (S3.5) — exiting 0 VALID / 1 INVALID. The work
+defaults to the seed's `provenance.source`; `--work` overrides.
 
 ## Usage
 

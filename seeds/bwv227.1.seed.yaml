@@ -16,9 +16,12 @@ params:
     level: 1
     points: []
 philosophy:
-  tempo_philosophy: flexible, architectural
-  dynamic_philosophy: terraced, dramatic
-  articulation_stance: sing the chorale, breathe at phrase ends
+  tempo_philosophy: [flexible, architectural]
+  dynamic_philosophy: [terraced, dramatic]
+  articulation_stance: [sing the chorale, breathe at phrase ends]
+  provenance:
+    author: openhands-agent
+    ai_assisted: true
 variation_points: []
 assertions:
   register:
@@ -31,3 +34,4 @@ assertions:
 provenance:
   source: corpus/bach/bwv227.1.mxl
   author: openhands-agent
+  ai_assisted: true
