@@ -1,7 +1,15 @@
-# Test spec — S3.1 container & encoding
+# Test spec — S3.1 container & encoding — CLOSED
 
 **Task:** #142 (S3.1 — Container & encoding)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #156, 2026-08-23):** landed as
+`tools/muse_seed/test_container.py` — 14 tests covering all three spec
+sections (schema validation per required key, YAML/JSON round-trips,
+example seed both formats). **Validator bug found and fixed:** empty
+`format_version`/`work_id` passed as "present" (the required-keys clause
+whitelisted the two string keys); now all four required keys must be
+truthy. Full package: 98 passed, 1 skipped.
 
 ## What to verify
 

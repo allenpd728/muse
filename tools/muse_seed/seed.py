@@ -44,9 +44,7 @@ class Seed:
 
 def validate_seed(seed: Seed):
     """S3.1 schema checks. Fail loudly on unknown/missing keys."""
-    missing = REQUIRED_KEYS - {
-        k for k, v in seed.to_dict().items() if v or k in ("format_version", "work_id")
-    }
+    missing = REQUIRED_KEYS - {k for k, v in seed.to_dict().items() if v}
     if missing:
         raise SeedError(f"missing required keys: {sorted(missing)}")
     unknown = set(seed.to_dict()) - TOP_LEVEL_KEYS
