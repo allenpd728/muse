@@ -125,6 +125,14 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 [design/s6-vocal-text.md](design/s6-vocal-text.md),
 [design/e4-extension.md](design/e4-extension.md).
 
+## Phase 2.5 — Integration (chained, gated, explorable)
+
+| Task | What it is | Status |
+|---|---|---|
+| E2E chain harness | corpus source → IR → pack → container → decode → render, determinism-checked; the compose-proof for the landed parts. | filed [#162](https://github.com/allenpd728/muse/issues/162), available |
+| CI conformance gate | W2/S1/S2/S5/chain gates run on every push; nothing guards merges today. | filed [#163](https://github.com/allenpd728/muse/issues/163), available |
+| Frontend explorer | QA-only static site: corpus browser + patterns + piano-rolls + pack stats (+audio when P2 lands). | filed [#164](https://github.com/allenpd728/muse/issues/164), available |
+
 ## Explicitly not (yet)
 
 - Public spec publication (pre-launch decision)
