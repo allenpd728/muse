@@ -45,11 +45,11 @@ a pattern-frequency report that drives Phase 1 language decisions.
 
 | Task | What it is | Status |
 |---|---|---|
-| S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | todo |
+| S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | **filed #137, available** |
 | S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | todo |
-| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | todo |
-| S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | todo |
-| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | todo |
+| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **filed #139, available** |
+| S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | **filed #140, available** |
+| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **filed #141, available** |
 
 **Phase 1 done when:** FORMAT_SPEC.md v1.0 is written, with every construct
 justified by Phase 0 evidence (a construct without corpus evidence doesn't ship).
