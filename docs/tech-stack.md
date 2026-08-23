@@ -18,9 +18,9 @@ not the model; build the prompt design and the loop.**
 
 | What | Role | License |
 |---|---|---|
-| **Partitura** (CPJKU) | MusicXML/MIDI/MEI/Humdrum parse, note arrays, beat maps | GPLv3 |
+| **Partitura** (CPJKU) | IR schema reference (note arrays, beat maps); MEI/Humdrum option; match-file conventions. W1's MusicXML/MIDI parsers are direct, not Partitura — swap recorded in [design/w1-event-ir.md](design/w1-event-ir.md) | GPLv3 |
 | **musicxml2hum / Verovio** (rism-digital) | optional debug engraving | — |
-| **mido / midiutil** (spike/py) | MIDI event vocabulary | MIT/Apache |
+| **mido / midiutil** (spike/py) | MIDI event vocabulary (tools/ir MIDI parser + spike) | MIT/Apache |
 
 ## pattern discovery / analysis (W3/W6)
 
