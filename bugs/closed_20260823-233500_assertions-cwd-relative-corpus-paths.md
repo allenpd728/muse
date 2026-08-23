@@ -1,8 +1,8 @@
-# Bug — assertions suite uses CWD-relative corpus paths
+# Bug (CLOSED — fixed by abae0a6, #190) — assertions suite uses CWD-relative corpus paths
 
 **Found:** 2026-08-23, run=20260823-2312-h8pk, while gathering gate
 evidence for #165.
-**Disposition:** filed #190 (`status:available`) 2026-08-23.
+**Disposition:** fixed on `dev` at `abae0a6` (#190, closed status:done).
 
 ## Symptom
 
