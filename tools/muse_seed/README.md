@@ -51,6 +51,25 @@ no-artist-lookalikes rule: any capitalized name-like phrase requires
 `provenance.license_ref`; era phrases ("Venetian School") pass as styles.
 Wired into `validate_seed()` — a bad philosophy block fails the whole seed.
 
+## S3.4 — Variation points (variation.py)
+
+Named regions where interpretation may vary:
+
+```python
+from muse_seed.variation import VariationPoint, validate_variation_points
+
+VariationPoint.from_dict({
+    "region": [480, 960], "kind": "ornament", "budget": 0.2,
+    "assertions": {"register": {"part": "soprano", "min": "C4", "max": "A5"}},
+})
+```
+
+Kinds: ornament, repeat, cadenza, ossia, tempo_flex. Regions are IR ticks,
+half-open, non-overlapping; `validate_variation_points(points,
+duration_ticks=...)` bounds-checks against the loaded work. Attached
+assertions are S3.5's kinds, evaluated by `muse_assert`. Wired into
+`validate_seed()`.
+
 ## Tests
 
 ```

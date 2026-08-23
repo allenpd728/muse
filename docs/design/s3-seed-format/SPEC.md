@@ -43,7 +43,7 @@ cadenza-like freedom); each with assertions attached:
 
 ```yaml
 variation_points: [
-  { region: [onset_start, onset_end], kind: ornament, budget: 0.2, assert: [..] }
+  { region: [onset_start, onset_end], kind: ornament, budget: 0.2, assertions: {..} }
 ]
 ```
 
@@ -90,3 +90,15 @@ use. Byte-exact for serialization depends on C1.
   boolean — the manifest's AI-disclosure rule applied at seed granularity).
   Validator: `tools/muse_seed/philosophy.py`, wired into
   `validate_seed()` (S3.1's surface).
+- **Variation points (S3.4, 2026-08-23):** frozen schema
+  `{region: [start_tick, end_tick], kind, budget: 0..1 (default 0.2),
+  assertions: {}, label?}`. Regions are IR ticks (half-open
+  `[start, end)`). Kind vocabulary: `ornament`, `repeat`, `cadenza`,
+  `ossia`, `tempo_flex`. Regions must not overlap (adjacency is fine) and
+  may be work-bounds-checked against `Work.duration_ticks()` when the work
+  is loaded. Attached assertions are restricted to S3.5's kinds
+  (`must_contain`, `register`, `form`, `tempo_bounds`) and are evaluated by
+  `muse_assert` against a performance; the `assert` key from the draft
+  renamed to `assertions` for grammar uniformity. Validator:
+  `tools/muse_seed/variation.py`, wired into `validate_seed()`
+  (`variation_points` key from S3.1).

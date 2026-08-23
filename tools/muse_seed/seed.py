@@ -58,6 +58,13 @@ def validate_seed(seed: Seed):
         raise SeedError("assertions must be a mapping")
     if not isinstance(seed.variation_points, list):
         raise SeedError("variation_points must be a list")
+    if seed.variation_points:
+        from .variation import VariationError, validate_variation_points
+
+        try:
+            validate_variation_points(seed.variation_points)
+        except VariationError as e:
+            raise SeedError(f"variation_points: {e}") from e
     if seed.philosophy:
         from .philosophy import Philosophy, PhilosophyError
 
