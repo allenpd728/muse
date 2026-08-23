@@ -72,7 +72,7 @@ the diff tool confirms the score reconstructs the source losslessly.
 | C1 — Seed format implementation | S3's spec → working reader/writer + validator. | **done (#148)** |
 | C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | **done #153** (tools/muse_author/) |
 | C3 — Expression-budget calibration | Delta-analysis-informed budget suggestions per era/style. | **done** (#175 → [tools/muse_budgets](../tools/muse_budgets/)) |
-| C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | todo |
+| C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | **done** (#182 → [tools/assertions](../tools/assertions/)) |
 
 **Phase 3 done when:** seeds are authored for corpus works and validate
 against S3 — the founder's ear gates quality. Design docs:
