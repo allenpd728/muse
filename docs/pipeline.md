@@ -12,8 +12,10 @@ Status column is updated by the docs-coherence sweep duty.
   the business of scanning historic documents.
 - **The deterministic player is the baseline** — "our MIDI player," free,
   proves the format. **The LLM player is the product** — the musician.
-- **Compressor and LLM player are proprietary.** Spec + reference player go
-  public at launch. One private repo during development; split at pre-launch.
+- **The seed workbench and LLM player are proprietary.** The open surface is
+  the score side: encoding (S2), the deterministic player (P-series), the
+  spec. Proprietary: seed authoring (C-series), LLM player (L-series). Spec +
+  reference player go public at launch; split at pre-launch.
 - **Tools before spec freeze.** The analyzer teaches us what the language
   needs; the diff tool teaches us whether compression works. Spec v1.0 is
   written from evidence, not ahead of it.
@@ -63,29 +65,42 @@ justified by Phase 0 evidence (a construct without corpus evidence doesn't ship)
 **Phase 2 done when:** every corpus `.mu` round-trips through the player and
 the diff tool confirms the score reconstructs the source losslessly.
 
-## Phase 3 — Compressor (proprietary)
+## Phase 3 — Seed authoring (the craft, proprietary)
 
 | Task | What it is | Status |
 |---|---|---|
-| C1 — Packer | Event stream → score encoding. Lossless round-trip on the whole corpus. | todo |
-| C2 — Pattern compressor | W3's detected patterns → language constructs. The AI-in-the-loop: compress → expand → diff → adjust. | todo |
-| C3 — Seed authoring | Human-in-loop interpretive annotation (the conductor layer). Founder evaluates by ear against known scores. | todo |
-| C4 — Manifest writer | Rights, provenance, AI disclosure, signatures. | todo |
+| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | todo |
+| C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | todo |
+| C3 — Expression-budget calibration | Delta-analysis-informed budget suggestions per era/style. | todo |
+| C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | todo |
 
-**Phase 3 done when:** the full corpus compresses to `.mu` and expands back
-with the diff tool green — Beethoven 9 included.
+**Phase 3 done when:** seeds are authored for corpus works and validate
+against S3 — the founder's ear gates quality. Design docs:
+[design/](design/).
 
-## Phase 4 — LLM player (the product)
+## Phase 4 — Mockup harness + renderer (the product)
 
 | Task | What it is | Status |
 |---|---|---|
-| L1 — Mockup harness | score + prompt → mockup (the session file: tempo map, curves, velocities, balance). LLM as session musician, bounded by assertions. Generate → validate → fix. | todo |
-| L2 — Performance renderer | Mockup → audio via SFZ samples (sfizz tier — open source, no DAW engineering). The "worth listening to" bar. | todo |
-| L3 — Model comparison rig | Same `.mu`, different LLMs → different performances. Blind listening evaluation. The "culture" experiment. | todo |
+| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | todo |
+| L2 — Performance renderer | Mockup → audio via sfizz + SFZ samples (SSO/VPO tier). The "worth listening to" bar. | todo |
+| L3 — Model comparison rig | Same score+seed, different LLMs → different mockups. Blind A/B listening. | todo |
+| L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | todo |
 
 **Phase 4 done when:** one corpus work, performed by the LLM player, passes
-the founder's by-ear evaluation as a musical performance — not a mockup in
-the pejorative sense, but a reading worth a hall.
+the founder's by-ear evaluation as a musical performance — a reading worth a
+hall.
+
+## Phase 5 — The event (the unveiling)
+
+| Task | What it is | Status |
+|---|---|---|
+| E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | todo |
+| E2 — The venue | Concert hall, projection, the "giant computer" staging. | todo |
+| E3 — The recording | Document the event; publish. | todo |
+
+**Phase 5 done when:** deferred until Phase 4 produces one concert-worthy
+work.
 
 ## Explicitly not (yet)
 
