@@ -40,6 +40,18 @@ small/mid works stay exhaustive. Beethoven 9 completes within budget
 
 ## Tests
 
-23 tests: pattern-class presence, scale-budget ladder, delta curve
-non-empty, CLI per-work and --all → docs/analysis-report.md. Test spec:
+17 fast + 15 slow (corpus pins + Beethoven 9 budget): pattern-class presence,
+scale-budget ladder, delta curve, CLI per-work + --all structs.
+
+**Slow gate:** Beethoven 9 analysis is ~30s alone (239k notes). Fast runs skip
+the slow set by default:
+
+```bash
+MUSE_SKIP_SLOW=1 python3 -m pytest tools/muse_analyze/   # fast (17 tests)
+python3 -m pytest tools/muse_analyze/                    # full (32, ~30s)
+```
+
+Corpus pins and B9 budget are marked `@slow`; CI runs full, local dev gates fast.
+
+Test spec:
 [tests/open_20260823-204500_w3-pattern-analyzer.md](../../tests/open_20260823-204500_w3-pattern-analyzer.md).
