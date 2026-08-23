@@ -6,38 +6,40 @@ document defines the model they must serve. Nothing here is implemented.
 
 ## 0. The one-sentence definition
 
-**A `.mu` file is the compressed, executable encoding of a musical work — two
-streams in one container.** The **roll stream** is the fixed score: what
-MusicXML already carries, compressed and packaged (our MusicXML). The **seed
-stream** is the interpretive space: what may vary, and the performance
-philosophy that guides the variation. A deterministic player reads the roll;
-an LLM player reads roll + seed and brings the work to life.
+**A `.mu` file is the compressed, executable encoding of a musical work —
+three components in one container.** The **score** is the fixed work: what
+MusicXML already carries, packaged (our MusicXML). The **prompt** is the
+interpretive space: what may vary, and the performance philosophy that guides
+the variation. The **manifest** carries rights and provenance in plaintext. A
+deterministic player reads the score; an LLM player reads score + prompt and
+brings the work to life — slowly, deliberately. A performance is an event,
+not a render.
 
 The metaphor: the `.mu` file is the improved piano roll — re-punched with
 modern musical knowledge so the existing player piano produces a better
 performance. Technology advancing hardware by changing the software.
 
-## 1. The two streams
+## 1. The three components
 
-| | **Roll stream** | **Seed stream** |
-|---|---|---|
-| What it is | The fixed score | The interpretive space |
-| Contents | Notes, structure, form, dynamics | Sanctioned ranges, performance philosophy, variation points |
-| Read by | Deterministic player (baseline) | LLM player (product) |
-| Playback | Identical everywhere, forever | Interpreted; varies by performer within sanctions |
-| Analogy | Our MIDI / the punched roll | The conductor's margin notes |
+| | **Score** | **Prompt** | **Manifest** |
+|---|---|---|---|
+| What it is | The fixed work | The interpretive space | Rights + provenance |
+| Contents | Notes, structure, form, dynamics | Sanctioned ranges, performance philosophy, variation points | License, authorship, AI disclosure, hashes |
+| Read by | Deterministic player (baseline) | LLM player (product) | Anyone — plaintext |
+| Playback | Identical everywhere, forever | Interpreted; varies by performer within sanctions | — |
+| Analogy | Our MIDI / the soil | The seed / the water | The label |
 
-The roll stream answers "what is the work." The seed stream answers "how may
-it live." The roll constrains the seed; the seed never contradicts the roll.
+The score answers "what is the work." The prompt answers "how may
+it live." The score constrains the prompt; the prompt never contradicts the score.
 
 ## 2. Design goals
 
-1. **Compression by construction.** The roll stream is MusicXML compressed:
+1. **Compression by construction.** The score is MusicXML compressed:
    columnar, delta-encoded, pattern-factored, entropy-coded. Program length
    versus expanded output is a measurable property of the work.
-2. **Determinism at the baseline.** Same `.mu` → identical roll playback on
+2. **Determinism at the baseline.** Same `.mu` → identical score playback on
    every conforming player, forever. Conformance is byte-exact.
-3. **Interpretation as data.** The seed stream is explicit, inspectable, and
+3. **Interpretation as data.** The prompt is explicit, inspectable, and
    licensed — interpretive decisions are first-class, declared, and bounded.
 4. **Rights travel in plaintext.** The manifest is human-readable without
    tooling or execution: license, provenance, AI disclosure.
@@ -80,7 +82,7 @@ renders), each recording the seed settings and content hash it was produced
 from. Cached computation, never the definition of the work. Zero-compute
 first listen.
 
-## 4. The roll stream (encoding sketch)
+## 4. The score (encoding sketch)
 
 Baseline content model — what MusicXML carries that we preserve:
 
@@ -97,9 +99,9 @@ Packing: columnar arrays, delta-encoded onsets, dictionary-coded repeated
 patterns, entropy-coded residual. The pattern-factoring layer (sequences,
 transposed repeats, imitative entries) is driven by analyzer evidence (W3).
 
-## 5. The seed stream (model)
+## 5. The prompt (model)
 
-The seed stream declares the **sanctioned space** — what a performance may
+The prompt declares the **sanctioned space** — what a performance may
 vary — plus the **philosophy** that guides it:
 
 - **Parameters with ranges**: tempo bounds, variation level, density, energy.
@@ -114,10 +116,10 @@ vary — plus the **philosophy** that guides it:
   register bounds, structural form). The LLM player's output is validated
   against these; failure is loud, never silent deviation.
 
-**Advocacy rule.** The composer (or encoder) is the work's advocate; the seed
-stream is the advocacy instrument. Wildly different readings are valid when
+**Advocacy rule.** The composer (or encoder) is the work's advocate; the prompt
+is the advocacy instrument. Wildly different readings are valid when
 they satisfy the assertions — the Gould/Bernstein case is in-spec. What is
-out-of-spec is violating the roll: the assertions fail and playback refuses.
+out-of-spec is violating the score: the assertions fail and playback refuses.
 
 ## 6. Execution model
 
@@ -131,8 +133,8 @@ roll.bin + seed.bin + interpretation request ──▶ LLM expansion
 
 - **Deterministic path**: decode → render. No AI, no network, no ambiguity.
   This is the free baseline and the conformance target.
-- **Product path**: the LLM player interprets within the seed space, bounded
-  by the roll. Generate → validate → fix, bounded retries, fail loudly.
+- **Product path**: the LLM player interprets within the prompt space, bounded
+  by the score. Generate → validate → fix, bounded retries, fail loudly.
   Provenance (model, timestamp) is stamped by the harness, never trusted to
   the model.
 - **Renderer tiers**: soundfont (baseline) → samples (the "worth listening
@@ -150,8 +152,8 @@ roll.bin + seed.bin + interpretation request ──▶ LLM expansion
 
 ## 8. Open questions (to be pinned by Phase 0/1)
 
-- Exact roll packing scheme (driven by analyzer statistics).
-- Seed-stream field set (driven by compression experiments).
+- Exact score packing scheme (driven by analyzer statistics).
+- Prompt field set (driven by compression experiments).
 - Whether the executable layer needs a general operator set (transpose/
   invert/retro/aug/dim) or the corpus demands more.
 - Performance-file encoding details.

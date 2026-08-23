@@ -4,11 +4,13 @@ Context and conventions for AI agents (and humans) working in this repository.
 
 ## What this project is
 
-Muse is an **executable music format**. A `.mu` file carries two streams: the
-**roll** (the fixed score — our MusicXML-class encoding, compressed and
-packaged) and the **seed** (the interpretive space — what may vary). The
-deterministic player reads the roll ("our MIDI player," the free baseline);
-the LLM player reads roll + seed and brings the work to life (**the product**).
+Muse is an **executable music format**. A `.mu` file carries three components:
+the **score** (the fixed work — our MusicXML-class encoding, packaged), the
+**prompt** (the interpretive space — what may vary), and the **manifest**
+(plaintext rights). The deterministic player reads the score ("our MIDI
+player," the free baseline); the LLM player reads score + prompt and brings
+the work to life — slowly, deliberately. A performance is an event, not a
+render. The LLM player is **the product**.
 
 See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 [docs/pipeline.md](docs/pipeline.md) for the build plan and live status, and
@@ -25,12 +27,12 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
   the spec (with a version note), don't hard-code it.
 - **Tools before spec freeze.** Phase 0 analysis output drives the language
   design. A construct without corpus evidence doesn't ship.
-- **Determinism is the baseline.** The roll stream plays identically
-  everywhere, forever. The seed stream is where variation lives — never leak
-  nondeterminism into the roll.
+- **Determinism is the baseline.** The score plays identically
+  everywhere, forever. The prompt is where variation lives — never leak
+  nondeterminism into the score.
 - **The corpus is the ratchet.** Bach → Byrd → Schubert → Beethoven 5 →
   Beethoven 9. Work climbs the ladder; no rung is skipped.
-- **No artist lookalikes.** Seed-stream philosophies reference styles and
+- **No artist lookalikes.** Prompt philosophies reference styles and
   practices, never an artist's identity, without an explicit license in the
   manifest.
 - **Provenance is mandatory.** Every `.mu` records source, license, and AI
