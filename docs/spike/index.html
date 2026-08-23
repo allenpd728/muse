@@ -61,11 +61,21 @@
 
   <div class="card">
     <h2>B2 — LLM mockup v1 · strings</h2>
-    <div class="meta">same interpretation · rendered on string samples · 35.2s audible</div>
+    <div class="meta">phrase-level shaping only (tempo map + dynamics) · rendered on string samples</div>
     <audio controls preload="none" src="chorale-mockup-sso.wav"></audio>
     <details>
-      <summary>The mockup document (session work as data)</summary>
+      <summary>Mockup v1 document</summary>
       <pre id="mockup"></pre>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>B3 — LLM mockup v2 · strings · <em>per-note sculpting</em></h2>
+    <div class="meta">every soprano note sculpted: onset offsets, per-note attack/release, swell curves, legato overlap, tenuto · the producer's pass</div>
+    <audio controls preload="none" src="chorale-mockup-v2-sso.wav"></audio>
+    <details>
+      <summary>Mockup v2 document (per-note expression layer)</summary>
+      <pre id="mockup2"></pre>
     </details>
   </div>
 
@@ -82,6 +92,7 @@
 </main>
 <script>
   fetch('mockup-v1.json').then(r => r.text()).then(t => document.getElementById('mockup').textContent = t);
+  fetch('mockup-v2.json').then(r => r.text()).then(t => document.getElementById('mockup2').textContent = t);
   function vote(v) {
     document.getElementById('votemsg').textContent =
       'Noted: ' + v + '. Record it in docs/spike-results.md (or tell your agent) — the page does not phone home.';
