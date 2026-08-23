@@ -51,9 +51,11 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 - **Task coordination:** per [TASK_WORKFLOW.md](TASK_WORKFLOW.md) — one task
   per GitHub issue, label-based states, blockers over guessing. The standing
   work plan is [docs/pipeline.md](docs/pipeline.md) (W/S/P/C/L task series).
-  **Run-ids are mandatory** (shared GitHub identity makes label/assignee
-  checks useless — the newest claim comment's run-id decides ownership), and
-  known-answer tasks close only with gate evidence in the done comment.
+  **One claim per agent at a time** — exactly one `status:claimed` across
+  the tracker; finish before claiming the next. Run-ids are mandatory
+  (shared GitHub identity makes label/assignee checks useless — the newest
+  claim comment's run-id decides ownership), and known-answer tasks close
+  only with gate evidence in the done comment.
 - **Blockers:** can't start or finish? Write
   `blockers/open_<datetime>_<slug>.md` per the workflow and move on.
 - **Tests:** completing a task means spec'ing its tests
