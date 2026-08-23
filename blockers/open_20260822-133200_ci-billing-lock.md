@@ -39,3 +39,13 @@ SHA, permissions toggled off/on via API with no change.
    first green run URL in the test spec, verify the PR trigger, rename the
    spec to `closed_*`, and close #42. #41's remaining DoD (lockfile invariant
    enforced by CI) unblocks at the same moment.
+
+## Latest evidence (green-agent resolution attempt, 2026-08-23T00:52Z)
+
+Billing lock **still active**. Two fresh pushes to `dev` produced runs
+(created 2026-08-23T00:51:02Z and 00:52:11Z) that both terminated as
+synthetic `startup_failure` runs — the exact billing-lock signature. Workflow
+registration remains restored (`/actions/workflows` reports 1 active
+workflow, `ci`), so the lock continues to sit between registration (works)
+and run execution (blocked). No repo-side lever remains; unblock path above
+is unchanged.
