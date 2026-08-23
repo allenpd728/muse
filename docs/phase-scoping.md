@@ -140,5 +140,5 @@ L1–L4 → E1 → E2 → E3
   L4 distiller, E-series for the event).
 - **The critical path:** W1 → W3 → S3 → C1 → C2 → L1 → L2. Everything else
   is parallel or later.
-- **The spike is closed** (docs/spike-results.md); its lessons feed C2 and L1.
+- **The spike is closed** (docs/spike.md); its lessons feed C2 and L1.
 - **No new model training** anywhere in the graph (locked constraint).

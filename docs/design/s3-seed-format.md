@@ -13,7 +13,7 @@ approved; never machine-invented without review.
 
 - **Upstream:** W3 evidence + delta-analysis docs
   ([delta-analysis-plan](../delta-analysis-plan.md),
-  [mockup-delta-analysis](../mockup-delta-analysis.md)).
+  [delta-analysis](../delta-analysis-plan.md)).
 - **Downstream:** C1 (implementation), C2/C3 (authoring), L1 (consumption).
 
 ## Scope (pin in draft)

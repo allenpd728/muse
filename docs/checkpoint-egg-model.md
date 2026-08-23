@@ -49,7 +49,7 @@ Candidate sources: DAWproject files (Bitwig/Studio One open format — see
 [prior-art-spike.md](prior-art-spike.md) §Interchange), Ardour sessions,
 composer-shared mockups for works that also exist as MusicXML. Ideal: one
 work in three forms (MusicXML + MIDI + DAW session). The triple diff is
-`docs/mockup-delta-analysis.md` (task pending).
+`docs/delta-analysis-plan.md` (contains plan + results).
 
 ## 3. Spike state (what the chorale taught us)
 
