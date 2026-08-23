@@ -4,82 +4,75 @@ Context and conventions for AI agents (and humans) working in this repository.
 
 ## What this project is
 
-Muse is an **executable music format**. A `.muse` file is a small,
-deterministic program: executed by a conforming player with rendition
-parameters and a seed, it computes a complete musical performance. The format
-spec — not audio, not a prompt, not a schema — is the product. See
-[`FORMAT_SPEC.md`](FORMAT_SPEC.md) for the design and [`docs/vision.md`](docs/vision.md)
-for the product thesis.
+Muse is an **executable music format**. A `.mu` file carries two streams: the
+**roll** (the fixed score — our MusicXML-class encoding, compressed and
+packaged) and the **seed** (the interpretive space — what may vary). The
+deterministic player reads the roll ("our MIDI player," the free baseline);
+the LLM player reads roll + seed and brings the work to life (**the product**).
 
-> **Pivot state: documents-only.** The earlier JSON-schema pipeline (validator,
-> importer, interpreter, player, explorer, benchmark) was removed in the pivot
-> and is recoverable from git history (`git log` prior to the
-> `pivot/executable-format` branch). [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md) is kept
-> as design history only — it is superseded, not normative.
+See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
+[docs/pipeline.md](docs/pipeline.md) for the build plan and live status, and
+[corpus/README.md](corpus/README.md) for the reference works.
 
-Components (build order per [`docs/pivot-tasks.md`](docs/pivot-tasks.md)):
-
-1. **Format spec** — the language, execution model, container, conformance.
-2. **Reference decoder** — program + params + seed → event stream (T2).
-3. **Renderer** — event stream → audio, swappable tiers (T4).
-4. **AI compressor** — MIDI/MusicXML → program via compress → expand → diff (T5).
-5. **Player UI** — rendition/parameter steering (T6).
+> **Development stage: private repo, tools-first.** Nothing is published yet.
+> Spec and reference player go public at launch; compressor and LLM player
+> stay proprietary.
 
 ## Ground rules
 
-- **Format-first.** Never bake musical decisions into a decoder, renderer, or
-  UI that belong in the language. If a behavior can't be expressed in the
-  format, extend the spec (with a version note), don't hard-code it.
-- **Determinism is sacred.** Same program + params + seed → identical output
-  everywhere, forever. Any feature that threatens this (wall-clock, ambient
-  state, platform-dependent float behavior) is rejected at spec review.
-- **The decoder stays dumb.** Intelligence belongs in the compressor
-  (authoring) or in swappable renderer plugins — never required for decoding.
-- **No artist lookalikes.** Renditions reference styles, eras, and production
-  techniques only. Named-artist or voice-likeness targeting requires an
-  explicit license record in the manifest.
-- **Provenance is mandatory.** AI-generated or AI-assisted content is recorded
-  in the manifest's provenance — including compressor output.
-- **Spec before code.** No implementation task starts before its spec section
-  is stable enough to write acceptance criteria against.
+- **Format-first.** Never bake musical decisions into a player or tool that
+  belong in the format. If a behavior can't be expressed in the spec, amend
+  the spec (with a version note), don't hard-code it.
+- **Tools before spec freeze.** Phase 0 analysis output drives the language
+  design. A construct without corpus evidence doesn't ship.
+- **Determinism is the baseline.** The roll stream plays identically
+  everywhere, forever. The seed stream is where variation lives — never leak
+  nondeterminism into the roll.
+- **The corpus is the ratchet.** Bach → Byrd → Schubert → Beethoven 5 →
+  Beethoven 9. Work climbs the ladder; no rung is skipped.
+- **No artist lookalikes.** Seed-stream philosophies reference styles and
+  practices, never an artist's identity, without an explicit license in the
+  manifest.
+- **Provenance is mandatory.** Every `.mu` records source, license, and AI
+  involvement in its plaintext manifest.
+- **Human evaluation is constant.** The founder knows these scores; every
+  render is evaluated by ear against them. Metrics support judgment, never
+  replace it.
 
 ## Conventions
 
 - **Branching:** `main` is stable; day-to-day work branches from and merges
   into `dev`. Never commit directly to `main`.
-- **Task coordination:** one task per GitHub issue, label-based states, per
-  [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — the multi-agent claim/work/block
-  process is unchanged by the pivot and remains the way all work lands.
-  The standing task list is [`docs/pivot-tasks.md`](docs/pivot-tasks.md);
-  issues are filed from it. While the repo is documents-only, the workflow's
-  pipeline sweep is a **docs-coherence sweep** (keep README/AGENTS/FORMAT_SPEC/
-  pivot-tasks in agreement).
+- **Task coordination:** per [TASK_WORKFLOW.md](TASK_WORKFLOW.md) — one task
+  per GitHub issue, label-based states, blockers over guessing. The standing
+  work plan is [docs/pipeline.md](docs/pipeline.md) (W/S/P/C/L task series).
 - **Blockers:** can't start or finish? Write
-  `blockers/open_<datetime>_<slug>.md` per TASK_WORKFLOW.md and move on.
+  `blockers/open_<datetime>_<slug>.md` per the workflow and move on.
 - **Tests:** completing a task means spec'ing its tests
   (`tests/open_<datetime>_<slug>.md` + linked `Tests:` issue).
-- **Spec edits:** changelog discipline — `format_version` is semver; v0.x may
-  break, v1+ additive only.
-- **Docs:** `PRIOR_ART_REVIEW.md` covers the old schema-first landscape; the
-  executable-format prior-art appendix is task P1. Read both before proposing
-  pivots.
+- **Docs coherence sweep:** at session start, check that README, AGENTS,
+  FORMAT_SPEC, pipeline, and corpus README agree. A stale doc is a process
+  failure on par with a stale claim.
+- **Spec edits:** changelog discipline — v0.x may break, v1+ additive only.
 
 ## Build / test
 
-Nothing to build — the repo currently contains documents only. CI returns with
-the first code task (T2). Update this section as tooling lands; do not leave
-it stale.
+Nothing to build yet — documents + corpus only. Phase 0 (W-series) adds the
+first code; CI returns with it. Update this section as tooling lands; do not
+leave it stale.
 
 ## Repository layout
 
 ```
-FORMAT_SPEC.md        # the executable-format spec (design draft — source of truth)
-README.md             # pivot overview + component map
+FORMAT_SPEC.md        # format design draft (evidence-frozen at Phase 1)
+README.md             # vision + component map
+TASK_WORKFLOW.md      # multi-agent claim/work/block protocol
+docs/pipeline.md      # build plan + live status (W/S/P/C/L series)
+docs/vision.md        # product thesis (2026-08-23 revision)
+docs/pivot-tasks.md   # SUPERSEDED by docs/pipeline.md — history only
+corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
-PRIOR_ART_REVIEW.md   # landscape research (schema-first era)
-TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
-docs/vision.md        # product thesis
-docs/pivot-tasks.md   # build order + task list (T0–T6, P1)
+PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
 blockers/             # open_/closed_ blocker reports
-tests/                # open_/closed_ test specs (process history; no suites yet)
+tests/                # open_/closed_ test specs (process history)
 ```

@@ -1,210 +1,158 @@
 # Muse Format Specification — v0 (Design Draft)
 
-**Status:** Design draft. Nothing here is implemented. This document supersedes
-the JSON-schema lineage ([SCHEMA_SPEC.md](SCHEMA_SPEC.md), kept as design
-history). It defines what a `.muse` file *is* before any code exists.
+**Status:** Design draft, pre-evidence. The language and encoding details are
+pinned by Phase 0/1 work (see [docs/pipeline.md](docs/pipeline.md)); this
+document defines the model they must serve. Nothing here is implemented.
 
 ## 0. The one-sentence definition
 
-**A `.muse` file is a program.** Writing one means authoring a generator: a
-small, deterministic program that — executed by a conforming player with a set
-of rendition parameters and a seed — evaluates to a complete musical
-performance. The file is not a recording, not a score, not a description of
-notes. It is the compressed *procedure* that produces them.
+**A `.mu` file is the compressed, executable encoding of a musical work — two
+streams in one container.** The **roll stream** is the fixed score: what
+MusicXML already carries, compressed and packaged (our MusicXML). The **seed
+stream** is the interpretive space: what may vary, and the performance
+philosophy that guides the variation. A deterministic player reads the roll;
+an LLM player reads roll + seed and brings the work to life.
 
-This is the L-system insight applied to music: a short axiom plus rewriting
-rules yields a complex structure. Beethoven's Ninth is highly compressible
-because it is themes, variations, and recursion. A Muse file encodes exactly
-that compressibility. The compression ratio of a work — program length versus
-expanded output — is a measurable property of the music itself.
+The metaphor: the `.mu` file is the improved piano roll — re-punched with
+modern musical knowledge so the existing player piano produces a better
+performance. Technology advancing hardware by changing the software.
 
-## 1. Design goals
+## 1. The two streams
 
-1. **Executable, not declarative.** The file does not describe a performance
-   space; it *computes* one. Motifs, themes, form, and variations are program
-   structure, not data fields.
-2. **Deterministic by construction.** Same program + same rendition parameters
-   + same seed → byte-identical event stream, on every conforming player,
-   forever. This is the property that makes conformance testable.
-3. **Sandboxed.** A program can compute music and nothing else: no I/O, no
-   clock, no network, no unbounded resources.
-4. **Renditions as inputs, not files.** A rendition is a parameter bundle
-   passed to the program at execution time. The composer declares which
-   parameters exist and their sanctioned ranges; the listener chooses values
-   inside them.
-5. **Rights travel in plaintext.** The container carries a human-readable
-   manifest (license, provenance, attribution) that requires no execution and
-   no tooling to read. Everything else may be opaque.
-6. **The decoder is dumb.** All intelligence lives in authoring (the AI
-   compressor) or in optional expression stages. Decoding is pure evaluation
-   any conforming implementation can perform cheaply.
+| | **Roll stream** | **Seed stream** |
+|---|---|---|
+| What it is | The fixed score | The interpretive space |
+| Contents | Notes, structure, form, dynamics | Sanctioned ranges, performance philosophy, variation points |
+| Read by | Deterministic player (baseline) | LLM player (product) |
+| Playback | Identical everywhere, forever | Interpreted; varies by performer within sanctions |
+| Analogy | Our MIDI / the punched roll | The conductor's margin notes |
 
-## 2. What writing a `.muse` file means
+The roll stream answers "what is the work." The seed stream answers "how may
+it live." The roll constrains the seed; the seed never contradicts the roll.
 
-The author's job is to find the *generative essence* of the work and express
-it in the language:
+## 2. Design goals
 
-- **Themes and motifs** are named phrases — values in the program.
-- **Variation** is operator application: transpose, invert, retrograde,
-  augment, diminish, reharmonize, re-voice.
-- **Form** is control flow: sections, repeats, development as parameter-driven
-  branching.
-- **Constraints** are assertions in the code — checked against the program's
-  own output at execution time, so a non-conforming performance fails loudly
-  instead of shipping silently.
-- **Interpretive freedom** is explicit: parameters with declared ranges. What
-  the composer leaves open, the rendition decides. What the composer pins, no
-  rendition can move.
-
-Two authoring paths exist, both producing the same artifact:
-
-- **AI compression** — the compressor analyzes an existing MIDI/MusicXML work
-  and searches for a short program that expands to it (compress → expand →
-  diff → adjust, iterated against a corpus).
-- **Direct authoring** — a composer (or an agent acting for one) writes the
-  program from scratch. No DAW, no intermediate notation.
+1. **Compression by construction.** The roll stream is MusicXML compressed:
+   columnar, delta-encoded, pattern-factored, entropy-coded. Program length
+   versus expanded output is a measurable property of the work.
+2. **Determinism at the baseline.** Same `.mu` → identical roll playback on
+   every conforming player, forever. Conformance is byte-exact.
+3. **Interpretation as data.** The seed stream is explicit, inspectable, and
+   licensed — interpretive decisions are first-class, declared, and bounded.
+4. **Rights travel in plaintext.** The manifest is human-readable without
+   tooling or execution: license, provenance, AI disclosure.
+5. **The decoder is dumb.** All intelligence lives at compression time
+   (offline, AI-assisted) or in the LLM player (the product). Baseline
+   decoding is pure evaluation.
+6. **Evidence-driven design.** Every language construct and encoding choice
+   must be justified by corpus analysis (Phase 0). No speculative features.
 
 ## 3. File anatomy
 
-A `.muse` file is a zip container (the `.mxl` precedent):
+A `.mu` file is a zip container (the `.mxl` precedent):
 
 ```
-night-circuit.muse            (zip)
-├── manifest.json             ← REQUIRED. Plaintext. Rights + provenance.
-├── program.mu                ← REQUIRED. The work, in canonical source form.
-└── performances/             ← OPTIONAL. Pre-baked, certified executions.
-    ├── r.original.perf
-    └── r.quartet.perf
+work.mu
+├── manifest.json      ← REQUIRED. Plaintext. Rights + provenance + hashes.
+├── roll.bin           ← REQUIRED. The fixed score, compressed.
+├── seed.bin           ← REQUIRED. The interpretive space.
+└── performances/      ← OPTIONAL. Certified expansions (see §6).
+    └── *.perf
 ```
 
-**`manifest.json`** — the only human-readable member, by design. Contains:
+**`manifest.json`** — the only human-readable member, by design:
 `format_version`, work id, title, composer, license (`renditions:
 presets-only | open-within-constraints | closed`, attribution, commercial),
-provenance (including mandatory AI-involvement disclosure), and content
-hashes of every other member. A lawyer reads this with a text editor.
+provenance (source, tools, AI involvement disclosure), content hashes of all
+other members, signature.
 
-**`program.mu`** — the work. UTF-8 canonical source. (A bytecode serialization
-is a possible future optimization; it must be semantics-preserving and is an
-open question, §9 — not v0.)
+**`roll.bin`** — the compressed score. Encoding pinned by tasks S1–S2:
+event-stream format, packing scheme, entropy coding. Baseline: lossless
+against the source MusicXML event stream, verified by the diff tool (W4).
 
-**`performances/*.perf`** — cached executions of this program under specific
-parameter bundles, recorded with the parameter values, seed, and the content
-hash of the `program.mu` they were produced from. Baked performances let a
-listener hear the composer's certified versions with zero computation; stale
-ones are detectable by hash mismatch. They are cached computation, never the
-definition of the work.
+**`seed.bin`** — the interpretive space. Encoding pinned by task S3:
+sanctioned parameter ranges, performance-philosophy declarations, variation
+points with bounds. Human-authored or human-approved at compression time —
+the conductor layer. Never machine-invented without review.
 
-## 4. The language (illustrative core)
+**`performances/*.perf`** — cached, certified expansions (composer-approved
+renders), each recording the seed settings and content hash it was produced
+from. Cached computation, never the definition of the work. Zero-compute
+first listen.
 
-Syntax below is **illustrative, not normative** — it exists to make the model
-concrete. Pinning the grammar is task T1 (see `docs/pivot-tasks.md`).
+## 4. The roll stream (encoding sketch)
 
-```lisp
-work "Ode Fragment" {
-  // Rendition-controllable inputs, with sanctioned ranges and defaults.
-  params {
-    tempo_bpm:  60..120  default 96
-    variation:  0..2     default 0
-  }
+Baseline content model — what MusicXML carries that we preserve:
 
-  // A named phrase: pitch+duration pairs. Durations in note values (q, e, h).
-  theme ode = phrase(
-    (E4 q) (E4 q) (F4 q) (G4 q)
-    (G4 q) (F4 q) (E4 q) (D4 q)
-    (C4 q) (C4 q) (D4 q) (E4 q)
-    (E4 q.) (D4 e) (D4 h)
-  )
+- **Parts** with instrument identity (name, GM program where applicable).
+- **Notes**: pitch, onset, duration, velocity — integer ticks (PPQ) and fixed
+  point; no float nondeterminism.
+- **Maps**: tempo, meter, key — full maps, not flattened opening values
+  (mid-piece changes are preserved, unlike the old importer).
+- **Expression**: dynamics markings and hairpins, articulations, fermatas,
+  repeats and endings — the notated performance layer.
+- **Structure**: measures, sections, repeat topology.
 
-  section main {
-    voice celli  { play ode, pp }
-    voice violin { play ode @ transpose(+12), mf, when variation >= 1 }
-  }
+Packing: columnar arrays, delta-encoded onsets, dictionary-coded repeated
+patterns, entropy-coded residual. The pattern-factoring layer (sequences,
+transposed repeats, imitative entries) is driven by analyzer evidence (W3).
 
-  // Constraints are code. Checked against the program's own output.
-  assert contains(ode)
-  assert register(celli, C2..C4)
-}
-```
+## 5. The seed stream (model)
 
-Core primitives the language must provide:
+The seed stream declares the **sanctioned space** — what a performance may
+vary — plus the **philosophy** that guides it:
 
-- **Events**: pitched notes (12-TET v0), rests, durations in note values and
-  ticks. Voices/parts as first-class executors.
-- **Transforms**: `transpose`, `invert`, `retro`, `augment`, `diminish` —
-  composable operators over phrases (the old schema's transform-ref grammar,
-  promoted from data to code).
-- **Structure**: sections, repeats with bounded ranges, parameter-conditional
-  execution (`when`).
-- **Expression**: dynamics markings with deterministic rendition-level mapping
-  to velocity/timing curves (expression maps are declared in the work and may
-  be overridden within sanctioned ranges by the rendition).
-- **Randomness**: explicit `seed` input only; a seeded PRNG is the single
-  source of nondeterminism and is fully reproducible.
-- **Assertions**: `contains`, `register`, tempo bounds, structural invariants.
-  Evaluated against the emitted event stream; failure aborts execution loudly.
+- **Parameters with ranges**: tempo bounds, variation level, density, energy.
+  A performance chooses points inside; it can never reach outside.
+- **Philosophy declarations**: tempo philosophy ("flexible, architectural"),
+  dynamic philosophy ("terraced, dramatic"), articulation stance. Free-text +
+  typed fields; references styles and practices, never artist identities
+  without a license record.
+- **Variation points**: where the work permits interpretation (ornamentation
+  zones, optional repeats, cadenza-like freedoms), each with bounds.
+- **Assertions**: invariants every performance must satisfy (theme recall,
+  register bounds, structural form). The LLM player's output is validated
+  against these; failure is loud, never silent deviation.
 
-## 5. Execution model
+**Advocacy rule.** The composer (or encoder) is the work's advocate; the seed
+stream is the advocacy instrument. Wildly different readings are valid when
+they satisfy the assertions — the Gould/Bernstein case is in-spec. What is
+out-of-spec is violating the roll: the assertions fail and playback refuses.
+
+## 6. Execution model
 
 ```
-program.mu + rendition params + seed  ──▶  event stream  ──▶  renderer ──▶ audio
-              (deterministic VM)         (decoder output)     (swappable)
+roll.bin  ──decode──▶ event stream ──▶ renderer ──▶ audio   (deterministic path)
+
+roll.bin + seed.bin + interpretation request ──▶ LLM expansion
+    ──▶ expressive event stream ──▶ validate against assertions
+    ──▶ renderer ──▶ audio                                          (product path)
 ```
 
-The decoder's output — the **event stream** — is the contract between the
-format and all renderers. It is the surviving idea from the old performance
-layer: absolute ticks (integer PPQ), per-part note events with pitch, onset,
-duration, velocity, articulation; a tempo map; optional per-note controllers.
-Renderers (GM tier, sample tier, neural tier) consume only this stream. The
-stream format is versioned with the format spec.
+- **Deterministic path**: decode → render. No AI, no network, no ambiguity.
+  This is the free baseline and the conformance target.
+- **Product path**: the LLM player interprets within the seed space, bounded
+  by the roll. Generate → validate → fix, bounded retries, fail loudly.
+  Provenance (model, timestamp) is stamped by the harness, never trusted to
+  the model.
+- **Renderer tiers**: soundfont (baseline) → samples (the "worth listening
+  to" bar) → neural (later). The event stream is the contract; renderers
+  compete below it.
 
-The **trace** — which phrase instances and transforms produced which spans of
-the output — is available in a debug execution mode. This is what the old
-"crosswalk" design was groping toward: alignment is not stored data, it is
-the program's own execution record.
+## 7. Conformance and versioning
 
-## 6. Determinism and sandboxing (normative)
+- **Decoder conformance**: golden vectors — `.mu` → event stream, byte-exact,
+  including resource-bound behavior. A decoder conforms or it doesn't.
+- **Work conformance**: every corpus work round-trips — source → `.mu` →
+  event stream, diff green. The corpus ladder gates versions; the complete
+  Beethoven 9 is the v1.0 target.
+- **`format_version` is semver.** v0.x may break; v1+ additive only.
 
-A conforming decoder:
+## 8. Open questions (to be pinned by Phase 0/1)
 
-1. Produces byte-identical event streams for identical (program, params, seed).
-2. Uses integer ticks and fixed-point arithmetic only — no floating-point
-   nondeterminism across platforms.
-3. Provides no I/O, no wall-clock, no environment access.
-4. Enforces resource bounds: a step limit and memory cap. Every valid program
-   must terminate; an unterminated execution is a decoder-visible error, not a
-   hang.
-5. Treats unknown-but-valid language features from newer minor versions per
-   the versioning rules (§8).
-
-## 7. Renditions
-
-A rendition is a named parameter bundle plus provenance — the successor of the
-old schema's `renditions[]`. Parameters may only be chosen within the ranges
-the work declares. Listener interaction (steering energy, density, variation
-level, tempo within range) *is* parameter selection; it can never reach
-outside the sanctioned space, which is what keeps provenance and licensing
-meaningful. Renditions are themselves creditable, licensable works.
-
-## 8. Conformance and versioning
-
-Two conformance levels:
-
-- **Decoder conformance** — the conformance suite is a set of (program,
-  params, seed) → golden event stream vectors. A decoder conforms if it
-  reproduces every vector byte-exactly, including resource-bound and
-  assertion-failure behavior.
-- **Work conformance** — a work conforms if its assertions hold for every
-  sanctioned parameter combination exercised by the suite.
-
-`format_version` is semver. v0.x may break freely; v1+ is additive only.
-
-## 9. Open questions
-
-- **Voices and lyrics.** The Ninth's finale forces this: text, syllable-note
-  alignment, vocal timbre parameters. Also the unlock for the entire song
-  market. Highest-priority open design problem.
-- **Bytecode serialization** of `program.mu` (size/speed vs. toolchain cost).
-- **Microtonality** beyond 12-TET.
-- **Expression-map formality** — how much of interpretation (rubato, phrasing)
-  is program, how much is rendition, how much is renderer.
-- **Program-size vs. baked-perf tradeoffs** for very large works.
+- Exact roll packing scheme (driven by analyzer statistics).
+- Seed-stream field set (driven by compression experiments).
+- Whether the executable layer needs a general operator set (transpose/
+  invert/retro/aug/dim) or the corpus demands more.
+- Performance-file encoding details.
+- How vocal/choral text is carried (the Ninth's finale forces this).
