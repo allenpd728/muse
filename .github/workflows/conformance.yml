@@ -1,0 +1,47 @@
+name: conformance
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install runtime deps
+        run: pip install mido matplotlib pyyaml pytest
+      - name: Conformance gate (~30s)
+        run: |
+          set -e
+          export MUSE_SKIP_SLOW=1
+          python3 -m pytest tools/ir/ -q                    # 107 corpus pins
+          python3 -m pytest tools/corpus_loader/ -q        # W2 loader pins
+          python3 -m pytest tools/muse_diff/ -q            # W4 mutant behavior
+          python3 -m pytest tools/muse_analyze/ -q         # 17 fast
+          python3 -m pytest tools/muse_viz/ -q             # 11 viz
+          python3 -m pytest tools/muse_seed/ -q            # seed schema/param pins
+          python3 -m pytest tools/muse_assert/ -q          # assertion kinds
+          python3 -m pytest tools/muse_author/ -q          # authoring loop
+          python3 -m pytest tools/muse_seed_cli/ -q        # validator micro-pipeline
+          python3 -m pytest tools/muse_ops/ -q             # S4 gaps ops
+          python3 -m pytest tools/s1_stream/ -q            # S1 golden vectors
+          python3 -m pytest tools/muse_mu/ -q              # S5 container e2e
+
+  slow-beethoven9:
+    runs-on: ubuntu-latest
+    continue-on-error: true          # allow-fail until W6 compute budget lands
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install runtime deps
+        run: pip install mido matplotlib pyyaml pytest
+      - name: Slow conformance (Beethoven 9, ~30–35s)
+        run: |
+          python3 -m pytest tools/muse_analyze/ -q        # full 32 incl. B9
