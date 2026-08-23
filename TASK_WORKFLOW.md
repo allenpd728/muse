@@ -24,8 +24,11 @@ tell claims apart. Without run-ids the re-fetch check in §Claiming has no teeth
   (label swaps are serialized server-side; see Claiming).
 - **`blockers/` directory in this repo** — one file per blocked task, so the human
   can review what needs input without leaving the codebase.
+- **`bugs/` directory in this repo** — one file per defect found in flight (see
+  `bugs/README.md`). Reviewed the same way as `blockers/`: an `open_*` bug is
+  live work.
 
-No `BLOCKERS.md` index file — the directory listing is the index.
+No `BLOCKERS.md`/`BUGS.md` index file — the directory listing is the index.
 
 ## Task states
 
@@ -99,6 +102,13 @@ the queue and must be swept (its older claim is void on the next sweep).
    the design, the plan, or the task list, the sibling docs must reflect it in
    the same session — a stale doc is a process failure on par with a stale
    claim. If something is wrong and no task covers fixing it, file the task.
+1c. **Bug-log sweep.** Review `bugs/` the same way you review `blockers/` and
+   the task queue: every `bugs/open_*` file should link a live issue (or a
+   comment on the owning in-flight issue). File one if it's missing; if the
+   fix already landed on `dev`, rename the entry `closed_` with the fixing
+   commit. Bugs found during your own session: log `bugs/open_*` +
+   file the `status:available` issue, then return to your claimed task —
+   don't fix out-of-scope bugs inside an unrelated claim.
 2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue. Before concluding any work item is undone, check
@@ -255,5 +265,6 @@ Before finishing, every agent reports (with its run-id):
 - New blockers written (with one-line reasons)
 - Open blockers still awaiting human input
 - Blockers closed during the sweep
+- New bug-log entries (with linked issues) and entries closed during the sweep
 - Unresolvable blockers escalated, or **stalled queue** if nothing was workable
 

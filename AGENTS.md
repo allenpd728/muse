@@ -149,5 +149,6 @@ tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
 blockers/             # open_/closed_ blocker reports
+bugs/                 # open_/closed_ bug log (defects found in flight; review like blockers)
 tests/                # open_/closed_ test specs (runtime tests live beside the code)
 ```
