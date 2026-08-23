@@ -72,8 +72,9 @@ leave it stale.
 FORMAT_SPEC.md        # format design draft (evidence-frozen at Phase 1)
 README.md             # vision + component map
 TASK_WORKFLOW.md      # multi-agent claim/work/block protocol
-docs/pipeline.md      # build plan + live status (W/S/P/C/L series)
+docs/pipeline.md      # build plan + live status (W/S/P/C/L/E series)
 docs/vision.md        # product thesis (2026-08-23 revision)
+docs/design/          # design-doc scaffolds + dependency index (24 tasks)
 corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
