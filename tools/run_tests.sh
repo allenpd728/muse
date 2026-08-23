@@ -68,10 +68,16 @@ python3 -c "import pytest" 2>/dev/null || {
 
 run_one() {
   local name=$1 dir=$2
-  local t0 t1 rc out
+  local t0 t1 rc
   t0=$(date +%s)
-  out=$(python3 -m pytest "$dir" -q 2>&1 | tail -3)
+  local tmp
+  tmp=$(mktemp)
+  # Run pytest directly (no pipeline) so $? reflects pytest, not tail.
+  python3 -m pytest "$dir" -q >"$tmp" 2>&1
   rc=$?
+  local out
+  out=$(tail -3 "$tmp")
+  rm -f "$tmp"
   t1=$(date +%s)
   local dur=$((t1 - t0))
   if [ $rc -eq 0 ]; then
