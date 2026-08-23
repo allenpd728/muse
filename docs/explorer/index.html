@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Muse — Corpus Explorer (QA)</title>
+<style>
+  :root { --bg: #101014; --panel: #1a1a22; --ink: #e8e6df; --dim: #9a97a3; --accent: #c9a45c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 3rem 1.25rem; }
+  h1 { font-size: 1.5rem; font-weight: normal; letter-spacing: 0.02em; }
+  h1 .sub { color: var(--dim); display: block; font-size: 0.95rem; margin-top: 0.25rem; }
+  .works { display: grid; gap: 0.75rem; margin: 1.5rem 0; }
+  .work-row { background: var(--panel); border-radius: 10px; padding: 0.9rem 1.25rem;
+              cursor: pointer; display: flex; justify-content: space-between; align-items: baseline; }
+  .work-row:hover { outline: 1px solid var(--accent); }
+  .work-row .meta { color: var(--dim); font-size: 0.85rem; }
+  .detail { background: var(--panel); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.25rem 0; }
+  .detail h2 { font-size: 1.1rem; margin: 0 0 0.5rem; font-weight: normal; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.5rem; margin: 1rem 0; }
+  .stat { background: #0b0b0e; border-radius: 6px; padding: 0.6rem 0.8rem; }
+  .stat .k { color: var(--dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .v { font-size: 1.1rem; }
+  .detail img { width: 100%; border-radius: 6px; margin-top: 0.75rem; background: #fff; }
+  .back { background: transparent; color: var(--accent); border: 1px solid var(--accent);
+          border-radius: 6px; padding: 0.35rem 0.9rem; font: inherit; cursor: pointer; }
+  .back:hover { background: var(--accent); color: var(--bg); }
+  .note { color: var(--dim); font-size: 0.85rem; }
+  table { border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; }
+  td, th { padding: 0.2rem 0.75rem 0.2rem 0; text-align: left; }
+  th { color: var(--dim); font-weight: normal; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Muse — Corpus Explorer
+    <span class="sub">QA build · the five reference works · IR summaries, patterns, piano-rolls, pack stats</span>
+  </h1>
+  <p class="note">Static QA surface (noindex). Generated from the corpus registry;
+  every number is the W2 loader's known-answer pin. Audio arrives with P2.</p>
+
+  <div id="app">
+    <div class="works" id="work-list"></div>
+    <div id="detail"></div>
+  </div>
+</main>
+<script>
+const fmt = n => n.toLocaleString('en-US');
+
+async function boot() {
+  const res = await fetch('data/works.json');
+  const data = await res.json();
+  const list = document.getElementById('work-list');
+  const detail = document.getElementById('detail');
+  data.works.forEach((w, i) => {
+    const row = document.createElement('div');
+    row.className = 'work-row';
+    row.innerHTML = `<span>${w.title}</span>
+      <span class="meta">${w.parts} parts · ${fmt(w.notes)} notes</span>`;
+    row.onclick = () => show(w);
+    list.appendChild(row);
+  });
+
+  function show(w) {
+    const pats = Object.entries(w.patterns || {})
+      .map(([k, v]) => `<tr><td>${k}</td><td>${fmt(v)}</td></tr>`).join('');
+    detail.innerHTML = `
+      <div class="detail">
+        <button class="back" onclick="document.getElementById('detail').innerHTML=''">← all works</button>
+        <h2 style="margin-top:0.75rem">${w.title}</h2>
+        <div class="note">${w.file} · ${w.source_format} · ppq ${w.ppq}</div>
+        <div class="stats">
+          <div class="stat"><div class="k">parts</div><div class="v">${w.parts}</div></div>
+          <div class="stat"><div class="k">notes</div><div class="v">${fmt(w.notes)}</div></div>
+          <div class="stat"><div class="k">dynamics</div><div class="v">${fmt(w.dynamics)}</div></div>
+          <div class="stat"><div class="k">hairpins</div><div class="v">${fmt(w.hairpins)}</div></div>
+          <div class="stat"><div class="k">duration</div><div class="v">${fmt(w.duration_ticks)} ticks</div></div>
+          <div class="stat"><div class="k">packed</div><div class="v">${fmt(w.roll_bytes)} B (${(w.pack_ratio * 100).toFixed(1)}%)</div></div>
+        </div>
+        <div class="note">parts: ${w.part_names.join(', ')}</div>
+        ${pats ? `<h2 style="margin-top:1rem">patterns (W3)</h2><table><tr><th>class</th><th>count</th></tr>${pats}</table>` : ''}
+        ${w.piano_roll ? `<img src="${w.piano_roll}" alt="piano roll for ${w.title}">` : ''}
+      </div>`;
+    detail.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+boot().catch(e => {
+  document.getElementById('app').innerHTML =
+    `<p class="note">failed to load data/works.json: ${e}</p>`;
+});
+</script>
+</body>
+</html>
