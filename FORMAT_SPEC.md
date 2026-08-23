@@ -124,22 +124,53 @@ out-of-spec is violating the score: the assertions fail and playback refuses.
 ## 6. Execution model
 
 ```
-roll.bin  ──decode──▶ event stream ──▶ renderer ──▶ audio   (deterministic path)
+BASELINE PATH (deterministic):
+score ──decode──▶ event stream ──▶ renderer ──▶ audio
 
-roll.bin + seed.bin + interpretation request ──▶ LLM expansion
-    ──▶ expressive event stream ──▶ validate against assertions
-    ──▶ renderer ──▶ audio                                          (product path)
+PRODUCT PATH (the musician):
+score + prompt ──▶ LLM session work ──▶ mockup ──▶ validate vs. assertions
+    ──▶ renderer ──▶ audio
+
+LEARNING LOOP:
+mockup ──distill──▶ improved prompt (new seed) ──▶ next mockup is better
 ```
 
+- **The mockup is the intermediate artifact.** The LLM does not "perform" — it
+  does session work: tempo map, dynamic curves, velocities, articulation,
+  balance. The mockup is the session file (expressive-MIDI-class data:
+  onset/duration/velocity/articulation + tempo map + curves + per-part
+  balance). The renderer turns the mockup into audio via sample playback
+  (sfizz/SFZ tier) — existing open technology, not built here.
 - **Deterministic path**: decode → render. No AI, no network, no ambiguity.
-  This is the free baseline and the conformance target.
-- **Product path**: the LLM player interprets within the prompt space, bounded
-  by the score. Generate → validate → fix, bounded retries, fail loudly.
+  The free baseline and the conformance target.
+- **Product path**: the LLM interprets within the prompt space, bounded by
+  the score. Generate → validate → fix, bounded retries, fail loudly.
   Provenance (model, timestamp) is stamped by the harness, never trusted to
-  the model.
-- **Renderer tiers**: soundfont (baseline) → samples (the "worth listening
-  to" bar) → neural (later). The event stream is the contract; renderers
-  compete below it.
+  the model. Deliberation takes time — a performance is an event.
+- **The learning loop**: mockups are distilled back into prompts (new seeds).
+  The prompt accumulates interpretive craft; later mockups are cheaper and
+  better. Every prompt revision records which mockups informed it.
+- **Machine-readable except the manifest.** Score, prompt, and mockup are
+  data for machines. Human readability lives in tooling (decode/trace), not
+  in the formats. The manifest stays plaintext — rights are for lawyers.
+- **Renderer tiers**: soundfont (baseline) → SFZ/samples via sfizz (the
+  "worth listening to" bar — no DAW engineering required) → neural (later).
+  The event stream / mockup contract is the seam; renderers compete below it.
+
+## 6.1 Source-agnostic seed authoring
+
+The prompt is authored from **any source**, via the IR (the canonical
+event-stream representation every tool shares):
+
+| Source | What the author sees | Prompt richness |
+|---|---|---|
+| MusicXML | Notation semantics: dynamics, articulation, form | Richest — everything explicit |
+| DAW session | A producer's mockup: tempo map, curves, balance | Interpretation partially present — the prompt can learn from a human session |
+| MIDI | Pitch × time only (the two-dimensional tree) | Sparse — structure inferred, inferences marked |
+
+Richer sources author richer prompts; poorer sources author sparser prompts
+with marked inferences (recorded in the manifest). The prompt is never
+finished — it is re-authored and revised as tools improve.
 
 ## 7. Conformance and versioning
 
