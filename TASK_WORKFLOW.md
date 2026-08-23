@@ -1,197 +1,122 @@
-# TASK_WORKFLOW.md — Multi-agent task coordination
+# TASK_WORKFLOW.md — Multi-agent task coordination (git-based)
 
-How agents find, claim, and complete work on Muse. One task = one GitHub issue.
-Agents read this document once; everything else they learn from the issues and the
-`blockers/` directory.
+How agents find, claim, and complete work on Muse. **One task = one file in
+`tasks/`.** No external issue tracker — the repo is the system of record.
+Agents read this document once; everything else they learn from the `tasks/`,
+`blockers/`, and `tests/` directories.
 
 ## System of record
 
-- **GitHub Issues + labels** — the live task queue. Claiming is atomic via the API
-  (label swaps are serialized server-side; see Claiming).
-- **`blockers/` directory in this repo** — one file per blocked task, so the human
-  can review what needs input without leaving the codebase.
+- **`tasks/` directory in this repo** — the live task queue. One file per task,
+  state in the filename prefix (same convention as `blockers/` and `tests/`).
+- **`blockers/`** — one file per blocked task.
+- **`tests/`** — test specs per completed task.
+- **`docs/pipeline.md`** — the high-level plan and status board. The task files
+  are the discrete parts; pipeline.md is the map.
 
-No `BLOCKERS.md` index file — the directory listing is the index.
+No GitHub issues, no external tracker. Git history is the audit trail.
 
 ## Task states
 
-| Label | Meaning |
+| Prefix | Meaning |
 |---|---|
-| `status:available` | Ready to be claimed. All blockers are `done`. |
-| `status:claimed` | An agent has claimed it. Claim comment is the heartbeat. |
-| `status:done` | Work committed to `dev`. The human reviews on `dev` at leisure; anything needing changes spawns a follow-up task. |
-| `status:blocked-needs-input` | Agent could not start or finish; needs human input. |
+| `tasks/open_<slug>.md` | Ready to be claimed. All dependencies `done`. |
+| `tasks/claimed_<slug>.md` | An agent has claimed it. Claim line in the file is the heartbeat. |
+| `tasks/done_<slug>.md` | Work committed. The human reviews at leisure; changes spawn a follow-up task. |
+| `tasks/blocked_<slug>.md` | Could not start or finish; paired with a `blockers/open_*` file. |
 
-## Task definition
+## Task file format
 
-Each issue contains:
+```markdown
+# W1 — Event-stream IR
 
-- **Summary** — what to build, in one paragraph
-- **Definition of done** — the observable end state (files written, checks passing)
-- **Context** — links to spec sections, prior art, or related tasks the agent needs
-- **Blocked by** — native GitHub issue-blocking relationships forming the lineage
+**Status:** open
+**Depends on:** none
+**Phase:** 0 (workbench)
 
-The standing task list is [`docs/pivot-tasks.md`](docs/pivot-tasks.md) (T0–T6,
-P1). Issues are filed from that list, one per task; sub-tasks are decomposed
-from issues that prove too large, not pre-planned beyond the list.
+## Summary
+One paragraph: what to build.
 
-Sizing rule: one task = completable in one agent run (well under an hour of work).
-If a task can't be done in one run, it gets decomposed further before becoming
-`available`.
+## Definition of done
+- The observable end state (files written, checks passing).
 
-## Dependencies
+## Context
+- Links to spec sections, corpus files, related tasks.
+```
 
-Dependencies are expressed as GitHub "blocked by" relationships, forming lineages.
-A task becomes `available` only when **every** issue blocking it is `status:done`
-(merged — not merely in review). Within a lineage, only one task is ever available
-at a time.
+Sizing rule: one task = completable in one agent run. If it can't be done in
+one run, decompose before it becomes `open`.
 
 ## Claiming protocol
 
-The claim lock applies to **any issue an agent is actively working** — a task, a
-`Tests:` follow-up, or a blocker-resolution — not just tasks. The mechanics are
-identical for all three; only the "done" action differs.
+1. **Sweep stale claims.** List all `tasks/claimed_*` files. If the claim line
+   is older than **1 hour** with no commits since, the claim is void: rename
+   back to `open_*` and note the reclaim in the file (audit trail).
+2. **Docs coherence sweep.** Check README, AGENTS, FORMAT_SPEC, pipeline, and
+   corpus README agree with each other and with task states. A stale doc is a
+   process failure on par with a stale claim.
+3. **Pick work.** Any `open_*` task you have enough context to start. Default
+   order: the pipeline's phase order (W → S → P → C → L), lowest number first.
+4. **When no task is open, fall through in priority order:**
+   - **(a)** Open test specs (`tests/open_*`) — write the tests they call for.
+   - **(b)** Open blockers (`blockers/open_*`) — attempt to resolve; if the
+     spec has been amended since filing, close the blocker and return the task
+     to `open_*`.
+   - Only when all three are exhausted is the queue empty and the session done.
+5. **Claim.** Rename `open_<slug>.md` → `claimed_<slug>.md`, add a claim line
+   (`claimed by <run-id> at <UTC timestamp>`), commit immediately, push. The
+   commit is the lock — first push wins; a rejected push means another agent
+   got there first, back off and pick a different task.
+6. **Do the work.** Commit directly to `dev`. On completion: rename
+   `claimed_*` → `done_*`, update the file's status line, update the status
+   column in `docs/pipeline.md`, commit with the task slug in the message.
+7. **Spec the tests.** Write `tests/open_<datetime>_<slug>.md` describing the
+   coverage the work needs. A task that lands code without a test spec is
+   incomplete.
+8. **Unblock dependents.** Check every task file whose `Depends on` lists this
+   one; for each whose dependencies are all now `done_*`, it's newly open —
+   say so in the session report. Dependents don't announce themselves.
 
-1. **Sweep stale claims.** Before selecting work, list all `status:claimed` issues.
-   For each, if the claim comment is older than **1 hour** with no activity since
-   (no commits on the PR, no new comments), the claim is void: remove
-   `status:claimed`, restore the prior label (`status:available` for tasks/tests,
-   `status:blocked-needs-input` for blockers), and comment that the work was
-   reclaimed (audit trail).
-1b. **Docs coherence sweep.** While the repo is documents-only, check that
-   `README.md`, `AGENTS.md`, and `FORMAT_SPEC.md` agree with each other and
-   with [`docs/pivot-tasks.md`](docs/pivot-tasks.md): if a recently-closed
-   task changed the design or the task list, the sibling docs must reflect it
-   in the same session — a stale doc is a process failure on par with a stale
-   claim. If something is wrong and no task covers fixing it, file the task.
-2. **Pick work.** Any `status:available` issue the agent has enough context to
-   start. Default order: lowest issue number first; issues labeled `priority:high`
-   jump the queue.
-3. **When no task is available, fall through in priority order:**
-   - **(a) Open `Tests:` issues.** Claim and complete them one at a time, lowest
-     issue number first — writing the tests their spec calls for.
-   - **(b) Open blockers.** If no `Tests:` issues remain, work through
-     `status:blocked-needs-input` issues one at a time: attempt to resolve the
-     blocker (the spec may have been amended since it was filed), and if
-     resolvable, close the blocker and return the task to `status:available`.
-   - Only when tasks, `Tests:` issues, and blockers are all exhausted is the
-     queue empty and the session done.
-4. **Attempt the claim.** Whatever the work item: swap its current label to
-   `status:claimed` (from `status:available` for tasks/tests, from
-   `status:blocked-needs-input` for blockers), self-assign, and post a claim
-   comment (`claimed by <run-id> at <UTC timestamp>`). Then re-fetch the issue:
-   if the label or assignee doesn't match, another agent won — back off and pick
-   a different item. GitHub serializes these writes, so exactly one agent wins.
-5. **Do the work.** Commit directly to `dev` (no PR — review happens
-   retrospectively on `dev`). Swap `status:claimed` → `status:done` and close the
-   issue with a comment linking the commits. For a **blocker-resolution** item the
-   "done" action differs: resolve the ambiguity (amend the spec/docs), rename the
-   `blockers/open_*` file to `closed_*` appending the resolution, remove
-   `status:claimed` from the blocked issue, and return that issue to
-   `status:available` — the blocker itself is a means, the goal is unblocking the
-   original task.
+## Concurrent-work rules (agents run in parallel against `dev`)
 
-   **Concurrent-work rules** (agents run in parallel against `dev`):
-   - Pull before you start, and again before you push.
-   - On push rejection (non-fast-forward): `git pull --rebase origin dev`, resolve
-     any conflicts, push again. Repeat as needed.
-   - **Never force-push to `dev`** — it can destroy a sibling agent's committed
-     work. This is the one move the direct-to-dev model depends on forbidding.
-   - A rebase conflict you cannot resolve confidently is a blocker — someone
-     else's work changed the ground under your task. Don't guess; file it.
-   - Prefer tasks whose touched files don't overlap a sibling's in-flight work;
-     when both edit the same file (e.g. different sections of a spec), the rebase
-     is usually clean, but confirm the merged result still makes sense before
-     pushing.
-6. **Spec the tests.** Before closing out, write
-   `tests/open_YYYYMMDD-HHMMSS_<task-slug>.md` describing the test coverage the
-   work needs: behaviors to verify, edge cases, and how to invoke the tests.
-   If the task introduced a behavior with no existing test coverage, the test
-   spec is mandatory, not optional. Then file a follow-up GitHub issue titled
-   `Tests: <task title>` that links the test spec file, labels it
-   `status:available`, and mark it `Blocked by` the task just completed.
-   Completed task + filed test spec + linked test issue = a full unit of work.
-7. **Unblock dependents.** Before finishing, check the issues that listed this
-   task under "Blocked by". For each whose blockers are all now `status:done`,
-   label it `status:available` and comment that it is unblocked. Dependent tasks
-   do not become visible to the queue on their own — closing without this step
-   silently strands them.
-8. **Iterate.** If review later finds the work lacking, write a new task rather
-   than reopening the old one.
-
-## Test follow-ups
-
-Tests are specified per task, not assumed. The lifecycle mirrors blockers:
-
-- `tests/open_*.md` — a pending test spec: what the task's work must be verified
-  against. Written by the completing agent; picked up by a later agent as a
-  normal `status:available` task.
-- `tests/closed_*.md` — the test issue is `status:done`; the spec file records
-  what coverage landed (test file paths, command to run).
-
-Test-spec issues are claimed, worked, and closed like any other task: commit the
-tests to `dev`, ensure the repo's test command (stated in `AGENTS.md` →
-Build/test, or in the task itself) runs them in CI, then close. A task that
-lands code but whose test follow-up never completes is a process failure to
-surface in the end-of-session report.
+- Pull before you start, and again before you push.
+- On push rejection: `git pull --rebase origin dev`, resolve, push again.
+- **Never force-push to `dev`** — it can destroy a sibling agent's work.
+- A rebase conflict you can't resolve confidently is a blocker — file it,
+  don't guess.
+- Prefer tasks whose touched files don't overlap a sibling's in-flight work.
+- Task-file renames are atomic in git; a rename conflict on claim means you
+  lost the race — back off cleanly.
 
 ## Blockers
 
-When an agent cannot start or complete a task (unclear spec, missing context,
-ambiguous definition of done), it must not guess:
+When you cannot start or complete a task, do not guess:
 
-1. Write `blockers/open_YYYYMMDD-HHMMSS_<short-slug>.md` containing:
-   - the task/issue attempted
-   - what information is missing
-   - what is needed to unblock
-2. Label the issue `status:blocked-needs-input` and comment with a link to the
-   blocker file.
-3. Move on to a different available task — never sit idle on a blocker.
+1. Write `blockers/open_<datetime>_<slug>.md`: the task attempted, what's
+   missing, what's needed to unblock.
+2. Rename the task file to `blocked_<slug>.md` and link the blocker in it.
+3. Move on to a different open task — never sit idle on a blocker.
 
-**Blocker quality bar.** Blockers are for spec-level ambiguity — missing or
-contradictory information that only the human can resolve. They are not for
-implementation choices, which are the agent's to make. Before writing one,
-confirm:
+**Blocker quality bar.** Blockers are for spec-level ambiguity — decisions only
+the human can make, not implementation choices (those are yours). Before
+writing one: cite the exact spec gap, state what you tried, state why a
+reasonable call isn't safe. If you can make the call and note it in the commit
+for retrospective review, do that instead.
 
-- You read the relevant spec/docs and can cite the exact gap (quote the section).
-- The missing information is a *decision* (what should the format allow?), not a
-  *mechanism* (how do I encode it? — that's your job).
-- You state what you tried and why it was insufficient.
-
-If you can make a reasonable call and note it in the commit/PR for retrospective
-review, do that instead — a blocker is a claim that the work is genuinely
-unstartable, not that a choice felt uncertain.
-
-**Nested blockers.** Any claimed work item can be blocked, including a `Tests:`
-issue — file a blocker pointing at it and swap it to `status:blocked-needs-input`
-as usual. The exception is blocker-resolution itself: an agent that cannot
-resolve a blocker must **not** file a blocker-on-a-blocker and walk away (that
-silent stall strands the queue). Instead: leave the issue
-`status:blocked-needs-input`, comment on the issue explaining what is still
-missing, and **flag it to the human in the end-of-session report** — blockers are
-the one work type where "I can't" escalates to a person, not another layer.
-A blocker that resists resolution usually means the underlying task is
-under-scoped; recommend splitting it in the report rather than building a
-blocker-dependency graph. If the fallback finds open blockers but none are
-resolvable, report the queue as **stalled** — do not manufacture busywork.
-
-Resolving a blocker: the human answers on the issue or updates the spec. During
-the start-of-session sweep, agents check every `blockers/open_*` file whose issue
-has been updated since the file was written; if the blocker is resolved, the agent
-renames the file to `closed_YYYYMMDD-HHMMSS_<short-slug>.md` (appending the
-resolution), removes `status:blocked-needs-input`, and returns the task to
-`status:available`. Closures are reported in the session summary for confirmation.
+**Nested blockers.** Any claimed item can be blocked, including a test spec.
+The exception is blocker-resolution itself: never file a blocker on a blocker.
+Leave it open, explain what's still missing in the blocker file, and flag it
+to the human in the session report. If nothing is workable, report the queue
+as **stalled** — do not manufacture busywork.
 
 ## End-of-session report
 
 Before finishing, every agent reports:
 
-- Tasks completed (with commit links)
-- Test specs written (linked `Tests:` issues) and any completed tasks whose test
-  follow-up never landed
-- Stale claims reclaimed during the sweep
-- New blockers written (with one-line reasons)
-- Open blockers still awaiting human input
-- Blockers closed during the sweep
+- Tasks completed (task file renames, commit links)
+- Test specs written
+- Stale claims reclaimed
+- New blockers written (one-line reasons)
+- Blockers closed
+- Pipeline status updates made
 - Unresolvable blockers escalated, or **stalled queue** if nothing was workable
-
