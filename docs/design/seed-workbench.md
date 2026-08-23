@@ -66,7 +66,7 @@ trained, nothing is generated beyond the existing mockup path.
 | **W-B1 — Probe engine** | per-seed probe computation (param diff, budget fit, assertions, coverage, delta curves, determinism, fidelity guard) as a `tools/muse_probes/` package + JSON artifact | C1, C3, L1 (done) |
 | **W-B2 — Quality-check gate** | the five regression checks as a pytest suite + runner registration | W-B1 |
 | **W-B3 — Workbench page** | explorer view grown: seed panel, probe panel, iteration history rows | W-B1 |
-| **W-B4 — Iteration loop docs** | the edit → validate → mockup → probe loop documented for the founder + agents (AGENTS.md section) | W-B1 |
+| **W-B4 — Iteration loop docs** | the edit → validate → mockup → probe loop documented for the founder + agents (AGENTS.md section) | done (#188) — docs/seed-iteration.md |
 
 W-B1 is the foundation; W-B2/W-B3/W-B4 decompose from it. Each fits one
 agent run.

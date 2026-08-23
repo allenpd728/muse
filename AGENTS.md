@@ -90,6 +90,24 @@ pip install -r tools/requirements.test.txt
 ./tools/run_tests.sh --list   # suite inventory
 ```
 
+## Seed iteration loop
+
+The founder's loop for authoring a seed (see `docs/seed-iteration.md` for a
+walkthrough; the loop is the way seed work happens):
+
+1. **Edit** the seed YAML in `seeds/<work>.seed.yaml` — no authoring UI yet;
+   commit is the write path.
+2. **Validate** with C1: `python3 tools/muse_seed_cli/cli.py validate
+   seeds/<work>.seed.yaml corpus/<work>.xml` — schema + assertions + budgets
+   must pass.
+3. **Generate the mockup** with L1: `python3 tools/muse_mockup/cli.py
+   corpus/<work>.xml` — full DNA density; the mockup is dense, not a sketch.
+4. **Probe** with W-B1 (probe engine, when it lands): reads artifacts the
+   loop already produces — param diff, budget fit, assertion pass/fail,
+   coverage, determinism, fidelity guard.
+5. **Iterate.** The workbench page (W-B3) shows probe history per seed
+   revision. Quality checks (W-B2) catch regressions the ear might miss.
+
 Per-tool suites live next to their code (`tools/<tool>/test_*.py` or
 `tools/<tool>/tests/`); run one with `cd tools && python -m pytest
 <suite-dir> -q`. Known-answer pins (corpus counts, golden vectors, W4 diff)
