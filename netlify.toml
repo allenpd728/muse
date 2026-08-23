@@ -1,6 +1,6 @@
 [build]
   base = "explorer"
-  command = "npm ci && npm run build"
+  command = "cd .. && npm ci && npm test && npm --prefix explorer ci && npm run test:explorer && cd explorer && npm ci && npm run build"
   publish = "dist"
 
 # QA/design preview only — keep off search engines and AI crawlers.
