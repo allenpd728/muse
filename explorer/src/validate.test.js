@@ -34,3 +34,6 @@ describe("validation parity", () => {
     }
   });
 });
+
+// TEMPORARY gate negative check (#42) — reverted immediately after observation
+test("gate negative check", () => { expect(1).toBe(2); });
