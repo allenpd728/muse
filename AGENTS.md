@@ -42,7 +42,10 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 ## Conventions
 
 - **Branching:** `main` is stable; day-to-day work branches from and merges
-  into `dev`. Never commit directly to `main`.
+  into `dev`. Never commit directly to `main`. Name branches for the work
+  (`w1-event-ir`, `s3-seed-encoding`) — not `review` or `fix`; the PR is the
+  review surface, the branch is just where commits live. Delete branches on
+  merge.
 - **Task coordination:** per [TASK_WORKFLOW.md](TASK_WORKFLOW.md) — one task
   per GitHub issue, label-based states, blockers over guessing. The standing
   work plan is [docs/pipeline.md](docs/pipeline.md) (W/S/P/C/L task series).
