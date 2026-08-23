@@ -1,4 +1,4 @@
-import glob, os
+import glob, os, sys
 import numpy as np
 import mido
 
@@ -34,40 +34,38 @@ def perf_data(path):
     out.sort()
     return out
 
-perfs = sorted(glob.glob(f'{BASE}/midi/Mozart_K331_1st-mov_p*.mid'))
-print(f'{len(perfs)} performances found\n')
+def analyze(pattern, label):
+    perfs = sorted(glob.glob(f'{BASE}/midi/{pattern}'))
+    rows = []
+    for p in perfs:
+        notes = perf_data(p)
+        onsets = np.array([n[0] for n in notes])
+        vels = np.array([n[3] for n in notes])
+        pid = os.path.basename(p).replace('.mid','').split('_')[-1]
+        total = onsets[-1] - onsets[0]
+        spreads = []
+        i = 0
+        while i < len(onsets):
+            j = i
+            while j < len(onsets) and onsets[j] - onsets[i] < 0.03:
+                j += 1
+            if j - i > 1:
+                spreads.append((onsets[j-1] - onsets[i]) * 1000)
+            i = j
+        rows.append((pid, total, vels.mean(), vels.std(), np.mean(spreads) if spreads else 0, notes))
+    durs = np.array([r[1] for r in rows])
+    vels = np.array([r[2] for r in rows])
+    vstds = np.array([r[3] for r in rows])
+    spreads = np.array([r[4] for r in rows if r[4] > 0])
+    print(f"\n=== {label} ({len(rows)} pianists) ===")
+    print(f"duration       : min {durs.min():.1f}s | max {durs.max():.1f}s | spread {(durs.max()/durs.min()-1)*100:.0f}%")
+    print(f"mean velocity  : min {vels.min():.0f} | max {vels.max():.0f} | spread {(vels.max()/vels.min()-1)*100:.0f}%")
+    print(f"velocity std   : mean {vstds.mean():.1f} (within-performance dynamic range)")
+    print(f"chord spread   : mean {spreads.mean():.0f}ms | range {spreads.min():.0f}-{spreads.max():.0f}ms")
+    return rows
 
-rows = []
-ioi_cv_all = []
-for p in perfs:
-    notes = perf_data(p)
-    onsets = np.array([n[0] for n in notes])
-    vels = np.array([n[3] for n in notes])
-    pid = os.path.basename(p).replace('.mid','').split('_')[-1]
-    total = onsets[-1] - onsets[0]
-    iois = np.diff(onsets)
-    ioi_cv = iois.std() / iois.mean() if iois.mean() > 0 else 0
-    ioi_cv_all.append(ioi_cv)
-    spreads = []
-    i = 0
-    while i < len(onsets):
-        j = i
-        while j < len(onsets) and onsets[j] - onsets[i] < 0.03:
-            j += 1
-        if j - i > 1:
-            spreads.append((onsets[j-1] - onsets[i]) * 1000)
-        i = j
-    rows.append((pid, total, vels.mean(), vels.std(), np.mean(spreads) if spreads else 0, ioi_cv))
-
-print(f"{'perf':>6} {'dur(s)':>7} {'vel-mean':>8} {'vel-std':>7} {'spread(ms)':>10} {'ioi-cv':>7}")
-for pid, total, vm, vs, sp, cv in rows:
-    print(f"{pid:>6} {total:7.1f} {vm:8.1f} {vs:7.1f} {sp:10.1f} {cv:7.2f}")
-
-durs = np.array([r[1] for r in rows])
-vels = np.array([r[2] for r in rows])
-spreads = np.array([r[4] for r in rows if r[4] > 0])
-print(f"\n=== DELTA SUMMARY: Mozart K.331 bars 1-18, {len(rows)} pianists ===")
-print(f"duration       : min {durs.min():.1f}s | max {durs.max():.1f}s | spread {(durs.max()/durs.min()-1)*100:.0f}%")
-print(f"mean velocity  : min {vels.min():.0f} | max {vels.max():.0f} | spread {(vels.max()/vels.min()-1)*100:.0f}%")
-print(f"chord spread   : mean {spreads.mean():.0f}ms | range {spreads.min():.0f}-{spreads.max():.0f}ms (melody lead/arpeggiation)")
-print(f"IOI variability: mean CV {np.mean(ioi_cv_all):.2f} (timing freedom within performances)")
+if __name__ == '__main__':
+    analyze('Mozart_K331_1st-mov_p*.mid', 'Mozart K.331 bars 1-18 (Classical)')
+    analyze('Chopin_op10_no3_p*.mid', 'Chopin op.10 no.3 bars 1-21 (Romantic)')
+    analyze('Schubert_D783_no15_p*.mid', 'Schubert D.783 no.15 (early Romantic)')
+    analyze('Chopin_op38_p*.mid', 'Chopin Ballade op.38 bars 1-45 (Romantic)')

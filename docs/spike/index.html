@@ -79,6 +79,27 @@
     </details>
   </div>
 
+  <h2 style="margin-top:2rem">Round 2 — Byrd Kyrie · human-calibrated budgets</h2>
+  <p class="note">Mockup v3 applies the Vienna 4x22 delta measurements: tempo envelope ±35% (Classical-era freedom),
+  <strong>chord spread 16ms melody-lead</strong> (the universal human device missing from v1/v2), shaped voice entries.
+  Three-voice imitative polyphony — more architecture for interpretation to grab.</p>
+
+  <div class="card">
+    <h2>A3 — Mechanical · Byrd Kyrie</h2>
+    <div class="meta">72 bpm flat · uniform dynamics · no shaping · 54.0s</div>
+    <audio controls preload="none" src="byrd-mech.wav"></audio>
+  </div>
+
+  <div class="card">
+    <h2>B4 — LLM mockup v3 · Byrd Kyrie · <em>human-calibrated</em></h2>
+    <div class="meta">wide tempo envelope (66→48 rit.) · chord spread 16ms · shaped voice entries · consort dynamics · 63.3s</div>
+    <audio controls preload="none" src="byrd-mockup-v3.wav"></audio>
+    <details>
+      <summary>Mockup v3 document (human-calibrated budgets)</summary>
+      <pre id="mockup3"></pre>
+    </details>
+  </div>
+
   <div class="card" id="verdict">
     <h2>Verdict (spike decision rule)</h2>
     <div class="ab">
@@ -93,6 +114,7 @@
 <script>
   fetch('mockup-v1.json').then(r => r.text()).then(t => document.getElementById('mockup').textContent = t);
   fetch('mockup-v2.json').then(r => r.text()).then(t => document.getElementById('mockup2').textContent = t);
+  fetch('mockup-v3.json').then(r => r.text()).then(t => document.getElementById('mockup3').textContent = t);
   function vote(v) {
     document.getElementById('votemsg').textContent =
       'Noted: ' + v + '. Record it in docs/spike-results.md (or tell your agent) — the page does not phone home.';
