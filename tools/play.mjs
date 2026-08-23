@@ -9,6 +9,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { expandOffline } from "../interpreter/offline.mjs";
 import { renderWav } from "../player/render.mjs";
+import { excerptDoc } from "./excerpt.mjs";
 import { danglingRefs } from "./refs.mjs";
 import { checkSemantics } from "./semantics.mjs";
 
@@ -25,18 +26,10 @@ const outDir = outIdx >= 0 ? rest[outIdx + 1] : "out";
 const barsIdx = rest.indexOf("--bars");
 const maxBars = barsIdx >= 0 ? Number(rest[barsIdx + 1]) : Infinity;
 
-const doc = JSON.parse(await readFile(docPath, "utf8"));
-// --bars N: demo excerpt — truncate the form order to N bars total.
-if (Number.isFinite(maxBars)) {
-  const kept = [];
-  let bars = 0;
-  for (const id of doc.form?.order ?? []) {
-    if (bars >= maxBars) break;
-    kept.push(id);
-    bars += doc.form.sections.find((s) => s.id === id)?.bars ?? 4;
-  }
-  doc.form.order = kept;
-}
+let doc = JSON.parse(await readFile(docPath, "utf8"));
+// --bars N: demo excerpt of N ≈ bars — truncate the form and prune the
+// constraint references that become unwinnable (tools/excerpt.mjs).
+if (Number.isFinite(maxBars)) doc = excerptDoc(doc, maxBars);
 const renditions = doc.renditions ?? [];
 // Rendition-less documents play through an implicit default — the offline
 // expander handles zero-form docs; a live model would need an explicit id.
