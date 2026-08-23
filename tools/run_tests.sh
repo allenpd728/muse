@@ -35,6 +35,8 @@ SUITES=(
 SUITES+=("chain_smoke:muse_chain/test_chain_smoke.py")
 # Explorer (fast tier): artifact contract + determinism (quick mode).
 SUITES+=("muse_explorer:muse_explorer/tests")
+# Probes (fast tier): seed-iteration probe engine.
+SUITES+=("muse_probes:muse_probes/tests")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
   "muse_chain:muse_chain"
