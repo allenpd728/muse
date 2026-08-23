@@ -19,6 +19,12 @@ Status column is updated by the docs-coherence sweep duty.
   written from evidence, not ahead of it.
 - **The corpus is the ratchet.** Bach → Byrd → Schubert → Beethoven 5 →
   Beethoven 9. Each rung gates the next; the Ninth is the v1.0 target.
+- **No model training in the product path.** The LLM conductor is a stock,
+  swappable model steered by prompt alone (seed + score + instructions).
+  Delta analysis (score↔performance datasets) produces design knowledge —
+  mockup schema fields, seed budgets, prompt vocabulary — never training
+  data. Fine-tuning is an explicit escape hatch (plan B), not the plan.
+  The intelligence migrates into the format, not the model.
 
 ## Phase 0 — Analysis workbench (tools that teach)
 
