@@ -7,6 +7,11 @@ plan: [../pipeline.md](../pipeline.md).
 
 ## Convention: design docs, not user stories
 
+Supporting artifacts: [../tech-stack.md](../tech-stack.md) (borrow/build
+index), [../literature-review-w1.md](../literature-review-w1.md)
+(pre-W1 evidence), [../prior-art-spike.md](../prior-art-spike.md)
+(component intel).
+
 User-story format ("as a user I want…") suits user-facing features. This
 pipeline is backend/infrastructure work — formats, parsers, encoders,
 harnesses — so each task gets a **design doc** (a.k.a. tech spec /
