@@ -2,6 +2,10 @@
 
 **Phase 0 — Analysis workbench. Status: scaffold.**
 
+Evidence base: [../literature-review-w1.md](../literature-review-w1.md) §3
+(algorithm chosen: SIATEC/SIATEC-C via Ostinato; rhythm algorithms as
+complement; scale plan for the 239k-note Ninth).
+
 ## Purpose
 
 IR → pattern report: exact repeats, transposed repeats, sequences,

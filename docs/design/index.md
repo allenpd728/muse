@@ -14,6 +14,11 @@ engineering design doc): problem, goals/non-goals, dependencies, interfaces,
 acceptance criteria. The GitHub issue links the design doc; it does not
 embed a narrative.
 
+Supporting evidence: [../literature-review-w1.md](../literature-review-w1.md)
+(pre-draft lit review for W1/S-series scope), plus
+[../prior-art-spike.md](../prior-art-spike.md) (renderer/mockup component
+intel).
+
 ## Maturity ladder
 
 `scaffold → draft → approved`. All docs start as scaffolds. A doc is
