@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Muse seed workbench</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#0d1117; color:#c9d1d9; margin:0; padding:2rem; }
+  h1 { font-size:1.4rem; color:#f0f6fc; }
+  h2 { font-size:1.05rem; color:#8b949e; border-bottom:1px solid #30363d; padding-bottom:.3rem; margin-top:2rem; }
+  .work { margin-bottom:3rem; }
+  .panel { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; }
+  @media (max-width: 900px) { .panel { grid-template-columns: 1fr; } }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1rem; }
+  .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
+  pre { overflow-x:auto; font-size:.75rem; line-height:1.35; color:#a5d6ff; }
+  .probe { display:flex; justify-content:space-between; padding:.25rem 0; font-size:.8rem; border-bottom:1px dashed #21262d; }
+  .probe:last-child { border-bottom:none; }
+  .pass { color:#3fb950; }
+  .fail { color:#f85149; }
+  .warn { color:#d29922; }
+  table { border-collapse:collapse; width:100%; font-size:.78rem; }
+  td, th { padding:.3rem .5rem; text-align:left; border-bottom:1px solid #21262d; }
+  th { color:#8b949e; }
+  .tag { font-size:.68rem; padding:.1rem .4rem; border-radius:6px; background:#21262d; color:#8b949e; }
+  .ok { background:#238636; color:#fff; }
+</style>
+</head>
+<body>
+<h1>Muse seed workbench</h1>
+<p class="tag">QA-only, static. Read surface for seed iterations. Editing happens in the repo.</p>
+<div id="works"></div>
+<script>
+async function loadJSON(p) { const r = await fetch(p); return r.ok ? r.json() : null; }
+
+function seedPanel(seed) {
+  if (!seed) return '<div class="card"><h3>Seed</h3><p>none committed</p></div>';
+  return `<div class="card"><h3>Seed — ${seed.work_id} v${seed.format_version}</h3>
+    <pre>${JSON.stringify(seed.params, null, 2)}</pre>
+    <pre>${JSON.stringify(seed.philosophy, null, 2)}</pre></div>`;
+}
+
+function probePanel(probes) {
+  if (!probes || !probes.ok) return '<div class="card"><h3>Probes</h3><p class="fail">no probe artifact</p></div>';
+  const P = probes.probes;
+  let rows = '';
+  if (P.assertions) {
+    for (const a of P.assertions.assertions) {
+      rows += `<div class="probe"><span>assertion: ${a.kind}</span><span class="${a.status}">${a.status}</span></div>`;
+    }
+  }
+  if (P.budget_fit) {
+    for (const c of P.budget_fit.checks) {
+      const cls = c.inside ? 'pass' : 'warn';
+      const txt = c.inside ? 'inside budget' : `outside (span ${c.span_fraction}x)`;
+      rows += `<div class="probe"><span>budget: ${c.param}</span><span class="${cls}">${txt}</span></div>`;
+    }
+  }
+  if (P.coverage) rows += `<div class="probe"><span>variation coverage</span><span>${P.coverage.exercised}/${P.coverage.total || 0}</span></div>`;
+  if (P.determinism) rows += `<div class="probe"><span>determinism</span><span class="${P.determinism.stable ? 'pass' : 'fail'}">${P.determinism.stable ? 'stable' : 'unstable'}</span></div>`;
+  if (P.fidelity) rows += `<div class="probe"><span>score fidelity</span><span class="${P.fidelity.ok ? 'pass' : 'fail'}">${P.fidelity.ok ? 'clean' : 'deviation'}</span></div>`;
+  return `<div class="card"><h3>Probes</h3>${rows || '<p>no probes</p>'}</div>`;
+}
+
+async function main() {
+  const works = await loadJSON('data/works.json');
+  const container = document.getElementById('works');
+  // seeds committed in data/seeds/
+  const seedIndex = await loadJSON('data/seeds/index.json') || { seeds: [] };
+  for (const entry of seedIndex.seeds) {
+    const seed = await loadJSON(`data/seeds/${entry.file}`);
+    const probes = await loadJSON(`data/seeds/${entry.probes}`);
+    const div = document.createElement('div');
+    div.className = 'work';
+    div.innerHTML = `<h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
+      <div class="panel">${seedPanel(seed)}${probePanel(probes)}</div>`;
+    container.appendChild(div);
+  }
+  if (!seedIndex.seeds.length) {
+    container.innerHTML += '<p>No seeds committed yet. The loop: edit → validate → mockup → probe (docs/seed-iteration.md).</p>';
+  }
+}
+main().catch(e => { document.getElementById('works').innerHTML = `<p class="fail">load error: ${e}</p>`; });
+</script>
+</body>
+</html>
