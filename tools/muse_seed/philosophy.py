@@ -44,8 +44,11 @@ VOCABULARY = frozenset({
 # Identity guard: any capitalized name-like phrase ("Firstname Lastname")
 # is treated as a suspected artist identity and requires an explicit
 # license in provenance. Era/style adjectives ("Viennese Classical") are
-# whitelisted as eras, not identities.
-_IDENTITY_HINT = re.compile(r"\b([A-Z][a-z]+(?: [A-Z][a-z]+)+)\b")
+# whitelisted as eras, not identities. Multi-word runs and hyphenated
+# surname pairs both match.
+_IDENTITY_HINT = re.compile(
+    r"(?:\b(?:[A-Z][\w'-]+\s+)+(?:[A-Z][\w'-]+)|\b[A-Z][\w]+\s*-\s*[A-Z][\w]+|\b[A-Z]\w+)\b"
+)
 
 ERA_PHRASES = frozenset({
     "Viennese Classical", "Second Viennese", "Ars Nova", "Ars Subtilior",
@@ -53,6 +56,13 @@ ERA_PHRASES = frozenset({
     "Stile Antico", "Stile Moderno", "Notre Dame", "English Madrigal",
     "Flemish School", "Roman School", "Venetian School", "Mannheim School",
 })
+
+# Sub-matches that are whitelisted eras, not identities. The regex finds
+# suspicious fragments; this list then decides per fragment.
+_ERA_WORDS = frozenset({
+    name for era in ERA_PHRASES for name in era.split()
+} | {"Classical", "School"})
+
 
 
 @dataclass
@@ -79,9 +89,18 @@ class Philosophy:
         self._validate_provenance()
 
     def _check_identity(self, field_name, value):
-        """Artist-identity references need an explicit license."""
+        """Artist-identity references need an explicit license.
+
+        Single-word whitelisting: a bare surname ("Bach") or an era fragment
+        ("Classical") inside a longer phrase is enough to trigger. "like
+        bach" is free text by design (lowercase is not case-folded).
+        """
         for match in _IDENTITY_HINT.findall(value):
             if match in ERA_PHRASES:
+                continue
+            words = match.replace("&", " ").replace("'", "").split()
+            parts = [w for w in words if w and w[0].isupper()]
+            if parts and all(w in _ERA_WORDS for w in parts):
                 continue
             if not self.provenance.get("license_ref"):
                 raise PhilosophyError(
