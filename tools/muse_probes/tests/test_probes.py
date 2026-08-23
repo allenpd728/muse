@@ -103,7 +103,7 @@ def test_budget_fit_marks_range_position(seed_work):
 
 def test_assertions_report_per_kind(seed_work):
     seed, work = seed_work
-    res = probe_assertions(seed, work)
+    res = probe_assertions(work, seed.assertions)
     kinds = {r["kind"] for r in res["assertions"]}
     assert {"register", "tempo_bounds"} <= kinds
 

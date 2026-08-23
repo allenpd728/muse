@@ -106,12 +106,16 @@ def probe_budget_fit(seed, era="baroque"):
     return out
 
 
-def probe_assertions(seed, work):
-    """Probe 3: seed assertions evaluated against the work (S3.5)."""
+def probe_assertions(work, assertions):
+    """Probe 3: an assertions dict evaluated against the work (S3.5).
+
+    Takes the assertions mapping directly (not the seed) so both
+    compute_probes and the quality gate share one signature.
+    """
     from muse_assert import AssertionError, validate_assertions
 
     results = []
-    assertions = getattr(seed, "assertions", {}) or {}
+    assertions = assertions or {}
     for kind, rule in assertions.items():
         try:
             validate_assertions(work, {kind: rule})
@@ -203,7 +207,7 @@ def compute_probes(seed, work, prior_seed=None, era="baroque") -> ProbeReport:
     report.probes = {
         "param_diff": probe_param_diff(seed, prior_seed),
         "budget_fit": probe_budget_fit(seed, era),
-        "assertions": probe_assertions(seed, work),
+        "assertions": probe_assertions(work, getattr(seed, "assertions", {})),
         "coverage": probe_coverage(seed, mockup),
         "delta_curves": probe_delta_curves(work, mockup),
         "determinism": probe_determinism(work),
