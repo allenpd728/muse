@@ -1,7 +1,15 @@
-# Test spec — C1 seed validator
+# Test spec — C1 seed validator — CLOSED
 
 **Task:** #148 (C1 — Seed format implementation)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #161, 2026-08-23):** landed as
+`tools/muse_seed_cli/test_seed_cli.py` — 14 tests covering all three spec
+sections: commands (read prints summary; validate chains schema →
+assertions → budgets exit 0; budget-check prints era budgets for all four
+eras), failure paths (malformed seed, violated assertions, unknown era
+rejected by argparse), era-budget check (provenance.era checked against
+era budget with the within/outside message pinned; missing era skipped).
 
 ## What to verify
 
