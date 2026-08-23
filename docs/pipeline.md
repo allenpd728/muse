@@ -69,7 +69,7 @@ the diff tool confirms the score reconstructs the source losslessly.
 
 | Task | What it is | Status |
 |---|---|---|
-| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | todo |
+| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | **filed #148, available** |
 | C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | todo |
 | C3 — Expression-budget calibration | Delta-analysis-informed budget suggestions per era/style. | todo |
 | C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | todo |
