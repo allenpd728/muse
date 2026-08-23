@@ -4,6 +4,20 @@ How agents find, claim, and complete work on Muse. One task = one GitHub issue.
 Agents read this document once; everything else they learn from the issues and the
 `blockers/` directory.
 
+> **System of record:** the issue queue plus `git log origin/dev`. Status tables in
+> docs (pipeline.md etc.) are caches updated by sweeps and may lag — check the queue
+> and dev history before concluding work is undone.
+
+## Run-ids
+
+Every agent session generates a **run-id** at session start:
+`<YYYYMMDD-HHMM>-<4 random alphanumerics>` (e.g. `20260823-1845-a1b2`). The run-id
+appears in every claim comment, done comment, and blocker the session writes. It is
+the only way to distinguish claims under a shared GitHub identity — all agents
+authenticate as the same account, so labels, assignees, and author fields cannot
+tell claims apart. Without run-ids the re-fetch check in §Claiming has no teeth
+(2026-08-23: four double-claims in one day).
+
 ## System of record
 
 - **GitHub Issues + labels** — the live task queue. Claiming is atomic via the API
@@ -57,7 +71,14 @@ identical for all three; only the "done" action differs.
    (no commits on the PR, no new comments), the claim is void: remove
    `status:claimed`, restore the prior label (`status:available` for tasks/tests,
    `status:blocked-needs-input` for blockers), and comment that the work was
-   reclaimed (audit trail).
+   reclaimed (audit trail). A fresh claim comment carrying a run-id that is not
+   yours belongs to a live sibling — leave it alone; freshness is judged by the
+   comment timestamp, never by assuming authorship.
+1a. **Sweep protocol violations.** An issue carrying two status labels at once
+   (e.g. `status:claimed` + `status:blocked-needs-input`) is in an illegal state
+   from a non-atomic edit. The sweep repairs it: the *older* label wins
+   (`blocked-needs-input` outranks `claimed` — a blocker claim beats a bare claim),
+   the extra label is removed, and a comment records the repair.
 1b. **Docs coherence sweep.** Check that `README.md`, `AGENTS.md`,
    `FORMAT_SPEC.md`, [`docs/pipeline.md`](docs/pipeline.md), and
    `corpus/README.md` agree with each other: if a recently-closed task changed
@@ -66,7 +87,14 @@ identical for all three; only the "done" action differs.
    claim. If something is wrong and no task covers fixing it, file the task.
 2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
-   jump the queue.
+   jump the queue. Before concluding any work item is undone, check
+   `git log origin/dev` and the issue queue — docs tables lag (§System of record);
+   dev history does not.
+2a. **Filing is not atomic — search, file, search again.** Before filing a new
+   task, search open issues for its slug. After filing, search again: if a twin
+   with a **lower issue number** now exists, close yours as duplicate with a link
+   to it. Self-healing; requires no coordination. (2026-08-23: W3 filed twice as
+   #131/#132 within one minute.)
 3. **When no task is available, fall through in priority order:**
    - **(a) Open `Tests:` issues.** Claim and complete them one at a time, lowest
      issue number first — writing the tests their spec calls for.
@@ -80,25 +108,36 @@ identical for all three; only the "done" action differs.
      resolvable, close the blocker and return the task to `status:available`.
    - Only when tasks, `Tests:` issues, PR comments, and blockers are all
      exhausted is the queue empty and the session done.
-4. **Attempt the claim.** Whatever the work item: swap its current label to
-   `status:claimed` (from `status:available` for tasks/tests, from
-   `status:blocked-needs-input` for blockers), self-assign, and post a claim
-   comment (`claimed by <run-id> at <UTC timestamp>`). Then re-fetch the issue:
-   if the label or assignee doesn't match, another agent won — back off and pick
-   a different item. GitHub serializes these writes, so exactly one agent wins.
-5. **Do the work.** Commit directly to `dev` (no PR — review happens
-   retrospectively on `dev`). Swap `status:claimed` → `status:done` and close the
-   issue with a comment linking the commits. For a **blocker-resolution** item the
-   "done" action differs: resolve the ambiguity (amend the spec/docs), rename the
-   `blockers/open_*` file to `closed_*` appending the resolution, remove
-   `status:claimed` from the blocked issue, and return that issue to
-   `status:available` — the blocker itself is a means, the goal is unblocking the
-   original task.
+4. **Attempt the claim, then verify ownership.** Whatever the work item: swap its
+   current label to `status:claimed` (from `status:available` for tasks/tests, from
+   `status:blocked-needs-input` for blockers) **in one atomic edit — one remove,
+   one add, ending with exactly one status label** — self-assign, and post a claim
+   comment (`claimed by <agent-name> run=<run-id> at <UTC timestamp>`). Then
+   re-fetch the issue **and read the latest claim comment**: if its run-id is not
+   yours, a sibling won — back off and pick a different item. Under a shared
+   GitHub identity the label/assignee check cannot decide this (both agents set
+   the same values); the run-id in the newest claim comment is the tiebreaker.
+5. **Do the work; prove the done.** Commit directly to `dev` (no PR — review
+   happens retrospectively on `dev`). Swap `status:claimed` → `status:done` and
+   close the issue with a comment linking the commits. **Tasks with known-answer
+   criteria (conformance counts, golden commands) close only when the done
+   comment includes the gate command and its output** — a done claim without
+   evidence is how full maps shipped empty and nobody noticed (2026-08-23 W1).
+   For a **blocker-resolution** item the "done" action differs: resolve the
+   ambiguity (amend the spec/docs), rename the `blockers/open_*` file to
+   `closed_*` appending the resolution, remove `status:claimed` from the blocked
+   issue, and return that issue to `status:available` — the blocker itself is a
+   means, the goal is unblocking the original task.
 
    **Concurrent-work rules** (agents run in parallel against `dev`):
    - Pull before you start, and again before you push.
    - On push rejection (non-fast-forward): `git pull --rebase origin dev`, resolve
      any conflicts, push again. Repeat as needed.
+   - **Rebase revealed a sibling landed the same work?** Compare the two
+     implementations: if yours adds nothing, drop it and (if the landed work
+     has gaps) file a review follow-up instead of reopening; if yours
+     genuinely extends it, merge the two in the rebase. Never push a second
+     copy of an already-landed tool.
    - **Never force-push to `dev`** — it can destroy a sibling agent's committed
      work. This is the one move the direct-to-dev model depends on forbidding.
    - A rebase conflict you cannot resolve confidently is a blocker — someone
@@ -188,12 +227,17 @@ resolution), removes `status:blocked-needs-input`, and returns the task to
 
 ## End-of-session report
 
-Before finishing, every agent reports:
+Before finishing, every agent reports (with its run-id):
 
-- Tasks completed (with commit links)
+- Tasks completed (with commit links), including the gate evidence for any
+  known-answer DoDs
 - Test specs written (linked `Tests:` issues) and any completed tasks whose test
   follow-up never landed
 - Stale claims reclaimed during the sweep
+- Protocol violations repaired (issues found with two status labels)
+- Duplicate filings closed (twins with lower issue numbers surviving)
+- Work dropped at rebase because a sibling landed it first (so review knows
+  the duplicate existed and was discarded, not lost)
 - New blockers written (with one-line reasons)
 - Open blockers still awaiting human input
 - Blockers closed during the sweep
