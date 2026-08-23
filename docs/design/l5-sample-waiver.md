@@ -2,6 +2,13 @@
 
 **Phase 4 — The product (sub-task; conditional gate). Status: scaffold.**
 
+Tech stack (evidence links): sample rendering per
+[../prior-art-spike.md](../prior-art-spike.md) T4 table — sfizz + SFZ/VPO/
+SSO/FluidSynth, per [../literature-review-w1.md](../literature-review-w1.md)
+§6; spike listener ([../spike/](../spike/) index.html) for the trigger
+evidence. Open question raised to draft level: threshold specifies "free
+samples ceiling" (per prior-art §T4 reality check).
+
 ## Purpose
 
 L2's sample-tier render is gated on the founder's ear. If it fails despite

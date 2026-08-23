@@ -2,6 +2,12 @@
 
 **Phase 0 — Analysis workbench (sub-task). Status: scaffold.**
 
+Tech stack (evidence links): suffix-array geometric discovery per
+[../literature-review-w1.md](../literature-review-w1.md) §3 (Ostinato
+SIATEC/SIATEC-C), rhythmic complement via
+RegularTimeInterval_Patterns_Discovery. W3 is the consumer/parent; W6 owns
+the *measurement and decision*, W3 owns the algorithm.
+
 ## Purpose
 
 Beethoven 9 is 239,459 notes; a naive SIATEC-style pattern pass may be
