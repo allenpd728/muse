@@ -1,0 +1,133 @@
+# Muse build pipeline — work plan and status
+
+The single source of truth for what gets built, in what order, and where it
+stands. One task = one GitHub issue, per [TASK_WORKFLOW.md](../TASK_WORKFLOW.md).
+Status column is updated by the docs-coherence sweep duty.
+
+## Locked decisions
+
+- **Three-component format.** `.mu` = score (fixed work, our MusicXML) +
+  prompt (interpretive space) + plaintext rights manifest. Zip container.
+- **MusicXML is the existing roll.** The compressor adapts it; we are not in
+  the business of scanning historic documents.
+- **The deterministic player is the baseline** — "our MIDI player," free,
+  proves the format. **The LLM player is the product** — the musician.
+- **The seed workbench and LLM player are proprietary.** The open surface is
+  the score side: encoding (S2), the deterministic player (P-series), the
+  spec. Proprietary: seed authoring (C-series), LLM player (L-series). Spec +
+  reference player go public at launch; split at pre-launch.
+- **Tools before spec freeze.** The analyzer teaches us what the language
+  needs; the diff tool teaches us whether compression works. Spec v1.0 is
+  written from evidence, not ahead of it.
+- **The corpus is the ratchet.** Bach → Byrd → Schubert → Beethoven 5 →
+  Beethoven 9. Each rung gates the next; the Ninth is the v1.0 target.
+- **No model training in the product path.** The LLM conductor is a stock,
+  swappable model steered by prompt alone (seed + score + instructions).
+  Delta analysis (score↔performance datasets) produces design knowledge —
+  mockup schema fields, seed budgets, prompt vocabulary — never training
+  data. Fine-tuning is an explicit escape hatch (plan B), not the plan.
+  The intelligence migrates into the format, not the model.
+
+## Phase 0 — Analysis workbench (tools that teach)
+
+| Task | What it is | Status |
+|---|---|---|
+| W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | todo |
+| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | todo |
+| W3 — Analyzer | Pattern detector over the IR: exact repeats, transposed repeats, sequences, mirror/retrograde candidates, ostinati. Outputs per-work statistics + pattern inventory. | todo |
+| W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | todo |
+| W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | todo |
+
+**Phase 0 done when:** the analyzer has run across all five works and produced
+a pattern-frequency report that drives Phase 1 language decisions.
+
+## Phase 1 — Format spec v1.0 (from evidence)
+
+| Task | What it is | Status |
+|---|---|---|
+| S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | todo |
+| S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | todo |
+| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | todo |
+| S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | todo |
+| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | todo |
+
+**Phase 1 done when:** FORMAT_SPEC.md v1.0 is written, with every construct
+justified by Phase 0 evidence (a construct without corpus evidence doesn't ship).
+
+## Phase 2 — Deterministic player (the baseline)
+
+| Task | What it is | Status |
+|---|---|---|
+| P1 — Reference decoder | `.mu` roll stream → event stream. Deterministic, sandboxed, resource-bounded. | todo |
+| P2 — Reference renderer | Event stream → audio (soundfont tier). CLI: `muse play file.mu`. | todo |
+| P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | todo |
+
+**Phase 2 done when:** every corpus `.mu` round-trips through the player and
+the diff tool confirms the score reconstructs the source losslessly.
+
+## Phase 3 — Seed authoring (the craft, proprietary)
+
+| Task | What it is | Status |
+|---|---|---|
+| C1 — Seed format implementation | S3's spec → working reader/writer + validator. | todo |
+| C2 — AI-assisted authoring | LLM analyzes IR → proposes seed. Human reviews, edits, approves. | todo |
+| C3 — Expression-budget calibration | Delta-analysis-informed budget suggestions per era/style. | todo |
+| C4 — Assertion authoring | Human writes constraints (must_contain, register, form) per work. | todo |
+
+**Phase 3 done when:** seeds are authored for corpus works and validate
+against S3 — the founder's ear gates quality. Design docs:
+[design/](design/).
+
+## Phase 4 — Mockup harness + renderer (the product)
+
+| Task | What it is | Status |
+|---|---|---|
+| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | todo |
+| L2 — Performance renderer | Mockup → audio via sfizz + SFZ samples (SSO/VPO tier). The "worth listening to" bar. | todo |
+| L3 — Model comparison rig | Same score+seed, different LLMs → different mockups. Blind A/B listening. | todo |
+| L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | todo |
+
+**Phase 4 done when:** one corpus work, performed by the LLM player, passes
+the founder's by-ear evaluation as a musical performance — a reading worth a
+hall.
+
+## Phase 5 — The event (the unveiling)
+
+| Task | What it is | Status |
+|---|---|---|
+| E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | todo |
+| E2 — The venue | Concert hall, projection, the "giant computer" staging. | todo |
+| E3 — The recording | Document the event; publish. | todo |
+
+**Phase 5 done when:** deferred until Phase 4 produces one concert-worthy
+work.
+
+## Milestone barriers & decomposed sub-tasks
+
+The scaffold-era risk list (blockers/ + session report) decomposed into
+workable sub-tasks per TASK_WORKFLOW ("sub-tasks are decomposed from issues
+that prove too large"). Each has a design-doc scaffold in
+[design/](design/) and feeds the task it unblocks.
+
+| Sub-task | Parent barrier | What it does | Unblocks |
+|---|---|---|---|
+| **W6 — B9 compute scaling** | Beethoven 9 (239k notes) through pattern analysis | Profiles W3's SIATEC pass; chooses suffix-array/SIATEC-C or sampling; pins per-tier compute budgets | W3 full-corpus pass |
+| **W7 — Mockup schema v0** | L1's unwritten intermediate artifact | Drafts the mockup session-file schema from delta-analysis evidence + spike JSONs; validate via W4 | L1 harness |
+| **C5 — Baroque delta measurement** | C3's unmeasured Baroque budget gap | Runs delta-analysis vocabulary on Baroque corpora (chorales + polyphony); feeds era budgets | C3 (and W3's per-phrase curves) |
+| **L5 — Sample-quality waiver** | L2's unresolved "convincing vs. concert" ceiling | Triggered only if L2 fails the founder's ear despite maximal mockup: either commercial-library contract or revised event bar | E1 (event quality) |
+| **S6 — Vocal text schema** | Vocal/choral text (Ninth 52 staves, FORMAT_SPEC §8) | Extends S1 with interleaved lyrics/syllables; verified against Beethoven 9 finale | S1 closure, v1.0 |
+| **E4 — Extension decision** | `.mu` extension collision (Kerbal/Lisp) | Pick final file extension before spec publication (`.mu`, `.muse`, `.muw`, …); update spec + corpus + tooling | S5, publication |
+
+Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
+[design/w7-mockup-schema.md](design/w7-mockup-schema.md),
+[design/c5-baroque-delta.md](design/c5-baroque-delta.md),
+[design/l5-sample-waiver.md](design/l5-sample-waiver.md),
+[design/s6-vocal-text.md](design/s6-vocal-text.md),
+[design/e4-extension.md](design/e4-extension.md).
+
+## Explicitly not (yet)
+
+- Public spec publication (pre-launch decision)
+- Distribution/registry/marketplace
+- Neural audio rendering (sample tier first)
+- Notation-software and DAW plugins (post-launch)

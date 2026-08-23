@@ -1,0 +1,74 @@
+{
+  "_comment": "Mockup v3 — Byrd Kyrie (3-voice imitative polyphony). Human-calibrated budgets from Vienna 4x22 delta analysis: tempo envelope ±35% (Classical), chord spread 15-18ms melody-lead (universal device), velocity persona spread modest but within-performance dynamic range ~15 std. Renaissance consort style: gentle, floating, entries shaped.",
+  "seed": {
+    "tempo_range": [48, 92],
+    "philosophy": "Renaissance consort: floating, vertical sonority over horizontal drive. Entries are events — each voice announces itself. Cadences breathe. E minor-ish modal color, dark and spacious.",
+    "expression_budget": {
+      "onset_offset_ticks": 50,
+      "chord_spread_ms": [12, 22],
+      "duration_scale": [0.85, 1.25],
+      "velocity_range": [30, 95],
+      "swell_depth": [0.0, 0.6],
+      "legato_overlap_ms": [0, 150]
+    },
+    "assertions": ["all score notes present, order preserved", "no added pitches", "onset offsets stay within budget"]
+  },
+  "tempo_map": [
+    {"tick": 0,     "bpm": 66},
+    {"tick": 1920,  "bpm": 62},
+    {"tick": 3840,  "bpm": 58, "note": "first cadence approach — ease"},
+    {"tick": 4608,  "bpm": 66, "note": "resume after the breath"},
+    {"tick": 7680,  "bpm": 60, "note": "middle section — darker"},
+    {"tick": 9600,  "bpm": 66, "note": "the final Kyrie — gather"},
+    {"tick": 11520, "bpm": 54, "note": "the close — broad ritardando"},
+    {"tick": 12288, "bpm": 48, "note": "final sonority"}
+  ],
+  "dynamics": [
+    {"tick": 0,     "level": 0.50},
+    {"tick": 1920,  "level": 0.58},
+    {"tick": 3840,  "level": 0.52},
+    {"tick": 4608,  "level": 0.56},
+    {"tick": 7680,  "level": 0.64},
+    {"tick": 9600,  "level": 0.70},
+    {"tick": 11520, "level": 0.55},
+    {"tick": 12288, "level": 0.42}
+  ],
+  "balance": [
+    {"part": "soprano", "gain": 1.00},
+    {"part": "alto",    "gain": 0.86},
+    {"part": "bass",    "gain": 0.90}
+  ],
+  "chord_spread": {
+    "interval_ms": 16,
+    "note": "universal human device from the delta analysis — melody leads on chordal arrivals; bass first, then middle, then top. Applied to simultaneous note groups."
+  },
+  "voice_entries": {
+    "anticipation_ms": 40,
+    "note": "when a voice enters after a rest, it arrives a hair early with a gentle swell — the entry is announced, not sneaked."
+  },
+  "notes": {
+    "soprano": [
+      {"i": 0,  "velocity": 62, "attack_sec": 0.10, "swell": [[0,0.8],[0.6,1.0],[1,0.9]]},
+      {"i": 5,  "velocity": 66, "legato_overlap_ms": 60, "attack_sec": 0.07},
+      {"i": 10, "velocity": 70, "attack_sec": 0.06, "swell": [[0,0.9],[0.5,1.0],[1,0.95]]},
+      {"i": 15, "velocity": 68, "legato_overlap_ms": 50, "attack_sec": 0.07},
+      {"i": 20, "velocity": 64, "duration_scale": 1.08, "attack_sec": 0.09, "release_sec": 0.45, "swell": [[0,0.85],[0.4,1.0],[1,0.65]]},
+      {"i": 25, "velocity": 58, "onset_offset_ticks": 20, "attack_sec": 0.11, "swell": [[0,0.75],[0.4,0.9],[1,0.6]]},
+      {"i": 27, "velocity": 50, "onset_offset_ticks": 40, "duration_scale": 1.15, "attack_sec": 0.14, "release_sec": 0.65, "swell": [[0,0.6],[0.25,0.8],[1,0.35]], "note": "final — very late, long, released"}
+    ],
+    "alto": [
+      {"i": 0,  "velocity": 58, "attack_sec": 0.11, "swell": [[0,0.75],[0.6,1.0],[1,0.85]], "note": "the answering entry — announced gently"},
+      {"i": 8,  "velocity": 62, "legato_overlap_ms": 60, "attack_sec": 0.07},
+      {"i": 14, "velocity": 64, "attack_sec": 0.07},
+      {"i": 19, "velocity": 60, "duration_scale": 1.06, "attack_sec": 0.09, "release_sec": 0.42, "swell": [[0,0.8],[0.4,1.0],[1,0.7]]},
+      {"i": 22, "velocity": 52, "onset_offset_ticks": 35, "duration_scale": 1.12, "attack_sec": 0.13, "release_sec": 0.60, "swell": [[0,0.65],[0.3,0.85],[1,0.4]], "note": "final alto — nearly still"}
+    ],
+    "bass": [
+      {"i": 0,  "velocity": 60, "attack_sec": 0.12, "swell": [[0,0.7],[0.6,1.0],[1,0.85]], "note": "the foundation entry — grounded, not heavy"},
+      {"i": 6,  "velocity": 64, "legato_overlap_ms": 60, "attack_sec": 0.07},
+      {"i": 12, "velocity": 66, "attack_sec": 0.06},
+      {"i": 16, "velocity": 62, "duration_scale": 1.06, "attack_sec": 0.09, "release_sec": 0.42, "swell": [[0,0.8],[0.4,1.0],[1,0.7]]},
+      {"i": 19, "velocity": 54, "onset_offset_ticks": 40, "duration_scale": 1.15, "attack_sec": 0.14, "release_sec": 0.65, "swell": [[0,0.6],[0.25,0.8],[1,0.35]], "note": "final bass — the floor gives way"}
+    ]
+  }
+}

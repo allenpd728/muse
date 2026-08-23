@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muse — spike listener</title>
+<style>
+  :root { --bg: #101014; --panel: #1a1a22; --ink: #e8e6df; --dim: #9a97a3; --accent: #c9a45c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 Georgia, serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 3rem 1.25rem; }
+  h1 { font-size: 1.5rem; font-weight: normal; letter-spacing: 0.02em; }
+  h1 .sub { color: var(--dim); display: block; font-size: 0.95rem; margin-top: 0.25rem; }
+  .card { background: var(--panel); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.25rem 0; }
+  .card h2 { font-size: 1.05rem; margin: 0 0 0.25rem; font-weight: normal; }
+  .card .meta { color: var(--dim); font-size: 0.85rem; margin-bottom: 0.75rem; }
+  audio { width: 100%; height: 40px; }
+  .ab { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  button { background: transparent; color: var(--accent); border: 1px solid var(--accent);
+           border-radius: 6px; padding: 0.35rem 0.9rem; font: inherit; cursor: pointer; }
+  button:hover { background: var(--accent); color: var(--bg); }
+  .note { color: var(--dim); font-size: 0.85rem; }
+  details { margin-top: 0.75rem; }
+  summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
+  pre { background: #0b0b0e; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.78rem; }
+  #verdict { margin-top: 2rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Muse — Spike Listener
+    <span class="sub">BWV 227.1 <em>Jesu, meine Freude</em> · first phrase · E minor · SATB</span>
+  </h1>
+
+  <p class="note">Same notes throughout. The first pair uses the GM soundfont (thin);
+  the second pair uses Sonatina Symphonic Orchestra string samples (CC) —
+  the free-tier renderer from <a style="color:var(--accent)" href="https://github.com/allenpd728/muse/blob/review/docs/prior-art-spike.md">docs/prior-art-spike.md</a>.
+  The spike question: <strong>are the interpretations distinguishable, and is the difference musical?</strong></p>
+
+  <h2 style="margin-top:2rem">Tier 1 — GM soundfont (baseline)</h2>
+
+  <div class="card">
+    <h2>A1 — Mechanical · GM choir</h2>
+    <div class="meta">72 bpm flat · uniform dynamics · no shaping · 33.8s</div>
+    <audio controls preload="none" src="chorale-mechanical.wav"></audio>
+  </div>
+
+  <div class="card">
+    <h2>B1 — LLM mockup v1 · GM choir</h2>
+    <div class="meta">tempo map (72→56 rit.) · dynamic arc · voice balance · humanization · 38.5s</div>
+    <audio controls preload="none" src="chorale-mockup-v1.wav"></audio>
+  </div>
+
+  <h2 style="margin-top:2rem">Tier 2 — SSO string samples (free tier)</h2>
+
+  <div class="card">
+    <h2>A2 — Mechanical · strings</h2>
+    <div class="meta">same mechanical performance · violin I/II, viola, cello sustains · 30.5s audible</div>
+    <audio controls preload="none" src="chorale-mech-sso.wav"></audio>
+  </div>
+
+  <div class="card">
+    <h2>B2 — LLM mockup v1 · strings</h2>
+    <div class="meta">phrase-level shaping only (tempo map + dynamics) · rendered on string samples</div>
+    <audio controls preload="none" src="chorale-mockup-sso.wav"></audio>
+    <details>
+      <summary>Mockup v1 document</summary>
+      <pre id="mockup"></pre>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>B3 — LLM mockup v2 · strings · <em>per-note sculpting</em></h2>
+    <div class="meta">every soprano note sculpted: onset offsets, per-note attack/release, swell curves, legato overlap, tenuto · the producer's pass</div>
+    <audio controls preload="none" src="chorale-mockup-v2-sso.wav"></audio>
+    <details>
+      <summary>Mockup v2 document (per-note expression layer)</summary>
+      <pre id="mockup2"></pre>
+    </details>
+  </div>
+
+  <h2 style="margin-top:2rem">Round 2 — Byrd Kyrie · human-calibrated budgets</h2>
+  <p class="note">Mockup v3 applies the Vienna 4x22 delta measurements: tempo envelope ±35% (Classical-era freedom),
+  <strong>chord spread 16ms melody-lead</strong> (the universal human device missing from v1/v2), shaped voice entries.
+  Three-voice imitative polyphony — more architecture for interpretation to grab.</p>
+
+  <div class="card">
+    <h2>A3 — Mechanical · Byrd Kyrie</h2>
+    <div class="meta">72 bpm flat · uniform dynamics · no shaping · 54.0s</div>
+    <audio controls preload="none" src="byrd-mech.wav"></audio>
+  </div>
+
+  <div class="card">
+    <h2>B4 — LLM mockup v3 · Byrd Kyrie · <em>human-calibrated</em></h2>
+    <div class="meta">wide tempo envelope (66→48 rit.) · chord spread 16ms · shaped voice entries · consort dynamics · 63.3s</div>
+    <audio controls preload="none" src="byrd-mockup-v3.wav"></audio>
+    <details>
+      <summary>Mockup v3 document (human-calibrated budgets)</summary>
+      <pre id="mockup3"></pre>
+    </details>
+  </div>
+
+  <div class="card" id="verdict">
+    <h2>Verdict (spike decision rule)</h2>
+    <div class="ab">
+      <button onclick="vote('pass')">Pass — distinguishable &amp; musical</button>
+      <button onclick="vote('fail')">Fail — mechanical / wrong</button>
+    </div>
+    <p class="note" id="votemsg"></p>
+  </div>
+
+  <p class="note">Spike protocol: <a style="color:var(--accent)" href="https://github.com/allenpd728/muse/blob/review/docs/spike.md">docs/spike.md</a></p>
+</main>
+<script>
+  fetch('mockup-v1.json').then(r => r.text()).then(t => document.getElementById('mockup').textContent = t);
+  fetch('mockup-v2.json').then(r => r.text()).then(t => document.getElementById('mockup2').textContent = t);
+  fetch('mockup-v3.json').then(r => r.text()).then(t => document.getElementById('mockup3').textContent = t);
+  function vote(v) {
+    document.getElementById('votemsg').textContent =
+      'Noted: ' + v + '. Record it in docs/spike-results.md (or tell your agent) — the page does not phone home.';
+  }
+</script>
+</body>
+</html>
