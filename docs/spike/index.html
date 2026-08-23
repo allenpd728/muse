@@ -32,19 +32,37 @@
     <span class="sub">BWV 227.1 <em>Jesu, meine Freude</em> · first phrase · E minor · SATB</span>
   </h1>
 
-  <p class="note">Same notes, same soundfont (GM choir aahs). Only the interpretation differs.
-  The spike question: <strong>are they distinguishable, and is the difference musical?</strong></p>
+  <p class="note">Same notes throughout. The first pair uses the GM soundfont (thin);
+  the second pair uses Sonatina Symphonic Orchestra string samples (CC) —
+  the free-tier renderer from <a style="color:var(--accent)" href="https://github.com/allenpd728/muse/blob/review/docs/prior-art-spike.md">docs/prior-art-spike.md</a>.
+  The spike question: <strong>are the interpretations distinguishable, and is the difference musical?</strong></p>
+
+  <h2 style="margin-top:2rem">Tier 1 — GM soundfont (baseline)</h2>
 
   <div class="card">
-    <h2>A — Mechanical</h2>
+    <h2>A1 — Mechanical · GM choir</h2>
     <div class="meta">72 bpm flat · uniform dynamics · no shaping · 33.8s</div>
     <audio controls preload="none" src="chorale-mechanical.wav"></audio>
   </div>
 
   <div class="card">
-    <h2>B — LLM mockup v1</h2>
-    <div class="meta">tempo map (72→56 rit.) · dynamic arc (mp → full → release) · voice balance · humanization · 38.5s</div>
+    <h2>B1 — LLM mockup v1 · GM choir</h2>
+    <div class="meta">tempo map (72→56 rit.) · dynamic arc · voice balance · humanization · 38.5s</div>
     <audio controls preload="none" src="chorale-mockup-v1.wav"></audio>
+  </div>
+
+  <h2 style="margin-top:2rem">Tier 2 — SSO string samples (free tier)</h2>
+
+  <div class="card">
+    <h2>A2 — Mechanical · strings</h2>
+    <div class="meta">same mechanical performance · violin I/II, viola, cello sustains · 30.5s audible</div>
+    <audio controls preload="none" src="chorale-mech-sso.wav"></audio>
+  </div>
+
+  <div class="card">
+    <h2>B2 — LLM mockup v1 · strings</h2>
+    <div class="meta">same interpretation · rendered on string samples · 35.2s audible</div>
+    <audio controls preload="none" src="chorale-mockup-sso.wav"></audio>
     <details>
       <summary>The mockup document (session work as data)</summary>
       <pre id="mockup"></pre>
