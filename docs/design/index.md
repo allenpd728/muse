@@ -29,7 +29,7 @@ green-lights it; issues get filed only against approved drafts.
 
 | Task | Doc | Upstream (needs) | Downstream (feeds) | Maturity |
 |---|---|---|---|---|
-| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | scaffold |
+| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | draft |
 | W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | scaffold |
 | W3 — Pattern analyzer | [w3-pattern-analyzer](w3-pattern-analyzer.md) | W1, W2 | S1–S5, W5, C3 | scaffold |
 | W4 — Diff tool | [w4-diff-tool](w4-diff-tool.md) | W1 | S2, P3, C2, L1 | scaffold |
