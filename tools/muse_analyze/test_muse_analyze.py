@@ -14,6 +14,13 @@ import time
 
 import pytest
 
+# Beethoven 9 analysis takes ~30s alone; keep the budget test but make it
+# opt-in for the fast suite (CI skips via -m "not slow"; slow suites include it).
+slow = pytest.mark.skipif(
+    os.environ.get("MUSE_SKIP_SLOW", "").lower() in ("1", "true", "yes"),
+    reason="MUSE_SKIP_SLOW set — skipping Beethoven 9 budget test (~30s)",
+)
+
 from muse_ir import load
 from muse_ir.model import Meta, Note, Part, Work
 from muse_analyze import analyze
@@ -94,6 +101,7 @@ class TestScaleBudget:
         pts = [(i * 240, 60 + (i % 7)) for i in range(300)]
         assert max((len(k) for k in _find_repeats(pts)), default=0) > 16
 
+    @slow
     def test_beethoven9_completes_within_budget(self):
         t0 = time.monotonic()
         rep = analyze(load_corpus("beethoven/beethoven-sym9.xml"), "b9")
@@ -103,6 +111,7 @@ class TestScaleBudget:
 
 
 class TestCorpusPins:
+    @slow
     @pytest.mark.parametrize("rel", sorted(CORPUS_PINS))
     def test_counts_pinned(self, rel):
         exact, transposed, ostinato, imitative, curve = CORPUS_PINS[rel]
@@ -129,6 +138,7 @@ class TestCLI:
         assert "transposed repeats: 895" in r.stdout
         assert "delta curve points: 58" in r.stdout
 
+    @slow
     def test_all_writes_analysis_report(self):
         r = self.run_cli("--all")
         assert r.returncode == 0, r.stderr
