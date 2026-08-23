@@ -19,6 +19,11 @@ engineering design doc): problem, goals/non-goals, dependencies, interfaces,
 acceptance criteria. The GitHub issue links the design doc; it does not
 embed a narrative.
 
+**Documentation deliverable:** every code task ships a `README.md` in its
+tool directory (usage, API, dependencies) and a test spec in `tests/`.
+The doc is part of the Definition of Done — code without its doc is
+incomplete. Design docs live here; user-facing docs live with the code.
+
 Supporting evidence: [../literature-review-w1.md](../literature-review-w1.md)
 (pre-draft lit review for W1/S-series scope), plus
 [../prior-art-spike.md](../prior-art-spike.md) (renderer/mockup component
