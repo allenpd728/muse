@@ -1,7 +1,15 @@
-# Test spec — S3.5 assertions
+# Test spec — S3.5 assertions — CLOSED
 
 **Task:** #146 (S3.5 — Assertions)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #158, 2026-08-23):** landed as
+`tools/muse_assert/test_asserts.py` — 18 tests covering both spec sections:
+every assertion kind (must_contain found/absent/naming, register
+bounds/violation/note-name round-trip/rest-skip/part-by-name, form
+tolerant-empty/notation-backed/missing, tempo_bounds pass/below/above) and
+fail-loud behavior (unknown kind rejected, empty assertions no-op, error
+carries kind). Real corpus work (Bach BWV227.1) plus synthetic works.
 
 ## What to verify
 
