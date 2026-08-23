@@ -22,18 +22,20 @@ intel).
 ## Maturity ladder
 
 `scaffold → draft → approved`. All docs start as scaffolds. A doc is
-promoted to draft only when its dependencies are satisfied and the founder
-green-lights it; issues get filed only against approved drafts.
+promoted to draft when its upstream dependencies are themselves drafted (or
+earlier); draft-of-draft dependency chains are acceptable, final-form
+dependencies are deferred to approval. Issues get filed only against
+approved drafts.
 
 ## Dependency matrix
 
 | Task | Doc | Upstream (needs) | Downstream (feeds) | Maturity |
 |---|---|---|---|---|
 | W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | draft |
-| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | scaffold |
-| W3 — Pattern analyzer | [w3-pattern-analyzer](w3-pattern-analyzer.md) | W1, W2 | S1–S5, W5, C3 | scaffold |
-| W4 — Diff tool | [w4-diff-tool](w4-diff-tool.md) | W1 | S2, P3, C2, L1 | scaffold |
-| W5 — Visualizer | [w5-visualizer](w5-visualizer.md) | W1 (+W3 overlays) | founder review | scaffold |
+| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | draft |
+| W3 — Pattern analyzer | [w3-pattern-analyzer](w3-pattern-analyzer.md) | W1, W2 | S1–S5, W5, C3 | draft |
+| W4 — Diff tool | [w4-diff-tool](w4-diff-tool.md) | W1 | S2, P3, C2, L1 | draft |
+| W5 — Visualizer | [w5-visualizer](w5-visualizer.md) | W1 (+W3 overlays) | founder review | draft |
 | S1 — Event stream format | [s1-event-stream-format](s1-event-stream-format.md) | W3, W4 | P1, C1–C4, L1 | scaffold |
 | S2 — Score encoding | [s2-score-encoding](s2-score-encoding.md) | W3, W4 | P1 | scaffold |
 | S3 — Seed format | [s3-seed-format](s3-seed-format.md) | W3 + delta analysis | C1 | scaffold |
