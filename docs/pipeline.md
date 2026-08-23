@@ -32,11 +32,11 @@ Status column is updated by the docs-coherence sweep duty.
 
 | Task | What it is | Status |
 |---|---|---|
-| W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | **filed #123, available** |
-| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | todo |
+| W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | **done #123** (tools/muse_ir/, 13/13 conformance) |
+| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | **filed #125, available** |
 | W3 — Analyzer | Pattern detector over the IR: exact repeats, transposed repeats, sequences, mirror/retrograde candidates, ostinati. Outputs per-work statistics + pattern inventory. | todo |
-| W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | todo |
-| W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | todo |
+| W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | **filed #126, available** |
+| W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | **filed #127, available** |
 
 **Phase 0 done when:** the analyzer has run across all five works and produced
 a pattern-frequency report that drives Phase 1 language decisions.
