@@ -82,7 +82,7 @@ against S3 — the founder's ear gates quality. Design docs:
 
 | Task | What it is | Status |
 |---|---|---|
-| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | todo |
+| L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | **done #173** (tools/muse_mockup/) |
 | L2 — Performance renderer | Mockup → audio via sfizz + SFZ samples (SSO/VPO tier). The "worth listening to" bar. | todo |
 | L3 — Model comparison rig | Same score+seed, different LLMs → different mockups. Blind A/B listening. | todo |
 | L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | todo |
