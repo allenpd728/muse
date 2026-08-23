@@ -29,6 +29,21 @@ the interpretive delta, in numbers.
    mockup used ~1/5 of the human tempo envelope and lacked the one device
    (17ms spread) every human uses.
 
+## Era comparison (all four works)
+
+| Work (era) | Duration spread | Velocity spread | Chord spread |
+|---|---|---|---|
+| Mozart K.331 (Classical) | **75%** | 18% | 17ms |
+| Chopin op.10 no.3 (Romantic) | 36% | **145%** | 16ms |
+| Schubert D.783 (early Romantic) | 64% | 16% | 16ms |
+| Chopin Ballade op.38 (Romantic) | 31% | **195%** | 17ms |
+
+**The convention signature:** Classical-era freedom lives in *tempo*;
+Romantic-era freedom lives in *dynamics*; chord spread (~16–17ms melody-lead)
+is the universal constant across eras. Seed budgets are era-calibrated
+parameters, not global constants — exactly the producer-convention question,
+answered with data.
+
 ## Method notes
 
 - MIDI files converted tick→seconds honoring each file's tempo map
