@@ -58,6 +58,10 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
   `blockers/open_<datetime>_<slug>.md` per the workflow and move on.
 - **Tests:** completing a task means spec'ing its tests
   (`tests/open_<datetime>_<slug>.md` + linked `Tests:` issue).
+- **Documentation deliverable:** every code task ships a `README.md` in its
+  tool directory (usage, API, dependencies) and a test spec in `tests/`.
+  The doc is part of the Definition of Done — code without its doc is
+  incomplete.
 - **Docs coherence sweep:** at session start, check that README, AGENTS,
   FORMAT_SPEC, pipeline, and corpus README agree. A stale doc is a process
   failure on par with a stale claim.

@@ -45,6 +45,12 @@ Each issue contains:
 - **Context** — links to spec sections, prior art, or related tasks the agent needs
 - **Blocked by** — native GitHub issue-blocking relationships forming the lineage
 
+**Documentation deliverable.** Every code task produces a `.md` doc alongside
+its code: a README in the tool's directory (usage, API, dependencies) plus a
+test spec in `tests/`. The doc is part of the Definition of Done, not an
+afterthought. Design docs live in `docs/design/`; user-facing docs live with
+the code.
+
 The standing task list is [`docs/pipeline.md`](docs/pipeline.md) (W/S/P/C/L
 series). Issues are filed from that list, one per task; sub-tasks are
 decomposed from issues that prove too large, not pre-planned beyond the list.
