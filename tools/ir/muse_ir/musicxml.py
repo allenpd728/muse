@@ -14,6 +14,7 @@ W1 commit and docs/design/w1-event-ir.md.
 from __future__ import annotations
 
 import io
+import os
 import zipfile
 from math import gcd
 from xml.etree import ElementTree as ET
@@ -109,7 +110,9 @@ def _read_root(source, origin: str) -> ET.Element:
 def load_musicxml(source, origin: str = None) -> Work:
     """Parse a MusicXML score (.xml or .mxl) into a Work. Fails loudly."""
     if origin is None:
-        origin = getattr(source, "name", None) or str(source)
+        # Basename only: warnings ride into Work.meta and S1's canonical
+        # form, so they must not embed machine-local paths.
+        origin = os.path.basename(getattr(source, "name", None) or str(source))
     root = _read_root(source, origin)
     root_tag = _local(root.tag)
     if root_tag == "score-timewise":
