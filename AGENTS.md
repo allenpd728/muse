@@ -4,60 +4,78 @@ Context and conventions for AI agents (and humans) working in this repository.
 
 ## What this project is
 
-Muse is a **schema-first generative music platform**. A `.muse.json` file captures what makes a piece *this* piece (themes, motifs, form, harmony, constraints) and leaves open what a performer would decide (voicing, orchestration, microtiming, dynamics). Any capable model expands it into a performance; any conforming player renders it. The schema — not audio, not a prompt — is the canonical release artifact. See [`docs/vision.md`](docs/vision.md) for the full product thesis.
+Muse is an **executable music format**. A `.muse` file is a small,
+deterministic program: executed by a conforming player with rendition
+parameters and a seed, it computes a complete musical performance. The format
+spec — not audio, not a prompt, not a schema — is the product. See
+[`FORMAT_SPEC.md`](FORMAT_SPEC.md) for the design and [`docs/vision.md`](docs/vision.md)
+for the product thesis.
 
-Components, in dependency order:
+> **Pivot state: documents-only.** The earlier JSON-schema pipeline (validator,
+> importer, interpreter, player, explorer, benchmark) was removed in the pivot
+> and is recoverable from git history (`git log` prior to the
+> `pivot/executable-format` branch). [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md) is kept
+> as design history only — it is superseded, not normative.
 
-1. **Semantic schema** — spec lives in [`SCHEMA_SPEC.md`](SCHEMA_SPEC.md). Everything else conforms to it.
-2. **Performance layer** — concrete expressive event format (spec gap; to be authored).
-3. **Importer** — MIDI/MusicXML → `.muse.json` (not yet built).
-4. **Interpreter** — any LLM expands schema + rendition into the performance layer (not yet built).
-5. **Player** — V1 synthesis/samples, V2 optional audio-model plugins (not yet built).
-6. **Composer interface** — node-based editor; deferred in favor of the importer.
+Components (build order per [`docs/pivot-tasks.md`](docs/pivot-tasks.md)):
+
+1. **Format spec** — the language, execution model, container, conformance.
+2. **Reference decoder** — program + params + seed → event stream (T2).
+3. **Renderer** — event stream → audio, swappable tiers (T4).
+4. **AI compressor** — MIDI/MusicXML → program via compress → expand → diff (T5).
+5. **Player UI** — rendition/parameter steering (T6).
 
 ## Ground rules
 
-- **Schema-first.** Never bake musical decisions into the engine or UI that belong in the schema. If a behavior can't be expressed in the schema, extend the spec (with a version note), don't hard-code it.
-- **The schema is a space, not a score.** Prefer ranges, constraints, and transforms over fixed values. A document that pins everything down is a bug, not thoroughness.
-- **No artist lookalikes.** Rendition presets reference genres, eras, and production techniques only. Named-artist or voice-likeness targeting is prohibited unless an explicit license record is attached (see `metadata.license` in the spec).
-- **Provenance is mandatory.** Any AI-generated or AI-assisted content added to a schema document must be recorded in `metadata.provenance`.
-- **Engine-agnostic spec.** Spec changes must not privilege one rendering engine. Engine-specific knobs go in `extensions.<namespace>`.
+- **Format-first.** Never bake musical decisions into a decoder, renderer, or
+  UI that belong in the language. If a behavior can't be expressed in the
+  format, extend the spec (with a version note), don't hard-code it.
+- **Determinism is sacred.** Same program + params + seed → identical output
+  everywhere, forever. Any feature that threatens this (wall-clock, ambient
+  state, platform-dependent float behavior) is rejected at spec review.
+- **The decoder stays dumb.** Intelligence belongs in the compressor
+  (authoring) or in swappable renderer plugins — never required for decoding.
+- **No artist lookalikes.** Renditions reference styles, eras, and production
+  techniques only. Named-artist or voice-likeness targeting requires an
+  explicit license record in the manifest.
+- **Provenance is mandatory.** AI-generated or AI-assisted content is recorded
+  in the manifest's provenance — including compressor output.
+- **Spec before code.** No implementation task starts before its spec section
+  is stable enough to write acceptance criteria against.
 
 ## Conventions
 
-- **Branching:** `main` is the stable branch. All day-to-day work happens on `dev` — agents and contributors branch from and merge into `dev` by default. `dev` merges into `main` via PR at meaningful milestones. Never commit directly to `main`.
-- **Deploys:** the repo is linked to the Netlify site `muse-qa-58fd708e` as a **QA/design preview for the explorer only — never production**. Netlify is configured to build the `dev` branch only (dev branch deploy at `dev--muse-qa-58fd708e.netlify.app`), driven by `netlify.toml` (base `explorer/`). Rules: **never enable or trigger production builds** (no `main` builds, no "publish production deploy" action), **never add `netlify.toml` or a publishable build directory to `main`** outside the milestone-merge PR process, and **never change the site's branch/allow-list settings**. If a change to the deploy config seems needed, file a blocker instead — the free tier's build-minute budget is a human decision.
-- **Task coordination:** Work is claimed and tracked per [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — one task per GitHub issue, label-based states, commit directly to `dev`. Read it before picking up any task.
-- **Pipeline status:** [`docs/pipeline.md`](docs/pipeline.md) is the living map of what works end-to-end (composer → listener). Update its status table whenever your task changes a tool's state — the sweep duty is in TASK_WORKFLOW.md.
-- **Blockers:** If you can't start or finish a task, don't guess — write `blockers/open_<datetime>_<slug>.md` per the protocol in `TASK_WORKFLOW.md` and move on to other work.
-- **Tests:** Completing a task means also spec'ing its tests — `tests/open_<datetime>_<slug>.md` plus a linked `Tests:` issue, per the test-follow-up protocol in `TASK_WORKFLOW.md`. Code without a test spec is an incomplete task.
-- **Schema documents:** JSON, validated against the spec; files use the `.muse.json` extension (once examples/tooling land).
-- **Spec edits:** keep the changelog discipline — `muse_version` is semver; v0.x may break, v1+ additive only.
-- **Code style:** minimal comments; comment only non-obvious invariants or deliberate tradeoffs. Keep changes focused and small.
-- **Docs:** `PRIOR_ART_REVIEW.md` is the landscape review that motivated design decisions — read it before proposing pivots.
+- **Branching:** `main` is stable; day-to-day work branches from and merges
+  into `dev`. Never commit directly to `main`.
+- **Task coordination:** one task per GitHub issue, label-based states, per
+  [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md). Current task list:
+  [`docs/pivot-tasks.md`](docs/pivot-tasks.md).
+- **Blockers:** can't start or finish? Write
+  `blockers/open_<datetime>_<slug>.md` per TASK_WORKFLOW.md and move on.
+- **Tests:** completing a task means spec'ing its tests
+  (`tests/open_<datetime>_<slug>.md` + linked `Tests:` issue).
+- **Spec edits:** changelog discipline — `format_version` is semver; v0.x may
+  break, v1+ additive only.
+- **Docs:** `PRIOR_ART_REVIEW.md` covers the old schema-first landscape; the
+  executable-format prior-art appendix is task P1. Read both before proposing
+  pivots.
 
 ## Build / test
 
-> **Mid-pivot state.** The repo is transitioning from the JSON-schema pipeline to the executable-format design (see conversation notes; pivot spec pending). The old pipeline (schema/, tools/, interpreter/, player/, explorer/, benchmark/, examples/) was removed; only the symbolic parsers survive as the future compressor's input stage.
-
-- `npm test` — runs every `tests/*.test.mjs` suite via `node --test` (parser, IR, pitch-grammar, lockfile suites).
+Nothing to build — the repo currently contains documents only. CI returns with
+the first code task (T2). Update this section as tooling lands; do not leave
+it stale.
 
 ## Repository layout
 
 ```
-SCHEMA_SPEC.md        # normative spec (this is the source of truth)
-PRIOR_ART_REVIEW.md   # landscape research
+FORMAT_SPEC.md        # the executable-format spec (design draft — source of truth)
+README.md             # pivot overview + component map
+SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
+PRIOR_ART_REVIEW.md   # landscape research (schema-first era)
 TASK_WORKFLOW.md      # multi-agent task claiming/blocker protocol
-README.md             # vision + architecture overview
-docs/                 # vision, architecture, pipeline status, per-layer scope docs, demo audio
-blockers/             # open_/closed_ blocker reports needing human input
-tests/                # test suites + open_/closed_ test specs per completed task
-examples/             # hand-authored reference .muse.json (minimal, full)
-schema/               # JSON Schema validation files (one per spec section + performance)
-tools/                # validate/test/semantics/refs CLIs + play.mjs (schema→audio)
-importer/             # MIDI/MusicXML → IR → .muse.json (cli, parsers, synthesize, fixtures)
-interpreter/          # expand.mjs (LLM harness + adapters) + offline.mjs (no-key reference)
-player/               # render.mjs — performance document → WAV (V1 synthesis)
-explorer/             # Vite+React static app: read-only browser, composer (node editor), listener (playback + A/B + WAV)
-benchmark/            # corpus/ (10 public-domain imports) + metrics.mjs conformance scoring
+docs/vision.md        # product thesis
+docs/pivot-tasks.md   # build order + task list (T0–T6, P1)
+blockers/             # open_/closed_ blocker reports
+tests/                # open_/closed_ test specs (process history; no suites yet)
 ```

@@ -1,5 +1,13 @@
 # Muse Schema Specification — v0 (Draft)
 
+> **SUPERSEDED — design history only.** The project pivoted from a JSON schema
+> to an executable format. The normative design now lives in
+> [FORMAT_SPEC.md](FORMAT_SPEC.md). This document is kept because its ideas
+> survive in the new design: the transform grammar became language operators,
+> `constraints` became assertions, `renditions` became parameter bundles, the
+> performance layer became the decoder's event stream, and the
+> license/provenance model became the container manifest.
+
 **Status:** Draft. Normative language and validation rules will tighten in later versions.
 **Goal:** Define a JSON-native document that captures a musical composition as a *space of valid renditions* rather than a single fixed performance — the difference between a score and a score plus its orchestration rules.
 
