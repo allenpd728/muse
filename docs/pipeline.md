@@ -47,7 +47,7 @@ a pattern-frequency report that drives Phase 1 language decisions.
 |---|---|---|
 | S1 — Event stream format | The decoder↔renderer contract: binary layout, tick resolution, dynamics curves. | **filed #137, available** |
 | S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | todo |
-| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **filed #139, available** |
+| S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **decomposed #139 → S3.1–S3.6 (#142–#147)** |
 | S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | **filed #140, available** |
 | S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **filed #141, available** |
 
