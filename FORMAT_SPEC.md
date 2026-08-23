@@ -19,6 +19,11 @@ The metaphor: the `.mu` file is the improved piano roll — re-punched with
 modern musical knowledge so the existing player piano produces a better
 performance. Technology advancing hardware by changing the software.
 
+The thesis is **lossless structure + released intelligence**: compression
+finds structure (the analyzer proves it's there), expansion is lossless math
+(the decoder is dumb), and what gets spent at session time is the
+interpretation — compressed into the seed, not destroyed by entropy coding.
+
 ## 1. The three components
 
 | | **Score** | **Prompt** | **Manifest** |

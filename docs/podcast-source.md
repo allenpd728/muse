@@ -6,6 +6,10 @@ Technology advancing hardware by changing only the software.
 
 ## The three components
 
+The whole thesis in one sentence: **compression finds structure (W3),
+expansion is lossless math (P-series), and the released intelligence is
+interpretation (L-series).**
+
 Every `.mu` file carries three things:
 
 | Component | What it is | Analogy |
