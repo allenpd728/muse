@@ -1,0 +1,77 @@
+{
+  "_comment": "Mockup v2 — BWV 227.1 first phrase. Adds the per-note expression layer: every soprano note sculpted (onset, duration, attack, release, swell curve); inner voices get legato overlap + gentler curves. Seed v2 adds expression budgets (the permission layer).",
+  "seed": {
+    "tempo_range": [56, 78],
+    "philosophy": "Sing the chorale. Breathe at phrase ends. Soprano leads; inner voices breathe with it. E minor — dark, inward. Shape to the half cadence (m.5) and the full arrival (m.9).",
+    "expression_budget": {
+      "onset_offset_ticks": 40,
+      "duration_scale": [0.85, 1.20],
+      "velocity_range": [35, 100],
+      "swell_depth": [0.0, 0.5],
+      "legato_overlap_ms": [0, 120]
+    },
+    "assertions": ["all score notes present, order preserved", "no added pitches", "onset offsets stay within budget"]
+  },
+  "tempo_map": [
+    {"division": 0,  "bpm": 72},
+    {"division": 12, "bpm": 70},
+    {"division": 16, "bpm": 66},
+    {"division": 20, "bpm": 72},
+    {"division": 28, "bpm": 69},
+    {"division": 34, "bpm": 62},
+    {"division": 36, "bpm": 56}
+  ],
+  "dynamics": [
+    {"division": 0,  "level": 0.55},
+    {"division": 6,  "level": 0.62},
+    {"division": 12, "level": 0.66},
+    {"division": 16, "level": 0.58},
+    {"division": 20, "level": 0.60},
+    {"division": 30, "level": 0.72},
+    {"division": 34, "level": 0.60},
+    {"division": 36, "level": 0.50}
+  ],
+  "balance": [
+    {"part": "soprano", "gain": 1.00},
+    {"part": "alto",    "gain": 0.82},
+    {"part": "tenor",   "gain": 0.80},
+    {"part": "bass",    "gain": 0.88}
+  ],
+  "notes": {
+    "soprano": [
+      {"i": 0,  "velocity": 62, "onset_offset_ticks": 0,   "attack_sec": 0.09, "release_sec": 0.30, "swell": [[0,0.85],[0.6,1.0],[1,0.9]],  "note": "first downbeat — settle in, don't jab"},
+      {"i": 1,  "velocity": 64, "legato_overlap_ms": 40,   "attack_sec": 0.07, "swell": [[0,0.9],[0.5,1.0],[1,0.95]]},
+      {"i": 2,  "velocity": 66, "legato_overlap_ms": 40,   "attack_sec": 0.06, "swell": [[0,0.9],[0.5,1.0],[1,0.95]]},
+      {"i": 3,  "velocity": 68, "legato_overlap_ms": 40,   "attack_sec": 0.06, "swell": [[0,0.9],[0.5,1.0],[1,0.95]]},
+      {"i": 4,  "velocity": 66, "onset_offset_ticks": 10,  "duration_scale": 1.08, "attack_sec": 0.09, "release_sec": 0.42, "swell": [[0,0.9],[0.4,1.0],[1,0.7]], "note": "F# — the first arrival; lean, then breathe away"},
+      {"i": 5,  "velocity": 58, "onset_offset_ticks": 30,  "duration_scale": 1.10, "attack_sec": 0.12, "release_sec": 0.50, "swell": [[0,0.7],[0.3,0.9],[1,0.5]], "note": "E — phrase end; late, soft, released"},
+      {"i": 6,  "velocity": 62, "onset_offset_ticks": 0,   "attack_sec": 0.08, "swell": [[0,0.85],[0.6,1.0],[1,0.9]],  "note": "answering phrase — pick the energy back up"},
+      {"i": 7,  "velocity": 65, "legato_overlap_ms": 40,   "attack_sec": 0.06},
+      {"i": 8,  "velocity": 68, "legato_overlap_ms": 40,   "attack_sec": 0.06},
+      {"i": 9,  "velocity": 70, "onset_offset_ticks": -8,  "attack_sec": 0.05, "swell": [[0,0.95],[0.5,1.0],[1,0.95]], "note": "D5 — slight anticipation, the phrase peak approaches"},
+      {"i": 10, "velocity": 66, "duration_scale": 1.06,    "attack_sec": 0.09, "release_sec": 0.40, "swell": [[0,0.9],[0.4,1.0],[1,0.65]]},
+      {"i": 11, "velocity": 60, "onset_offset_ticks": 24,  "duration_scale": 1.08, "attack_sec": 0.11, "release_sec": 0.48, "swell": [[0,0.7],[0.3,0.85],[1,0.5]]},
+      {"i": 12, "velocity": 63, "attack_sec": 0.07},
+      {"i": 13, "velocity": 64, "legato_overlap_ms": 30,   "attack_sec": 0.06},
+      {"i": 14, "velocity": 66, "legato_overlap_ms": 30,   "attack_sec": 0.06},
+      {"i": 15, "velocity": 68, "onset_offset_ticks": -6,  "attack_sec": 0.05, "note": "drive into the climb"},
+      {"i": 16, "velocity": 72, "legato_overlap_ms": 50,   "attack_sec": 0.05, "swell": [[0,0.9],[0.6,1.0],[1,0.95]]},
+      {"i": 17, "velocity": 74, "legato_overlap_ms": 50,   "attack_sec": 0.05, "note": "G5 region — fullest voice"},
+      {"i": 18, "velocity": 70, "legato_overlap_ms": 40,   "attack_sec": 0.07, "swell": [[0,0.9],[0.4,1.0],[1,0.75]]},
+      {"i": 19, "velocity": 66, "legato_overlap_ms": 40,   "attack_sec": 0.08},
+      {"i": 20, "velocity": 63, "legato_overlap_ms": 40,   "attack_sec": 0.08},
+      {"i": 21, "velocity": 60, "onset_offset_ticks": 12,  "attack_sec": 0.09, "swell": [[0,0.85],[0.5,1.0],[1,0.8]]},
+      {"i": 22, "velocity": 58, "legato_overlap_ms": 30,   "attack_sec": 0.09},
+      {"i": 23, "velocity": 56, "onset_offset_ticks": 20,  "attack_sec": 0.11, "swell": [[0,0.75],[0.4,0.9],[1,0.6]], "note": "the descent — pull back, the close is coming"},
+      {"i": 24, "velocity": 54, "legato_overlap_ms": 30,   "attack_sec": 0.11},
+      {"i": 25, "velocity": 52, "onset_offset_ticks": 25,  "attack_sec": 0.12, "swell": [[0,0.7],[0.4,0.85],[1,0.55]]},
+      {"i": 26, "velocity": 50, "onset_offset_ticks": 35,  "attack_sec": 0.13, "release_sec": 0.55, "swell": [[0,0.65],[0.3,0.8],[1,0.45]], "note": "penultimate — nearly still"},
+      {"i": 27, "velocity": 48, "onset_offset_ticks": 45,  "duration_scale": 1.18, "attack_sec": 0.15, "release_sec": 0.70, "swell": [[0,0.6],[0.25,0.8],[1,0.35]], "note": "final E — very late, long, released into silence"}
+    ],
+    "inner_voices": {
+      "legato_overlap_ms": 60,
+      "swell": [[0,0.9],[0.5,1.0],[1,0.9]],
+      "note": "alto/tenor/bass: gentle legato, mild swells, follow the soprano's breathing (jitter handled at render)"
+    }
+  }
+}

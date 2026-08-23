@@ -31,9 +31,9 @@ Each issue contains:
 - **Context** — links to spec sections, prior art, or related tasks the agent needs
 - **Blocked by** — native GitHub issue-blocking relationships forming the lineage
 
-The standing task list is [`docs/pivot-tasks.md`](docs/pivot-tasks.md) (T0–T6,
-P1). Issues are filed from that list, one per task; sub-tasks are decomposed
-from issues that prove too large, not pre-planned beyond the list.
+The standing task list is [`docs/pipeline.md`](docs/pipeline.md) (W/S/P/C/L
+series). Issues are filed from that list, one per task; sub-tasks are
+decomposed from issues that prove too large, not pre-planned beyond the list.
 
 Sizing rule: one task = completable in one agent run (well under an hour of work).
 If a task can't be done in one run, it gets decomposed further before becoming
@@ -58,11 +58,11 @@ identical for all three; only the "done" action differs.
    `status:claimed`, restore the prior label (`status:available` for tasks/tests,
    `status:blocked-needs-input` for blockers), and comment that the work was
    reclaimed (audit trail).
-1b. **Docs coherence sweep.** While the repo is documents-only, check that
-   `README.md`, `AGENTS.md`, and `FORMAT_SPEC.md` agree with each other and
-   with [`docs/pivot-tasks.md`](docs/pivot-tasks.md): if a recently-closed
-   task changed the design or the task list, the sibling docs must reflect it
-   in the same session — a stale doc is a process failure on par with a stale
+1b. **Docs coherence sweep.** Check that `README.md`, `AGENTS.md`,
+   `FORMAT_SPEC.md`, [`docs/pipeline.md`](docs/pipeline.md), and
+   `corpus/README.md` agree with each other: if a recently-closed task changed
+   the design, the plan, or the task list, the sibling docs must reflect it in
+   the same session — a stale doc is a process failure on par with a stale
    claim. If something is wrong and no task covers fixing it, file the task.
 2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
@@ -70,12 +70,16 @@ identical for all three; only the "done" action differs.
 3. **When no task is available, fall through in priority order:**
    - **(a) Open `Tests:` issues.** Claim and complete them one at a time, lowest
      issue number first — writing the tests their spec calls for.
-   - **(b) Open blockers.** If no `Tests:` issues remain, work through
+   - **(b) Open PRs with unaddressed review comments.** Fetch review comments
+     via the API, address each one (fix + push to the PR branch), reply to
+     every thread with the fixing commit, mark threads resolved. The PR is the
+     review surface; unaddressed comments are open work.
+   - **(c) Open blockers.** If no `Tests:` issues remain, work through
      `status:blocked-needs-input` issues one at a time: attempt to resolve the
      blocker (the spec may have been amended since it was filed), and if
      resolvable, close the blocker and return the task to `status:available`.
-   - Only when tasks, `Tests:` issues, and blockers are all exhausted is the
-     queue empty and the session done.
+   - Only when tasks, `Tests:` issues, PR comments, and blockers are all
+     exhausted is the queue empty and the session done.
 4. **Attempt the claim.** Whatever the work item: swap its current label to
    `status:claimed` (from `status:available` for tasks/tests, from
    `status:blocked-needs-input` for blockers), self-assign, and post a claim
