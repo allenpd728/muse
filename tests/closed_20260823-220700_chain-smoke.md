@@ -1,9 +1,15 @@
-# Test spec — chain smoke (#169)
+# Test spec — chain smoke (#169) — CLOSED
 
 Written by the completing agent per TASK_WORKFLOW step 6. The chain smoke
 test is the fast-tier integration gate: `tools/muse_chain/test_chain_smoke.py`
 (4 tests, ~0.3s) — three small-registry works green through
 parse→pack→container→decode with W4 verify PASS, plus determinism.
+
+**Resolution (Tests: #172, 2026-08-23):** all three gaps closed —
+`tools/muse_chain/test_smoke_gaps.py` (4 tests): registry scope pinned
+(Bach mvt 1 + Byrd Kyrie/Gloria), smoke-registry-is-fast timebox (<30s for
+two determinism runs), failure-injection drill (single named FAIL stage),
+runner hookup (--list shows chain_smoke + slow tier heading).
 
 ## Landed coverage
 
