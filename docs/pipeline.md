@@ -139,6 +139,7 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 | T4 — Seam S1→P1 | golden vectors feed P1 decoder when it lands | **done as stub contract** ([#168](https://github.com/allenpd728/muse/issues/168), DECODER swap pin); full verification awaits P1 |
 | T5 — Chain test | full pipeline per corpus file via #162 + P1 | **done** ([#169](https://github.com/allenpd728/muse/issues/169), chain-report full registry) |
 | Frontend QA tiers | T1 static contract (done #164); T2 headless DOM (Playwright); T3 live deploy smoke | T2 filed [#183](https://github.com/allenpd728/muse/issues/183), T3 filed [#184](https://github.com/allenpd728/muse/issues/184) |
+| Seed workbench | explorer grown into the seed-iteration instrument panel: probes (W-B1), quality-check gate (W-B2), workbench page (W-B3), loop docs (W-B4) | [design](design/seed-workbench.md); W-B1 filed [#185](https://github.com/allenpd728/muse/issues/185), W-B2 [#186](https://github.com/allenpd728/muse/issues/186), W-B3 [#187](https://github.com/allenpd728/muse/issues/187), W-B4 [#188](https://github.com/allenpd728/muse/issues/188) |
 
 ## Explicitly not (yet)
 
