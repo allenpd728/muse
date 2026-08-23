@@ -70,6 +70,16 @@ not the model; build the prompt design and the loop.**
 - **C workbench + L harness** — the proprietary products.
 - **E event** — the staged unveiling.
 
+## runtime dependencies (landed)
+
+| What | Used by | Version |
+|---|---|---|
+| **mido** | tools/ir (MIDI path) | any |
+| **matplotlib** | tools/muse_viz | any |
+| **pyyaml** | tools/muse_seed | any |
+
+Install: `pip install mido matplotlib pyyaml` (plus `pytest` for tests).
+
 ## not used (deliberately)
 
 - ACCompanion, VirtuosoNet — too model-dependent; we build the harness.
