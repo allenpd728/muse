@@ -70,12 +70,16 @@ identical for all three; only the "done" action differs.
 3. **When no task is available, fall through in priority order:**
    - **(a) Open `Tests:` issues.** Claim and complete them one at a time, lowest
      issue number first — writing the tests their spec calls for.
-   - **(b) Open blockers.** If no `Tests:` issues remain, work through
+   - **(b) Open PRs with unaddressed review comments.** Fetch review comments
+     via the API, address each one (fix + push to the PR branch), reply to
+     every thread with the fixing commit, mark threads resolved. The PR is the
+     review surface; unaddressed comments are open work.
+   - **(c) Open blockers.** If no `Tests:` issues remain, work through
      `status:blocked-needs-input` issues one at a time: attempt to resolve the
      blocker (the spec may have been amended since it was filed), and if
      resolvable, close the blocker and return the task to `status:available`.
-   - Only when tasks, `Tests:` issues, and blockers are all exhausted is the
-     queue empty and the session done.
+   - Only when tasks, `Tests:` issues, PR comments, and blockers are all
+     exhausted is the queue empty and the session done.
 4. **Attempt the claim.** Whatever the work item: swap its current label to
    `status:claimed` (from `status:available` for tasks/tests, from
    `status:blocked-needs-input` for blockers), self-assign, and post a claim
