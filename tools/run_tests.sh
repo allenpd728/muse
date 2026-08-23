@@ -32,8 +32,11 @@ SUITES=(
 )
 # Chain smoke (fast tier): e2e on the small registry, W4 verify PASS.
 SUITES+=("chain_smoke:muse_chain/test_chain_smoke.py")
+# Explorer (fast tier): artifact contract + determinism (quick mode).
+SUITES+=("muse_explorer:muse_explorer/tests")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
+  "muse_chain:muse_chain"
 )
 
 MODE=fast
