@@ -1,0 +1,42 @@
+{
+  "_comment": "Mockup v1 — BWV 227.1 'Jesu, meine Freude', first phrase (9 measures, E minor). LLM session work: hand-authored interpretive layer over the score. divisions=2 per quarter; PPQ for MIDI export = 480, so 1 division = 240 ticks.",
+  "seed": {
+    "tempo_range": [60, 80],
+    "philosophy": "Sing the chorale. Breathe at phrase ends. The soprano leads; inner voices support. E minor — dark, inward. Shape toward the half cadence at m.5 and the authentic arrival at m.9.",
+    "assertions": ["all score notes present, order preserved", "no added pitches"]
+  },
+  "tempo_map": [
+    {"division": 0,  "bpm": 72, "note": "opening — settled, not hurried"},
+    {"division": 12, "bpm": 70, "note": "m.4 — ease slightly into the descent to E"},
+    {"division": 16, "bpm": 66, "note": "m.5 — half cadence (B): arrive, hold the breath"},
+    {"division": 20, "bpm": 72, "note": "m.6 — resume; the answering phrase begins"},
+    {"division": 28, "bpm": 69, "note": "m.8 — begin the ritardando toward the close"},
+    {"division": 34, "bpm": 62, "note": "m.9 — the cadence opens up"},
+    {"division": 36, "bpm": 56, "note": "final chord — fermata-like breadth"}
+  ],
+  "dynamics": [
+    {"division": 0,  "level": 0.55, "part": null, "note": "mp — a consort, not a choir of hundreds"},
+    {"division": 6,  "level": 0.62, "part": null, "note": "grow through the ascending line"},
+    {"division": 12, "level": 0.66, "part": null, "note": "phrase peak around the D5"},
+    {"division": 16, "level": 0.58, "part": null, "note": "relax onto the half cadence"},
+    {"division": 20, "level": 0.60, "part": null, "note": "second phrase — slightly brighter"},
+    {"division": 30, "level": 0.70, "part": null, "note": "the climb to G5 — fullest sound"},
+    {"division": 34, "level": 0.60, "part": null, "note": "release into the final cadence"},
+    {"division": 36, "level": 0.50, "part": null, "note": "final chord — let it die away"}
+  ],
+  "balance": [
+    {"part": "soprano", "gain": 1.00},
+    {"part": "alto",    "gain": 0.82},
+    {"part": "tenor",   "gain": 0.80},
+    {"part": "bass",    "gain": 0.88}
+  ],
+  "humanize": {
+    "onset_jitter_ticks": 8,
+    "note": "tiny ensemble spread — voices do not attack as one machine; sop/alto slightly after beat 1 of each measure",
+    "phrase_end_rallentando_extra": 0.15
+  },
+  "articulation": {
+    "default": "legato",
+    "phrase_final_notes": {"duration_scale": 1.1, "note": "cadence notes lengthened — the choir holds the vowel"}
+  }
+}
