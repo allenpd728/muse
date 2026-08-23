@@ -2,6 +2,10 @@
 
 **Phase 0 — Analysis workbench. Status: scaffold.**
 
+Evidence base: [../literature-review-w1.md](../literature-review-w1.md) §1
+(reference model adopts Partitura-style note arrays + full maps; token
+schemes are downstream exports, not the IR).
+
 ## Purpose
 
 Canonical in-memory event format that every tool in the repo shares: notes

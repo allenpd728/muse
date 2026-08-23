@@ -2,6 +2,10 @@
 
 **Phase 1 — Format spec. Status: scaffold.**
 
+Evidence base: [../literature-review-w1.md](../literature-review-w1.md) §2
+(packing runs on the W1 IR, not on a MIDI/token dump; Octuple-style column
+merging is token-shape precedent, not a packing dependency).
+
 ## Purpose
 
 How the fixed score is packed: columnar, delta-encoded onsets, dictionary-
