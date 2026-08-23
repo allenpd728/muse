@@ -138,6 +138,7 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 | T3 — Unified test runner | one command for all suites; fast/slow split; substrate for #163 | **done** ([#167](https://github.com/allenpd728/muse/issues/167), tools/run_tests.sh) |
 | T4 — Seam S1→P1 | golden vectors feed P1 decoder when it lands | **done as stub contract** ([#168](https://github.com/allenpd728/muse/issues/168), DECODER swap pin); full verification awaits P1 |
 | T5 — Chain test | full pipeline per corpus file via #162 + P1 | **done** ([#169](https://github.com/allenpd728/muse/issues/169), chain-report full registry) |
+| Frontend QA tiers | T1 static contract (done #164); T2 headless DOM (Playwright); T3 live deploy smoke | T2 filed [#183](https://github.com/allenpd728/muse/issues/183), T3 filed [#184](https://github.com/allenpd728/muse/issues/184) |
 
 ## Explicitly not (yet)
 
