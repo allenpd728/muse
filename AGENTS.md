@@ -17,8 +17,8 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 [corpus/README.md](corpus/README.md) for the reference works.
 
 > **Development stage: private repo, tools-first.** Nothing is published yet.
-> Spec and reference player go public at launch; compressor and LLM player
-> stay proprietary.
+> Spec and reference player go public at launch; the **seed workbench
+> (C-series) and LLM player (L-series)** stay proprietary.
 
 ## Ground rules
 
@@ -75,6 +75,7 @@ TASK_WORKFLOW.md      # multi-agent claim/work/block protocol
 docs/pipeline.md      # build plan + live status (W/S/P/C/L/E series)
 docs/vision.md        # product thesis (2026-08-23 revision)
 docs/design/          # design-doc scaffolds + dependency index (24 tasks)
+docs/literature-review-w1.md  # pre-W1 lit review (IR, compression, patterns)
 corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
