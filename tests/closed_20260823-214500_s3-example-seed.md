@@ -1,7 +1,15 @@
-# Test spec — S3.6 example seed
+# Test spec — S3.6 example seed — CLOSED
 
 **Task:** #147 (S3.6 — Example seed)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #159, 2026-08-23):** landed as
+`tools/muse_seed/test_example_seed.py` — 10 tests covering both spec
+sections: seed validity (loads, validate_seed passes, AI disclosure
+present, philosophy block valid) and self-validation (own assertions pass
+against the source work, register pin P4 F2..C4 within C2..C4, tempo
+bounds pin, sanctioned tempo range covers the notated 96 bpm), plus
+YAML/JSON round-trips. Package: 125 passed, 1 skipped.
 
 ## What to verify
 
