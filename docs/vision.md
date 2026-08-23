@@ -1,5 +1,12 @@
 # Muse — Product Vision
 
+> **Pivot note.** The thesis below stands — the seed/tree metaphor, lossy by
+> design, own the format not the models, the benchmark corpus, the Ninth as
+> capstone. The **Components** section is superseded: the schema/performance/
+> importer/interpreter/player split became the executable-format design in
+> [../FORMAT_SPEC.md](../FORMAT_SPEC.md) (spec → decoder → renderer →
+> compressor → UI; tasks in [pivot-tasks.md](pivot-tasks.md)).
+
 ## The idea
 
 A Muse file is to a recording what a seed is to a tree, what a score is to a
