@@ -44,7 +44,7 @@ Components, in dependency order:
 - `npm run expand` / `npm run render` / `npm run play` — interpreter harness, player CLI, and the end-to-end demo (schema → expansion → WAV).
 - Benchmark conformance: `node benchmark/metrics.mjs <schema.muse.json> <performance.json>` — motif recall, structure fidelity, tempo-shape conformance, harmonic fidelity.
 
-CI runs `npm ci && npm test && npm --prefix explorer ci && npm run test:explorer` on push to `dev` and PRs (`.github/workflows/ci.yml`).
+**CI = Netlify build gate.** The site build command (top of `netlify.toml`) runs `npm ci && npm test && npm --prefix explorer ci && npm run test:explorer` before the explorer build; a failing test fails the build and blocks the `dev--` QA deploy. The gate applies to pushes to `dev` (the only allowed branch). The `.github/workflows/ci.yml` definition remains in the repo but cannot run while the account billing lock stands (#42); swap routes back if billing is resolved.
 
 ## Repository layout
 
