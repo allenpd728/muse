@@ -1,7 +1,15 @@
-# Test spec — C2 AI-assisted authoring
+# Test spec — C2 AI-assisted authoring — CLOSED
 
 **Task:** #153 (C2 — AI-assisted authoring)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #160, 2026-08-23):** landed as
+`tools/muse_author/test_author.py` — 9 tests covering all three spec
+sections: proposal (required schema keys, determinism, S3.3 philosophy
+format with lists + provenance, schema validation of the proposal itself,
+classical default era, register derived from the work), end-to-end loop
+(Bach and Byrd proposals validate exit 0 through the C1 validator),
+failure paths (missing work fails loudly).
 
 ## What to verify
 
