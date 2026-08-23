@@ -1,9 +1,10 @@
 # Netlify — QA/preview only, never production.
-# Publishes docs/spike/ as a static listener page. No build step.
-# The site (muse-qa-58fd708e) builds the dev branch per repo convention.
+# Publishes docs/ (spike listener + corpus explorer) as static pages.
+# No build step. The site (muse-qa-58fd708e) builds the dev branch per
+# repo convention. Explorer: /explorer/ · Spike listener: /spike/
 
 [build]
-  base = "docs/spike"
+  base = "docs"
   publish = "."
 
 [[headers]]

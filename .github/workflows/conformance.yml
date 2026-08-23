@@ -1,0 +1,36 @@
+name: conformance
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install runtime deps
+        run: pip install mido matplotlib pyyaml pytest
+      - name: Conformance gate (~2.5 min)
+        run: |
+          set -e
+          export MUSE_SKIP_SLOW=1
+          ./tools/run_tests.sh                    # 12 suites aggregate exit code
+
+  slow-beethoven9:
+    runs-on: ubuntu-latest
+    continue-on-error: true          # allow-fail until W6 compute budget lands
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install runtime deps
+        run: pip install mido matplotlib pyyaml pytest
+      - name: Slow conformance (Beethoven 9, ~30–35s)
+        run: |
+          ./tools/run_tests.sh --full                # 13 suites incl. B9 (allow-fail)

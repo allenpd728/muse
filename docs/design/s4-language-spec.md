@@ -1,6 +1,6 @@
 # S4 — Language spec (design doc, scaffold)
 
-**Phase 1 — Format spec. Status: scaffold.**
+**Phase 1 — Format spec. Status: implemented (dev, issue #140).**
 
 ## Purpose
 
@@ -29,3 +29,20 @@ a general operator set or a leaner one is a W3 evidence question
 
 - Spec section written; hand-written example programs exercise each shipped
   construct.
+
+## Event log (implementation, 2026-08-23)
+
+- Spec landed as FORMAT_SPEC §5.1. Operator set decided by W3's
+  full-corpus report (docs/analysis-report.md): three classes recur in all
+  13 corpus files — exact, transposed, ostinato — and ship as
+  `ptn_exact` / `ptn_transposed` / `ptn_ostinato`. Invert, retrograde, and
+  imitative have zero corpus evidence and are deferred (a construct
+  without corpus evidence doesn't ship).
+- Program shape: flat list of `{op, region, part?, interval?}` entries,
+  half-open tick regions, no nesting. `interval` is a signed string
+  (`+2`, `-5`) — sign mandatory.
+- Validator: `tools/muse_ops/` (grammar + optional work-bounds check).
+  Semantics explicitly out of scope — P1's decoder owns evaluation.
+- Hand-written example programs: Bach chorale (three ops), Byrd imitation
+  modeled as transposed repeats, Schubert ostinato layer — all in
+  `tools/muse_ops/test_ops.py`.

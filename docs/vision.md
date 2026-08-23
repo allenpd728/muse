@@ -11,6 +11,10 @@ crude one: the same work, better encoded, so the existing machine produces a
 better performance. Technology advancing hardware by changing only the
 software.
 
+The whole thesis in one sentence — **compression finds structure (W3),
+expansion is lossless math (P-series), and the released intelligence is
+interpretation (L-series).**
+
 MusicXML is the existing roll — the full score, verbose, uncompressed. Muse
 packages and adapts it into `.mu`: a portable container holding **three
 components**:

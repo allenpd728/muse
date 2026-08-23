@@ -1,6 +1,7 @@
-# C4 — Assertion authoring (design doc, scaffold)
+# C4 — Assertion authoring (design doc)
 
-**Phase 3 — Seed authoring. Status: scaffold.**
+**Phase 3 — Seed authoring. Status: implemented (2026-08-23, #182 →
+[tools/assertions](../../tools/assertions/)).**
 
 ## Purpose
 
