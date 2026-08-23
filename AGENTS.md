@@ -48,8 +48,12 @@ Components (build order per [`docs/pivot-tasks.md`](docs/pivot-tasks.md)):
 - **Branching:** `main` is stable; day-to-day work branches from and merges
   into `dev`. Never commit directly to `main`.
 - **Task coordination:** one task per GitHub issue, label-based states, per
-  [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md). Current task list:
-  [`docs/pivot-tasks.md`](docs/pivot-tasks.md).
+  [`TASK_WORKFLOW.md`](TASK_WORKFLOW.md) — the multi-agent claim/work/block
+  process is unchanged by the pivot and remains the way all work lands.
+  The standing task list is [`docs/pivot-tasks.md`](docs/pivot-tasks.md);
+  issues are filed from it. While the repo is documents-only, the workflow's
+  pipeline sweep is a **docs-coherence sweep** (keep README/AGENTS/FORMAT_SPEC/
+  pivot-tasks in agreement).
 - **Blockers:** can't start or finish? Write
   `blockers/open_<datetime>_<slug>.md` per TASK_WORKFLOW.md and move on.
 - **Tests:** completing a task means spec'ing its tests
