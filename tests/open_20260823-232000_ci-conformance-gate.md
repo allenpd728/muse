@@ -6,10 +6,12 @@
 ## What to verify
 
 1. **Gate command**
-   - `MUSE_SKIP_SLOW=1 python3 -m pytest tools/…` on all suites: i/r/ir,
-     corpus_loader, muse_diff, muse_analyze, muse_viz, muse_seed,
-     muse_assert, muse_author, muse_seed_cli, muse_ops, s1_stream, muse_mu
-   - Slow profile: muse_analyze (full) for Beethoven 9 budget, allow-fail
+   - `./tools/run_tests.sh` on all suites: ir, corpus_loader, muse_diff,
+     muse_ops, muse_unpack, muse_assert, muse_seed, muse_seed_cli,
+     muse_author, s1_stream, muse_viz, muse_roll, chain_smoke, muse_explorer
+     (12 fast, exit 0)
+   - `./tools/run_tests.sh --full` adds muse_analyze (13 incl. Beethoven 9,
+     allow-fail)
 
 2. **Schema**
    - yaml parses (.yml syntax)
@@ -20,5 +22,6 @@
 ## How to run locally
 
 ```bash
-MUSE_SKIP_SLOW=1 python3 -m pytest tools/…   # matches CI behavior
+./tools/run_tests.sh          # fast tier (exit 0 = CI pass)
+./tools/run_tests.sh --full   # 13 suites incl. B9 (allow-fail)
 ```
