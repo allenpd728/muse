@@ -33,7 +33,7 @@ Status column is updated by the docs-coherence sweep duty.
 | Task | What it is | Status |
 |---|---|---|
 | W1 — Event-stream IR | Canonical in-memory event format all tools share: notes (pitch/onset/duration/velocity), tempo map, meter, key, dynamics, parts. Parsers: MusicXML in, MIDI in. | **done** (#123 + review follow-up #128 → [tools/ir](../tools/ir/)) |
-| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | **claimed #125** (sibling: tools/ir/ + tests, 58 green) |
+| W2 — Corpus loader | Loads every [corpus/](../corpus/) file into the IR. Known-answer tests: note counts, part counts per source README. | **done (#125)** |
 | W3 — Analyzer | Pattern detector over the IR: exact repeats, transposed repeats, sequences, mirror/retrograde candidates, ostinati. Outputs per-work statistics + pattern inventory. | todo |
 | W4 — Diff tool | Event stream ↔ event stream: recall/precision in tick space. The ground truth for every compression claim. | **done #126** (tools/muse_diff/) |
 | W5 — Visualizer | Piano-roll plots with pattern overlays. Human evaluation aid — the founder reviews what the analyzer claims. | **filed #127, available** |

@@ -36,8 +36,8 @@ approved drafts.
 
 | Task | Doc | Upstream (needs) | Downstream (feeds) | Maturity |
 |---|---|---|---|---|
-| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | draft |
-| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | draft |
+| W1 — Event-stream IR | [w1-event-ir](w1-event-ir.md) | — (corpus sources) | W2, W3, W4, W5 | done (#123/#128) |
+| W2 — Corpus loader | [w2-corpus-loader](w2-corpus-loader.md) | W1 | W3, W5 | done (#125) |
 | W3 — Pattern analyzer | [w3-pattern-analyzer](w3-pattern-analyzer.md) | W1, W2 | S1–S5, W5, C3 | draft |
 | W4 — Diff tool | [w4-diff-tool](w4-diff-tool.md) | W1 | S2, P3, C2, L1 | draft |
 | W5 — Visualizer | [w5-visualizer](w5-visualizer.md) | W1 (+W3 overlays) | founder review | draft |
