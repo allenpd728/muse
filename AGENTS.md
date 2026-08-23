@@ -71,20 +71,22 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 
 ## Build / test
 
-Phase 0 tooling has begun landing. Python 3.11+.
+One command runs the whole repo (issue #167):
 
-- **tools/ir (W1, landed):** `pip install -r tools/ir/requirements.txt`, then
-  `cd tools/ir && python -m pytest`. 58 tests, ~11 s (parses Beethoven 9).
-- **tools/corpus_loader (W2, landed):** `python3 tools/corpus_loader/muse_corpus.py
-  <list|load|check|update-pins>`; `check` is the corpus known-answer gate
-  (exit 0/1).
-- **tools/muse_diff (W4, landed):** `python3 tools/muse_diff/cli.py <a> <b>
-  [--self-test]` exit 0 when identical; `cd tools/muse_diff && python -m pytest`.
-- **tools/s1_stream (S1, landed):** golden vectors + verifier per FORMAT_SPEC §4.4;
-  `cd tools/s1_stream && python -m pytest`. CLI:
-  `PYTHONPATH=../ir:. python -m muse_stream.golden generate|verify`.
-- CI returns as tooling grows. Update this section as tooling lands; do not
-  leave it stale.
+```bash
+pip install -r tools/requirements.test.txt
+./tools/run_tests.sh          # fast tier (~2.5 min, 392 tests)
+./tools/run_tests.sh --full   # everything incl. slow suites (~5 min)
+./tools/run_tests.sh --list   # suite inventory
+```
+
+Per-tool suites live next to their code (`tools/<tool>/test_*.py` or
+`tools/<tool>/tests/`); run one with `cd tools && python -m pytest
+<suite-dir> -q`. Known-answer pins (corpus counts, golden vectors, W4 diff)
+must not drift silently — changing a pin requires amending the source doc
+(`corpus/README.md`, FORMAT_SPEC, or the tool's design doc) in the same
+commit. CI returns with #163; update this section as tooling lands — do not
+leave it stale.
 
 ## Repository layout
 
@@ -105,6 +107,14 @@ tools/muse_diff/      # W4 IR↔IR diff tool (recall/precision in tick space)
 tools/s1_stream/      # S1 golden vectors + verifier (FORMAT_SPEC §4.4)
 tools/muse_analyze/   # W3 pattern analyzer → analysis report
 tools/muse_viz/       # W5 piano-roll renderer (matplotlib)
+tools/muse_pack/      # S2 roll encoding (columnar + zlib)
+tools/muse_mu/        # S5 container + manifest
+tools/muse_seed/      # S3 seed format + C1 validator
+tools/muse_seed_cli/  # C1 seed CLI
+tools/muse_ops/       # S4 language validator
+tools/muse_assert/    # S3.5 assertions
+tools/muse_author/    # C2 AI-assisted authoring
+tools/run_tests.sh    # unified test runner (fast/--full/--list)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
