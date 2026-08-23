@@ -58,6 +58,13 @@ def validate_seed(seed: Seed):
         raise SeedError("assertions must be a mapping")
     if not isinstance(seed.variation_points, list):
         raise SeedError("variation_points must be a list")
+    if seed.philosophy:
+        from .philosophy import Philosophy, PhilosophyError
+
+        try:
+            Philosophy.from_dict(seed.philosophy)
+        except PhilosophyError as e:
+            raise SeedError(f"philosophy: {e}") from e
 
 
 def load_seed(data: str, fmt: str = "yaml") -> Seed:

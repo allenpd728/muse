@@ -31,3 +31,28 @@ chord_spread_ms("baroque")      # 16
 
 Eras: baroque, classical, romantic, early_romantic. All ranges validate
 (TempoRange, EnergyRange, DensityRange, VariationRange).
+
+## S3.3 — Philosophy fields (philosophy.py)
+
+Typed-lite vocabulary with free-text escape; provenance required:
+
+```python
+from muse_seed.philosophy import Philosophy, PhilosophyError
+
+Philosophy.from_dict({
+    "tempo_philosophy": ["flexible", "architectural"],   # vocab or free-text
+    "provenance": {"author": "founder", "ai_assisted": False},
+})
+```
+
+Fields: tempo_philosophy, dynamic_philosophy, articulation_stance,
+ornamentation_stance, ensemble_stance. The identity guard enforces the
+no-artist-lookalikes rule: any capitalized name-like phrase requires
+`provenance.license_ref`; era phrases ("Venetian School") pass as styles.
+Wired into `validate_seed()` — a bad philosophy block fails the whole seed.
+
+## Tests
+
+```
+cd tools/muse_seed && python -m pytest
+```
