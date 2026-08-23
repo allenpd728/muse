@@ -111,6 +111,22 @@ in the repo (`tools/`), not in `/tmp`. Samples are never committed — the repo
 carries references (library, version, URL, license); renderers fetch and
 cache at run time.
 
+## 4b. The no-training constraint (locked)
+
+The LLM conductor is a **stock, swappable model steered by prompt alone**
+(seed + score + instructions). No new model training in the product path.
+
+The delta analysis (score↔performance alignment datasets — Vienna 4x22,
+Magaloff, etc.) produces **design knowledge only**: which expressive
+parameters matter (mockup schema), what ranges are human (seed budgets),
+what vocabulary steers a stock model (prompt design). It never produces
+training data.
+
+Fine-tuning a conductor model is an explicit escape hatch (plan B) if stock
+models plateau below the quality bar — decided by the founder, with evidence.
+The intelligence migrates into the format, not the model: the seed carries
+the interpretation; the LLM is the replaceable engine that reads it.
+
 ## 5. What carries forward from the spike
 
 - The mockup needs a **per-note expression layer** (v2 proved the vocabulary:
