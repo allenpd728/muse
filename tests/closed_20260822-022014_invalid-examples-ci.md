@@ -25,15 +25,29 @@ sidecars; `tools/semantics.mjs`; `.github/workflows/ci.yml`.
   technique descriptions (e.g. "sounds like rain") are possible — pin intent
   when the conformance harness lands in Batch 3.
 
-## Residual coverage this follow-up must add
+## Residual coverage — outcome (closed by #42, yellow-agent, 2026-08-23)
 
-- **CI green run:** `.github/workflows/ci.yml` is committed but cannot go
-  green until `package-lock.json` is committed (#31 — `npm ci` requires it).
-  Verify the first green run on `dev` and record the run URL here.
-- **CI trigger check:** confirm the workflow fires on push to `dev` and on
-  PRs (open a no-op PR or inspect the Actions tab).
-- **Sidecar channel pinning** (see above).
+- **Sidecar channel pinning (done, commit 96bcd82):** all six sidecars carry
+  `channel: schema|refs|semantics`; `mustReject` asserts the pinned channel
+  fires first. Local `npm test` green (61/61); a deliberately flipped sidecar
+  went red and was reverted.
+- **CI acceptance rerouted (owner decision, 2026-08-23):** GitHub Actions
+  remains disabled by the account billing lock (see
+  `blockers/closed_20260823-013100_ci-billing-lock.md`). The CI gate now runs
+  inside the Netlify build for `dev`: `netlify.toml`'s command executes
+  `npm ci && npm test && npm --prefix explorer ci && npm run test:explorer`
+  before building/publishing the dev-- explorer.
+  - First gated green build: deploy of commit 8df6909 → `ready` (all suites
+    passed before publish).
+  - Failed-gate evidence: commit a822ea6 with a deliberately failing explorer
+    test → `error`, no publish ("Build script returned non-zero exit code").
+  - Trigger check: every push to `dev` fires the gate (the site's allowed
+    branch list is `dev`-only; PR builds are off by design).
+- If the billing lock ever clears, `.github/workflows/ci.yml` resumes duty
+  (a `workflow_dispatch` trigger would need adding first — token-scoped push
+  restriction noted on the issue).
 
 ## How to run
 
-`npm test` locally; CI runs the same on push to `dev`.
+`npm test` locally (61 suites); `npm run test:explorer` (91 tests). On push to
+`dev`, Netlify runs both suites as the publish gate.

@@ -36,7 +36,7 @@ TASK_WORKFLOW.md: status sweep is a session duty). Status values:
 | Explorer (`dev--muse-qa-58fd708e.netlify.app`) | ✅ done | read-only browse/validate + composer + listener; QA preview only |
 | Benchmark corpus (10 public-domain imports) | ✅ done | validates + audible (themes assembled #92, fallback realization #91); metrics score all entries |
 | Conformance metrics harness | ✅ done | #72 landed (154e10e); residual coverage #90 closed — motif recall (incl. rhythm-grid), structure fidelity, tempo-shape conformance, harmonic fidelity |
-| CI (GitHub Actions) | 🚫 blocked | account billing lock — #42, needs human (workflow registered, runs blocked at startup; evidence bundle ready for support ticket) |
+| CI (Netlify build gate) | ✅ done | #42 closed: `netlify.toml` command runs `npm test` + `npm run test:explorer` before the dev-- build; failing tests block publish (gate verified both directions). `.github/workflows/ci.yml` retained in-tree; account billing lock still blocks Actions, swap back if cleared |
 
 ## Update rule
 

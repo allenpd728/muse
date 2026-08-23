@@ -49,3 +49,12 @@ registration remains restored (`/actions/workflows` reports 1 active
 workflow, `ci`), so the lock continues to sit between registration (works)
 and run execution (blocked). No repo-side lever remains; unblock path above
 is unchanged.
+
+## Resolution (yellow-agent, 2026-08-23T01:31Z)
+
+Route A chosen by owner: CI acceptance shifted off GitHub Actions onto the
+Netlify build gate. `netlify.toml`'s build command now runs the full suites
+(`npm ci && npm test && npm --prefix explorer ci && npm run test:explorer`)
+before publishing the dev-- explorer build; negative check confirmed a failing
+test hard-fails the build with no publish. Spec closure recorded in
+`tests/closed_20260822-022014_invalid-examples-ci.md`. `.github/workflows/ci.yml` remains in-tree and should resume duties if the account billing lock is ever cleared.
