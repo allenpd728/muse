@@ -75,3 +75,18 @@ use. Byte-exact for serialization depends on C1.
   known values + free-text escape).
 - How vocal/choral text rides seeds (defers to S6's schema sub-task).
 - YAML vs JSON for seeds (YAML for author-editability; JSON for machines).
+
+## Decisions log
+
+- **Philosophy (S3.3, 2026-08-23):** typed-lite, as drafted. Closed field set
+  (`tempo_philosophy`, `dynamic_philosophy`, `articulation_stance`,
+  `ornamentation_stance`, `ensemble_stance`); values are list entries, each
+  either a vocabulary term (additive-only: new terms may be added, existing
+  ones never removed) or free-text (the sanctioned escape). Identity guard:
+  any capitalized name-like phrase is a suspected artist identity and
+  requires `provenance.license_ref`; era phrases ("Viennese Classical",
+  "Venetian School") are whitelisted as styles, not identities. Provenance
+  per philosophy block: `author` (required) and `ai_assisted` (required
+  boolean — the manifest's AI-disclosure rule applied at seed granularity).
+  Validator: `tools/muse_seed/philosophy.py`, wired into
+  `validate_seed()` (S3.1's surface).
