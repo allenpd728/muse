@@ -49,7 +49,7 @@ a pattern-frequency report that drives Phase 1 language decisions.
 | S2 — Roll encoding | How the fixed score is packed: columnar, delta-encoded, entropy-coded. | **filed #138, available** |
 | S3 — Seed encoding | Interpretive parameters, sanctioned ranges, performance philosophy fields. | **decomposed #139 → S3.1–S3.6 (#142–#147); .1–.5 done, .6 open (#147)** |
 | S4 — Language spec | The executable layer: operators (transpose/invert/retro/aug/dim), control flow, assertions. Informed by W3's pattern report. | **filed #140, available** |
-| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **filed #141, available** |
+| S5 — Container + manifest | Zip layout, plaintext rights manifest, content hashes, signature. | **done (#141 → FORMAT_SPEC §7.1 + [tools/muse_mu](../tools/muse_mu/))** |
 
 **Phase 1 done when:** FORMAT_SPEC.md v1.0 is written, with every construct
 justified by Phase 0 evidence (a construct without corpus evidence doesn't ship).

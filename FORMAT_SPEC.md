@@ -246,6 +246,32 @@ finished — it is re-authored and revised as tools improve.
   Beethoven 9 is the v1.0 target.
 - **`format_version` is semver.** v0.x may break; v1+ additive only.
 
+## 7.1 The container (S5, pinned 2026-08-23)
+
+Zip layout per §3: `manifest.json` first member, then `roll.bin`,
+`seed.bin`, optional `performances/*.perf`. No other members. Required
+members: `manifest.json`, `roll.bin`, `seed.bin`. Reference validator:
+`tools/muse_mu/`.
+
+**`manifest.json` field set** (the only human-readable member):
+
+- `format_version` (semver string), `work_id` (required)
+- `title`, `composer` (optional)
+- `license` (required): `renditions` ∈ {`presets-only`,
+  `open-within-constraints`, `closed`} (required), `attribution` (required
+  non-empty string), `commercial` (required boolean)
+- `provenance` (required): `source` (required), `author` (required),
+  `ai_involvement` ∈ {`none`, `assisted`, `generated`} (**mandatory AI
+  disclosure**, required), `tools` (optional list), `license_ref` (optional;
+  unlocks artist-identity references in the seed's philosophy fields)
+- `hashes` (required): `member name → sha256 hex` of **every** other member;
+  the manifest never hashes itself. Readers fail loudly on mismatch or on
+  members missing from the map.
+- `signature` (optional): HMAC-SHA256 hex over the canonical JSON (sorted
+  keys, minimal separators) of the manifest minus the signature field, when
+  a signing key exists. PKI deferred — the open question is recorded there;
+  HMAC is the mechanism until publication demands asymmetric trust.
+
 ## 8. Open questions (to be pinned by Phase 0/1)
 
 - Exact score packing scheme (driven by analyzer statistics).
