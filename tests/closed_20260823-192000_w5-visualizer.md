@@ -1,7 +1,17 @@
-# Test spec — W5 visualizer
+# Test spec — W5 visualizer — CLOSED
 
 **Task:** #127 (W5 — Visualizer)
 **Written:** 2026-08-23
+
+**Resolution (Tests: #134, 2026-08-23):** landed as
+`tools/muse_viz/test_muse_viz.py` — 11 tests, ~33s (B9 parse dominates).
+All three spec sections covered (rendering on Bach/Byrd/B9-subset,
+robustness for rests/unpitched/zero-duration/subsets, output contract with
+PNG magic-byte checks). Fixes landed with the tests: unpitched percussion
+now maps to sentinel −2 (the code looked for an `is_unpitched` attribute
+from the superseded IR; the landed IR uses the `unpitched` notation flag),
+and `render()` returns a `RenderResult` so the output contract is testable
+without image introspection.
 
 ## What to verify
 
