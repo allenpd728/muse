@@ -217,6 +217,9 @@ def read_mu(path, verify_hashes=True) -> tuple:
         raise ManifestError(f"not a .mu zip container: {e}") from e
     with z:
         names = z.namelist()
+        dupes = {n for n in names if names.count(n) > 1}
+        if dupes:
+            raise ManifestError(f"duplicate members in container: {sorted(dupes)}")
         for req in REQUIRED_MEMBERS:
             if req not in names:
                 raise ManifestError(f"required member {req!r} missing")
@@ -225,8 +228,11 @@ def read_mu(path, verify_hashes=True) -> tuple:
                 continue
             if not name.startswith(OPTIONAL_DIRS):
                 raise ManifestError(f"unexpected member {name!r}")
+            if name.endswith("/"):
+                continue  # explicit directory entry: layout noise, not content
         manifest = Manifest.from_json(z.read("manifest.json").decode("utf-8"))
-        members = {n: z.read(n) for n in names if n != "manifest.json"}
+        members = {n: z.read(n) for n in names
+                   if n != "manifest.json" and not n.endswith("/")}
     if verify_hashes:
         for name, digest in manifest.hashes.items():
             if name not in members:
