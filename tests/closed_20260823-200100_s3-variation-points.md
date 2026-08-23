@@ -1,8 +1,16 @@
-# Test spec — S3.4 variation points (issue #145)
+# Test spec — S3.4 variation points (issue #145) — CLOSED
 
 Written by the completing agent per TASK_WORKFLOW step 6. S3.4 landed with
 22 tests (`cd tools/muse_seed && python -m pytest`, <1s; 42 total in the
 package with S3.3's).
+
+**Resolution (Tests: #150, 2026-08-23):** gap 1 closed —
+`tools/muse_seed/test_variation_e2e.py` (6 tests) pins attached-assertion
+evaluation end-to-end against the real corpus work: satisfied register
+passes, violated register fails loudly naming part and pitch (P4, note 59),
+must_contain matches the soprano's opening B4–C#5–D5 and fails naming the
+theme. Gaps 2–3 (kind semantics, budget calibration) remain open by design —
+they belong to L1/C3 and have no consumer yet.
 
 ## Landed coverage (tools/muse_seed/test_variation.py)
 
