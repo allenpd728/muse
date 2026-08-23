@@ -29,6 +29,7 @@ SUITES=(
   "s1_stream:s1_stream/tests"
   "muse_viz:muse_viz"
   "muse_roll:muse_roll"
+  "assertions:assertions/tests"
 )
 # Chain smoke (fast tier): e2e on the small registry, W4 verify PASS.
 SUITES+=("chain_smoke:muse_chain/test_chain_smoke.py")
