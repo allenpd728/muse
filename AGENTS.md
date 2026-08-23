@@ -121,6 +121,7 @@ tools/muse_roll/      # S2 roll encoding (MUR1 varint columnar + zlib)
 tools/muse_mu/        # S5 container + manifest
 tools/muse_seed/      # S3 seed format + C1 validator
 tools/muse_seed_cli/  # C1 seed CLI
+tools/muse_budgets/   # C3 era/style budget engine
 tools/muse_ops/       # S4 language validator
 tools/muse_assert/    # S3.5 assertions
 tools/muse_author/    # C2 AI-assisted authoring

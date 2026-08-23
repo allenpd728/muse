@@ -35,11 +35,15 @@ def propose_seed(work, era_hint=None, max_attempts=3):
 
 
 def _propose(work, era_hint):
-    """Deterministic seed proposal from W1 IR + W3 analysis signals."""
-    # infer era from provenance/source_filename if hint missing
+    """Budget-driven seed proposal from W1 IR + W3 analysis signals.
+
+    Tempo bounds come from muse_budgets (C3, measured corpus ranges);
+    density/energy defaults stay stub-level per the design doc."""
     meta = getattr(work, "meta", None)
     era = era_hint or _getattr_meta(meta, "era", "classical")
-    tempo_quick = 96
+    from muse_budgets import suggest
+    era_budget = suggest(era)
+    tempo_quick = (era_budget["tempo_bpm"]["min"] + era_budget["tempo_bpm"]["max"]) / 2
     n_parts = len(work.parts)
     n_notes = sum(len(p.notes) for p in work.parts)
     max_pitch = max(
@@ -88,6 +92,7 @@ def _propose(work, era_hint):
         },
         "provenance": {"source": _getattr_meta(meta, "source_format", ""),
                         "author": "muse_author", "era_hint": era},
+        "era_budget": era_budget,
     }
 
 
