@@ -13,7 +13,7 @@ transition from the spike cycle.
 ## Dependencies
 
 - **Upstream:** W4 (defined-ish draft; may overlap with W-series);
-  delta-analysis docs ([../mockup-delta-analysis.md](../mockup-delta-analysis.md));
+  delta-analysis docs ([../delta-analysis-plan.md](../delta-analysis-plan.md));
   spike artifacts ([../spike/](../spike/) JSONs).
 - **Downstream:** L1 (scheme it validates/consumes).
 

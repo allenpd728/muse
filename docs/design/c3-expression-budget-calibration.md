@@ -6,7 +6,7 @@
 
 Delta-analysis-informed budget suggestions per era/style: Classical freedom
 in tempo, Romantic in dynamics, chord spread universal (per
-[../mockup-delta-analysis.md](../mockup-delta-analysis.md)). Turns measured
+[../delta-analysis-plan.md](../delta-analysis-plan.md)). Turns measured
 human ranges into seed defaults.
 
 ## Dependencies
