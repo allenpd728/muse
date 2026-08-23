@@ -48,13 +48,13 @@ approved drafts.
 | S5 — Container + manifest | [s5-container-manifest](s5-container-manifest.md) | — (spec fields) | P1, C4 | scaffold |
 | P1 — Reference decoder | [p1-reference-decoder](p1-reference-decoder.md) | S1, S2, S5 | P2, L-series | scaffold |
 | P2 — Reference renderer | [p2-reference-renderer](p2-reference-renderer.md) | S1 | P3, L2 | scaffold |
-| P3 — Conformance suite | [p3-conformance-suite](p3-conformance-suite.md) | P1 | CI gate | scaffold |
+| P3 — Conformance suite | [p3-conformance-suite](p3-conformance-suite.md) | P1, P2 | CI gate | scaffold |
 | C1 — Seed format impl. | [c1-seed-format-impl](c1-seed-format-impl.md) | S3 | C2, C3, C4, L1 | scaffold |
 | C2 — AI-assisted authoring | [c2-ai-assisted-authoring](c2-ai-assisted-authoring.md) | C1, W1, W4 | feeds seeds | scaffold |
 | C3 — Budget calibration | [c3-expression-budget-calibration](c3-expression-budget-calibration.md) | C1 + delta corpora | feeds seeds | scaffold |
 | C4 — Assertion authoring | [c4-assertion-authoring](c4-assertion-authoring.md) | C1 | L1 | scaffold |
 | L1 — Mockup harness | [l1-mockup-harness](l1-mockup-harness.md) | C1–C4, S1, P2 | L2, L3, L4 | scaffold |
-| L2 — Performance renderer | [l2-performance-renderer](l2-performance-renderer.md) | L1 | L3, E1 | scaffold |
+| L2 — Performance renderer | [l2-performance-renderer](l2-performance-renderer.md) | L1, P2 | L3, E1 | scaffold |
 | L3 — Model comparison rig | [l3-model-comparison](l3-model-comparison.md) | L1, L2 | E1 | scaffold |
 | L4 — Distiller | [l4-distiller](l4-distiller.md) | L1, C1 | E1 | scaffold |
 | E1 — The work | [e1-the-work](e1-the-work.md) | L1–L4 | E2, E3 | scaffold |
