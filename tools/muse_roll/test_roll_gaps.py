@@ -49,6 +49,8 @@ def test_beethoven9_roundtrip_budget():
 GOLDEN = {
     "bwv227.1.roll.bin": ("bach", "bwv227.1.mxl"),
     "byrd-kyrie.roll.bin": ("byrd", "1-Kyrie.mid"),
+    "schubert-d810.roll.bin": ("schubert", "death-and-the-maiden.mxl"),
+    "beethoven-sym5-mov1.roll.bin": ("beethoven", "beethoven-sym5-mov1.xml"),
 }
 
 
