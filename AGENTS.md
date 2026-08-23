@@ -81,5 +81,5 @@ corpus/               # reference works (Bach, Byrd, Schubert, Beethoven 5+9)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
 PRIOR_ART_REVIEW.md   # landscape review (schema-first era)
 blockers/             # open_/closed_ blocker reports
-tests/closed/         # 55 schema-era test-spec files (process history)
+tests/closed/         # empty; schema-era specs removed (git history retains)
 ```
