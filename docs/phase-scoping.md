@@ -101,6 +101,27 @@ concert-worthy work.
 
 **Dependencies:** L1–L4 producing concert-tier output.
 
+## Milestone-barrier sub-tasks (decomposed from session review)
+
+**30 tasks total** (W/S/P/C/L/E series + barrier sub-tasks below), all
+first-class rows in pipeline.md; design docs under `docs/design/`.
+
+- **W6 — B9 compute scaling** — choose suffix-array/SIATEC-C/sampling for
+  Beethoven 9's 239k notes; pins per-tier compute budgets for W3.
+- **W7 — Mockup schema v0** — draft the mockup session-file schema from
+  delta-analysis + spike JSONs; validated via W4; unblocks L1.
+- **C5 — Baroque delta measurement** — runs the delta-analysis vocabulary
+  on Baroque corpora; closes C3's era gap.
+- **L5 — Sample-quality waiver** — conditional gate on L2: founder-ear
+  failure despite maximal mockup triggers commercial-library contract or
+  revised event bar.
+- **S6 — Vocal text schema** — extends S1 for lyrics/syllables (needed at
+  the Ninth's finale); verified against Beethoven 9.
+- **E4 — Extension decision** — resolves the `.mu` collision pre-launch.
+
+Critical path updated: W1 → W2 → W3(+W6) → S3(+C5 budgets) → C1 → C2 →
+L1(+W7) → L2(+L5 condition). Everything else parallel.
+
 ## The dependency graph
 
 ```

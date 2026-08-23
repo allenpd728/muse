@@ -55,6 +55,13 @@ approved drafts.
 | E1 — The work | [e1-the-work](e1-the-work.md) | L1–L4 | E2, E3 | scaffold |
 | E2 — The venue | [e2-the-venue](e2-the-venue.md) | E1 | E3 | scaffold |
 | E3 — The recording | [e3-the-recording](e3-the-recording.md) | E1, E2 | — | scaffold |
+| W6 — B9 compute scaling | [w6-b9-scaling](w6-b9-scaling.md) | W1, W2, W3 | W3, S-series | scaffold |
+| W7 — Mockup schema v0 | [w7-mockup-schema](w7-mockup-schema.md) | W4 + delta + spike | L1 | scaffold |
+| C5 — Baroque delta measurement | [c5-baroque-delta](c5-baroque-delta.md) | W4 + corpora | C3, W3 | scaffold |
+| L5 — Sample-quality waiver | [l5-sample-waiver](l5-sample-waiver.md) | L2 + spike listener | E1 | scaffold |
+| S6 — Vocal text schema | [s6-vocal-text](s6-vocal-text.md) | S1, W1 | S1, v1.0 | scaffold |
+| E4 — Extension decision | [e4-extension](e4-extension.md) | founder + S5 | S5, publication | scaffold |
 
-**Critical path:** W1 → W3 → S3 → C1 → C2 → L1 → L2. Everything else is
-parallel. Promotion order follows the critical path; W1 is the first draft.
+**Critical path:** W1 → W2 → W3(+W6) → S3(+C5) → C1 → C2 → L1(+W7) →
+L2(+L5 condition). Everything else is parallel. Promotion order follows the
+critical path; W1 is the first draft.

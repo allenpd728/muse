@@ -102,6 +102,29 @@ hall.
 **Phase 5 done when:** deferred until Phase 4 produces one concert-worthy
 work.
 
+## Milestone barriers & decomposed sub-tasks
+
+The scaffold-era risk list (blockers/ + session report) decomposed into
+workable sub-tasks per TASK_WORKFLOW ("sub-tasks are decomposed from issues
+that prove too large"). Each has a design-doc scaffold in
+[design/](design/) and feeds the task it unblocks.
+
+| Sub-task | Parent barrier | What it does | Unblocks |
+|---|---|---|---|
+| **W6 — B9 compute scaling** | Beethoven 9 (239k notes) through pattern analysis | Profiles W3's SIATEC pass; chooses suffix-array/SIATEC-C or sampling; pins per-tier compute budgets | W3 full-corpus pass |
+| **W7 — Mockup schema v0** | L1's unwritten intermediate artifact | Drafts the mockup session-file schema from delta-analysis evidence + spike JSONs; validate via W4 | L1 harness |
+| **C5 — Baroque delta measurement** | C3's unmeasured Baroque budget gap | Runs delta-analysis vocabulary on Baroque corpora (chorales + polyphony); feeds era budgets | C3 (and W3's per-phrase curves) |
+| **L5 — Sample-quality waiver** | L2's unresolved "convincing vs. concert" ceiling | Triggered only if L2 fails the founder's ear despite maximal mockup: either commercial-library contract or revised event bar | E1 (event quality) |
+| **S6 — Vocal text schema** | Vocal/choral text (Ninth 52 staves, FORMAT_SPEC §8) | Extends S1 with interleaved lyrics/syllables; verified against Beethoven 9 finale | S1 closure, v1.0 |
+| **E4 — Extension decision** | `.mu` extension collision (Kerbal/Lisp) | Pick final file extension before spec publication (`.mu`, `.muse`, `.muw`, …); update spec + corpus + tooling | S5, publication |
+
+Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
+[design/w7-mockup-schema.md](design/w7-mockup-schema.md),
+[design/c5-baroque-delta.md](design/c5-baroque-delta.md),
+[design/l5-sample-waiver.md](design/l5-sample-waiver.md),
+[design/s6-vocal-text.md](design/s6-vocal-text.md),
+[design/e4-extension.md](design/e4-extension.md).
+
 ## Explicitly not (yet)
 
 - Public spec publication (pre-launch decision)
