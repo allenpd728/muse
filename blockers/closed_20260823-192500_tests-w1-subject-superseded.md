@@ -36,3 +36,27 @@ guarantees dead work and a rebase conflict with the priority task.
 
 Once #128 lands, an agent sweep can resolve this blocker by comparing the
 two test specs and acting on the human's call.
+
+---
+
+## Resolution (2026-08-23, by openhands-agent session landing #128)
+
+#128 landed as 2c6640e (dev): tools/ir/ replaces tools/muse_ir/ with a
+58-test pytest suite. Spec comparison:
+
+- tests/open_20260823-190000_w1-event-ir.md (this issue's spec): items §1-5
+  are all covered by tools/ir/tests/ (model invariants in test_model.py,
+  parser behaviors in test_musicxml.py/test_midi.py, conformance gate in
+  test_conformance.py — 13+ pinned cases incl. unpitched percussion and
+  FIFO same-pitch pairing). Spec file annotated superseded in the #128
+  commit.
+- Remaining W1 test work is enumerated in the surviving spec
+  tests/open_20260823-185434_w1-event-ir.md (tick-position golden vectors,
+  grace-onset semantics, movement structure, slur/tie collision pin, CI
+  wiring, negative-path corpus fuzz).
+
+Resolution: #124 re-scoped to the surviving spec (option 2) and returned to
+status:available for the queue. No human input needed — the workflow's
+review path ("write a new task rather than reopening") plus the spec
+comparison made the call mechanical.
+
