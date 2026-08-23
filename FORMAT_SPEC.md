@@ -186,6 +186,44 @@ is the advocacy instrument. Wildly different readings are valid when
 they satisfy the assertions — the Gould/Bernstein case is in-spec. What is
 out-of-spec is violating the score: the assertions fail and playback refuses.
 
+## 5.1 The executable layer (S4, pinned 2026-08-23)
+
+W3's full-corpus report ([docs/analysis-report.md](docs/analysis-report.md))
+measures three pattern classes recurring in **all 13 corpus files**;
+they ship as operators (grammar, not semantics — a construct without
+corpus evidence doesn't ship):
+
+| Operator | Corpus evidence | Status |
+|---|---|---|
+| `ptn_exact` | exact repeats in all 13 files (Bach 8–1212, Byrd 1–76, Schubert 30,436, B5 18,763, B9 252,643) | ships |
+| `ptn_transposed` | transposed repeats in all 13 files (Bach 17–1215, Byrd 1–100, Schubert 29,401, B5 16,833, B9 150,243) | ships |
+| `ptn_ostinato` | rhythmic ostinati in all 13 files (Bach 35–171, Byrd 7–301, Schubert 9,534, B5 2,246, B9 14,605) | ships |
+| `ptn_invert`, `ptn_retro` | no evidence (W3 scans these classes uniformly: zero) | deferred |
+| `ptn_imitative` | zero in corpus (Byrd expected, but none found) | deferred |
+
+A **program** is a flat sequence of operator applications. Each entry:
+
+```yaml
+program: [
+  { op: ptn_exact, region: [start_tick, end_tick], part: "P2" },
+  { op: ptn_transposed, region: [..], interval: +2, part: "P1" },
+  { op: ptn_ostinato, region: [..], part: "P3" },
+]
+```
+
+- `region`: half-open tick range (required, integers).
+- `part` (optional): restrict evaluation to one part id.
+- `interval` (required on `ptn_transposed`): signed semitones; the sign is
+  mandatory notation (`+2`, `-5`).
+- No nesting; sequential application only. Control flow is degenerate by
+  design — the score's topology, not the program's.
+- Grammar-only validation (unknown op, missing region, malformed interval)
+  plus region bounds against the work's tick compass. Assertions from the
+  surrounding seed (S3.5) gate the final event stream; S4's validator does
+  not (and must not) evaluate them.
+
+Reference validator: `tools/muse_ops/`. Semantics are P1's decoder, not S4.
+
 ## 6. Execution model
 
 ```

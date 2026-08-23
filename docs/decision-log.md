@@ -23,6 +23,9 @@ gets a tracking slot. Sources: `docs/pipeline.md` locked decisions,
 | D13 | Provenance is mandatory in every manifest | locked | AGENTS.md §Ground rules |
 | D14 | Documentation deliverable: README + test spec per code task | locked | TASK_WORKFLOW.md §Task definition |
 | D15 | Multi-agent claiming: run-ids mandatory, newest claim comment decides | locked | AGENTS.md §Conventions |
+| D16 | S4 operator set: exact/transposed/ostinato ship; invert/retro/imitative deferred (zero corpus evidence) | locked | FORMAT_SPEC §5.1 + docs/analysis-report.md |
+| D17 | Philosophy fields: typed-lite vocabulary + free-text escape; identity guard with license_ref | locked | S3.3 (#144) + S3 SPEC decisions log |
+| D18 | Container: SHA-256 member hashes; HMAC-SHA256 signature; PKI deferred | locked | FORMAT_SPEC §7.1 (#141) |
 
 ## Open decision points (tracking)
 
@@ -32,7 +35,6 @@ gets a tracking slot. Sources: `docs/pipeline.md` locked decisions,
 | O2 | L5: sample-quality waiver (commercial library vs revised bar) | conditional | docs/design/l5-sample-waiver.md |
 | O3 | S6: vocal/choral text schema | open | docs/design/s6-vocal-text.md |
 | O4 | W6: B9 compute scaling (suffix-array vs SIATEC-C vs sampling) | open | docs/design/w6-b9-scaling.md |
-| O5 | Philosophy fields: typed-lite vs free-text | open | S3.3 (#144) |
 
 ## How to add a decision
 
