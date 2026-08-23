@@ -19,12 +19,34 @@ class PianoRollConfig:
     alpha: float = 0.6              # per-note alpha (thinning on dense works)
 
 
+@dataclass
+class RenderResult:
+    path: str
+    parts_rendered: list            # part ids actually drawn
+    events: int                     # note events drawn
+
+
+def pitch_value(note) -> int:
+    """Map a note to its piano-roll y. None-pitch events (rests/unpitched)
+    map to sentinels: rest -1, unpitched -2. The landed IR (tools/ir) marks
+    unpitched percussion via the 'unpitched' notation flag."""
+    if note.pitch is None:
+        return -2 if "unpitched" in note.notations else -1
+    return note.pitch
+
+
+def build_title(work, part_ids, n_events) -> str:
+    label = getattr(work, "title", None) or ""
+    return f"{label} ({len(part_ids)} parts, {n_events} events)"
+
+
 def render(work, config: PianoRollConfig | None = None):
-    """Render work.parts to PNG; return the output path."""
+    """Render work.parts to PNG; return a RenderResult."""
     cfg = config or PianoRollConfig()
     parts = cfg.parts if cfg.parts else [p.id for p in work.parts]
 
     _, n_count = 0, 0
+    rendered = []
     fig_h = min(cfg.max_height_in, max(2.0, len(parts) * 1.2))
     fig, axes = plt.subplots(len(parts), 1, figsize=(14, fig_h), sharex=False)
     if len(parts) == 1:
@@ -35,14 +57,8 @@ def render(work, config: PianoRollConfig | None = None):
         part = next((p for p in work.parts if p.id == pid), None)
         if part is None:
             continue
-        # robust to None-pitch rests/unpitched (sibling IR) — map to -1/-2
-        vals = []
-        for n in part.notes:
-            p_ = n.pitch
-            if p_ is None:
-                p_ = -2 if getattr(n, "is_unpitched", False) else -1
-            vals.append(p_)
-        y = vals
+        rendered.append(pid)
+        y = [pitch_value(n) for n in part.notes]
         x0 = [n.onset for n in part.notes]
         w_ = [max(n.duration, 1) for n in part.notes]
         n_count += len(y)
@@ -54,9 +70,8 @@ def render(work, config: PianoRollConfig | None = None):
             ax.set_ylim(min(y) - 5, max(y) + 5)
 
     axes[-1].set_xlabel("onset (ticks)")
-    title = cfg.title or f"{getattr(work, 'title', None) or ''} ({len(parts)} parts, {n_count} events)"
-    fig.suptitle(title, fontsize=10)
+    fig.suptitle(cfg.title or build_title(work, parts, n_count), fontsize=10)
     fig.tight_layout()
     fig.savefig(cfg.out, dpi=110)
     plt.close(fig)
-    return cfg.out
+    return RenderResult(path=cfg.out, parts_rendered=rendered, events=n_count)

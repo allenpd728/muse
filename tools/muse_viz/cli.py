@@ -33,8 +33,7 @@ def main():
 
     out = args.out or os.path.splitext(os.path.basename(args.file))[0] + "_piano.png"
     res = render(w, PianoRollConfig(parts=parts, out=out, title=args.title))
-    n_parts = len(parts) if parts else len(w.parts)
-    print(f"OK  rendered {n_parts} parts → {res}")
+    print(f"OK  rendered {len(res.parts_rendered)} parts → {res.path}")
 
 
 if __name__ == "__main__":
