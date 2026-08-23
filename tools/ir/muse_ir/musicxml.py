@@ -79,11 +79,11 @@ def _read_root(source, origin: str) -> ET.Element:
     if data[:2] == b"PK":
         try:
             zf = zipfile.ZipFile(io.BytesIO(data))
-        except zipfile.BadZipFile as exc:
+        except (zipfile.BadZipFile, NotImplementedError) as exc:
             raise IRParseError(f"{name}: corrupt zip container: {exc}") from exc
         try:
             container = ET.fromstring(zf.read("META-INF/container.xml"))
-        except (KeyError, ET.ParseError) as exc:
+        except (KeyError, ET.ParseError, zipfile.BadZipFile) as exc:
             raise IRParseError(
                 f"{name}: .mxl missing or unreadable META-INF/container.xml: {exc}"
             ) from exc
@@ -96,9 +96,9 @@ def _read_root(source, origin: str) -> ET.Element:
             raise IRParseError(f"{name}: container.xml has no rootfile entry")
         try:
             data = zf.read(rootfile)
-        except KeyError as exc:
+        except (KeyError, zipfile.BadZipFile) as exc:
             raise IRParseError(
-                f"{name}: rootfile {rootfile!r} not present in container"
+                f"{name}: rootfile {rootfile!r} not readable in container"
             ) from exc
     try:
         return ET.fromstring(data)
