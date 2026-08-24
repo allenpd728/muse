@@ -37,6 +37,7 @@ def main():
         variation_points=sd["variation_points"],
         assertions=sd["assertions"],
         provenance=sd["provenance"],
+        era_budget=sd.get("era_budget"),
     )
     try:
         validate_seed(seed)
