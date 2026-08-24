@@ -66,3 +66,13 @@ def test_runner_labels_fail_on_pytest_failure(tmp_path):
         cwd=TOOLS, capture_output=True, text=True,
     )
     assert out.returncode != 0, "synthetic failing suite must exit nonzero"
+
+
+def test_requirements_file_mentions_deps():
+    """Issue #192: requirements.test.txt should list every dependency that suites
+    import. Guards against a fresh sandbox getting masked import failures."""
+    reqs = os.path.join(TOOLS, "requirements.test.txt")
+    assert os.path.exists(reqs)
+    text = open(reqs).read()
+    for needed in ("pytest", "mido", "pyyaml", "matplotlib"):
+        assert needed in text, f"requirements.test.txt missing {needed!r}"
