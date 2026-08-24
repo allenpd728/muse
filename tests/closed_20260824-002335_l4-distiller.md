@@ -30,3 +30,24 @@ Run: `cd tools/muse_distill && python -m pytest` (<1 s).
 ## Invocation
 
 `cd tools/muse_distill && python -m pytest` (<1 s).
+
+---
+
+## Closed 2026-08-24 (issue #222, run=20260824-1059-b671)
+
+Landed coverage: `tools/muse_distill/tests/test_distill.py` grew 5 → 7
+tests, closing gaps 1 and 4:
+
+- **wavering classification pinned positive** — a monotonic fall
+  (120→110→100 bpm) is neither flat (range ≥ 2) nor arch (first > last);
+  asserts the shape and the extracted range.
+- **CLI end-to-end** — `python -m muse_distill <mockup.json> --out` in a
+  subprocess: a dumped mockup goes in, the delta YAML comes out with the
+  arch shape and tempo bounds, and the stdout summary names the curve.
+
+Gaps 2–3 stand by design: the human-apply walk is the C2 loop's
+"human approves" invariant (not a programmatic test), and curves-dict
+extraction belongs to the mockup-update path.
+
+Gate: `cd tools/muse_distill && python -m pytest` → 7 passed (<1 s);
+`./tools/run_tests.sh` fast tier → all suites green.
