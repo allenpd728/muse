@@ -31,6 +31,7 @@ class Mockup:
     notes: list = field(default_factory=list)
     tempo_map: list = field(default_factory=list)
     curves: dict = field(default_factory=dict)
+    ppq: int = 480  # ticks per quarter note of the work's tick domain (#246)
 
     def validate(self):
         if not self.notes:
@@ -52,6 +53,8 @@ def dump_mockup(mockup: Mockup, fmt="json") -> str:
         "tempo_map": mockup.tempo_map,
         "curves": mockup.curves,
     }
+    if mockup.ppq != 480:
+        d["ppq"] = mockup.ppq
     if fmt == "json":
         return json.dumps(d, indent=2)
     return yaml.safe_dump(d, sort_keys=False, allow_unicode=True)
@@ -64,6 +67,7 @@ def load_mockup(data: str, fmt="json") -> Mockup:
         part_map=d.get("part_map", {}),
         tempo_map=d.get("tempo_map", []),
         curves=d.get("curves", {}),
+        ppq=d.get("ppq", 480),
     )
     for nd in d.get("notes", []):
         m.notes.append(Note(
