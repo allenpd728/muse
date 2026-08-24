@@ -1,0 +1,31 @@
+{
+ "work_id": "unknown",
+ "params": {
+  "tempo": {
+   "default_bpm": 96.0,
+   "min_bpm": 120.0,
+   "max_bpm": 120.0
+  },
+  "dynamics": {
+   "mean_velocity": 64.0,
+   "velocity_pstdev": 8.5
+  },
+  "articulation": {
+   "rubato_mean_ms": 0.0,
+   "rubato_pstdev_ms": 12.0
+  }
+ },
+ "interpretation": {
+  "tempo_curve_shape": "arch",
+  "part_gains": {
+   "P1": 59,
+   "P2": 70,
+   "P3": 76,
+   "P4": 74
+  }
+ },
+ "provenance": {
+  "distilled_from": "unknown",
+  "note_count": 279
+ }
+}
