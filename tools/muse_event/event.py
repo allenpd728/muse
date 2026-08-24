@@ -41,6 +41,8 @@ def event_chain(source, work_id, rung, out_dir, era="classical"):
     os.makedirs(out_dir, exist_ok=True)
     result = EventResult(work_id=work_id, rung=rung, ledger={})
     try:
+        if not os.path.exists(source):
+            raise FileNotFoundError(f"corpus source missing: {source}")
         # would call muse_author/cli + mockup harness + assert + render
         result.ledger = {
             "work_id": work_id,
@@ -55,10 +57,12 @@ def event_chain(source, work_id, rung, out_dir, era="classical"):
 
 
 def run_ladder(out_root, era="classical") -> dict:
-    """Run the corpus ladder; return per-rung ledger."""
+    """Run the corpus ladder; return per-rung ledger. Corpus paths resolve
+    against the repo root so the ladder is cwd-independent."""
+    repo_root = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
     results = []
     for i, (subdir, name, wid) in enumerate(LADDER):
-        src = os.path.join("corpus", subdir, name)
+        src = os.path.join(repo_root, "corpus", subdir, name)
         out_dir = os.path.join(out_root, f"rung{i+1:02d}_{wid.replace(' ', '_').replace('.', '')}")
         r = event_chain(src, wid, i + 1, out_dir, era=era)
         results.append(r)
