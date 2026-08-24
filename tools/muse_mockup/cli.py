@@ -28,9 +28,7 @@ def main():
     args = ap.parse_args()
 
     work = load(args.work)
-    meta = getattr(work, "meta", None)
-    work_id = _getattr_meta(meta, "work_id", None) or "unknown"
-    mockup = Mockup(work_id=work_id)
+    mockup = Mockup(work_id=getattr(work, "title", None) or "unknown")
 
     for p in work.parts:
         for n in p.notes:
