@@ -54,13 +54,16 @@ SUITES+=("muse_generate:muse_generate/tests")
 SUITES+=("muse_grow:muse_grow/tests")
 # P1/P2/L-series (fast tier): decoder, renderer, mockup harness, A/B rig,
 # distiller — all corpus-light.
-SUITES+=("muse_decode:muse_decode/tests")
+SUITES+=("muse_decode:muse_decode")
 SUITES+=("muse_play:muse_play/tests")
 SUITES+=("muse_render:muse_render/tests")
 SUITES+=("muse_compare:muse_compare/tests")
 SUITES+=("muse_distill:muse_distill/tests")
 SUITES+=("muse_mockup:muse_mockup")
 SUITES+=("muse_workbench_runner:muse_workbench_runner/tests")
+# C3/E1 (fast tier): budget engine + event scaffold — sub-second suites.
+SUITES+=("muse_budgets:muse_budgets")
+SUITES+=("muse_event:muse_event/tests")
 # P3 (fast tier): decoder conformance gate — .mu golden vectors, sha256-pinned
 # canonical streams; full-registry verify is decode-only (~2s).
 SUITES+=("muse_ci:muse_ci/tests")
