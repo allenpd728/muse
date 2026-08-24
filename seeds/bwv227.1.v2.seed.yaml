@@ -1,0 +1,37 @@
+format_version: '0.1'
+work_id: bwv227.1
+title: Bach BWV227.1 — growth-target v2
+params:
+  tempo:
+    min_bpm: 80
+    max_bpm: 120
+    default_bpm: 96
+  energy:
+    level: 0.75
+    shape: arch
+  density:
+    min_notes_per_beat: 0.5
+    max_notes_per_beat: 6
+  variation:
+    level: 1
+    points: []
+philosophy:
+  tempo_philosophy: [flexible, architectural]
+  dynamic_philosophy: [terraced, dramatic]
+  articulation_stance: [sing the chorale, breathe at phrase ends]
+  provenance:
+    author: openhands-agent
+    ai_assisted: true
+variation_points: []
+assertions:
+  register:
+    part: P4
+    min: C2
+    max: C4
+  tempo_bounds:
+    min_bpm: 60
+    max_bpm: 130
+provenance:
+  source: corpus/bach/bwv227.1.mxl
+  author: openhands-agent
+  ai_assisted: true
