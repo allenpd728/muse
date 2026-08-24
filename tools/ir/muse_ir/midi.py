@@ -65,8 +65,9 @@ def load_midi(source, origin: str = None) -> Work:
         tick = 0
         track_name = None
         gm_program = None
-        open_notes: dict = defaultdict(deque)  # (channel, pitch) -> deque of (onset, velocity)
+        open_notes: dict = defaultdict(deque)  # (channel, pitch) -> deque of (onset, velocity, inferred)
         notes = []
+        velocity_inferred_count = 0
         for msg in track:
             tick += msg.time
             if msg.type == "track_name" and track_name is None:
@@ -96,7 +97,7 @@ def load_midi(source, origin: str = None) -> Work:
                 if gm_program is None:
                     gm_program = msg.program
             elif msg.type == "note_on" and msg.velocity > 0:
-                open_notes[(msg.channel, msg.note)].append((tick, msg.velocity))
+                open_notes[(msg.channel, msg.note)].append((tick, msg.velocity, False))
             elif msg.type == "note_off" or (msg.type == "note_on" and msg.velocity == 0):
                 queue = open_notes.get((msg.channel, msg.note))
                 if not queue:
@@ -104,18 +105,21 @@ def load_midi(source, origin: str = None) -> Work:
                         f"{origin}: track {track_index}: note_off without note_on "
                         f"(channel={msg.channel}, pitch={msg.note}, tick={tick})"
                     )
-                onset, velocity = queue.popleft()
+                onset, velocity, inferred = queue.popleft()
                 if tick - onset <= 0:
                     raise IRParseError(
                         f"{origin}: track {track_index}: non-positive note duration "
                         f"at tick {onset}"
                     )
+                if inferred:
+                    velocity_inferred_count += 1
                 notes.append(
-                    Note(pitch=msg.note, onset=onset, duration=tick - onset, velocity=velocity)
+                    Note(pitch=msg.note, onset=onset, duration=tick - onset, velocity=velocity,
+                         velocity_inferred=inferred)
                 )
-        dangling = [(ch, p, q[0][0]) for (ch, p), q in open_notes.items() if q]
+        dangling = [(ch, p, q[0][0], q[0][2]) for (ch, p), q in open_notes.items() if q]
         if dangling:
-            ch, p, onset = dangling[0]
+            ch, p, onset, _inferred = dangling[0]
             raise IRParseError(
                 f"{origin}: track {track_index}: note_on never closed "
                 f"(channel={ch}, pitch={p}, onset={onset})"
@@ -133,6 +137,10 @@ def load_midi(source, origin: str = None) -> Work:
             notes=notes,
             inferred_voice=True,  # MIDI carries no voice/staff assignment
         )
+        if velocity_inferred_count:
+            part.warnings.append(
+                f"{velocity_inferred_count} note(s) had inferred velocity (64)"
+            )
         part.sort_notes()
         parts.append(part)
 
