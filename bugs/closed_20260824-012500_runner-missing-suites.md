@@ -1,7 +1,7 @@
-# Bug — unified runner doesn't run the newest tools' suites
+# Bug (CLOSED — fixed by the #202 commit) — unified runner
 
 **Found:** 2026-08-24, run=20260823-2312-h8pk, gathering gate evidence for #201.
-**Disposition:** filed #202 (`status:available`).
+**Disposition:** fixed by the #202 commit (closed status:done).
 
 ## Symptom
 
