@@ -7,10 +7,10 @@ Any conforming player reads the score for exact mechanical playback; an LLM
 player reads score + prompt and brings the work to life — slowly,
 deliberately. A performance is an event, not a render.
 
-> **Status: private development, docs + corpus phase.** The repo holds the
-> design documents, the work-tracking process, and the reference corpus.
-> Tooling lands per [`docs/pipeline.md`](docs/pipeline.md). Nothing here is
-> public-ready; the format spec will be published at launch, not before.
+> **Status: private development.** Format spec, tooling, and corpus live on
+> `dev`; deterministic player (P1/P2) and LLM-side harnesses are landed and
+> tested. Nothing here is public-ready; the format spec will be published at
+> launch, not before.
 
 ## The product model
 
@@ -49,9 +49,9 @@ player never changes; the rolls keep getting better.
 |---|---|---|
 | Format spec ([FORMAT_SPEC.md](FORMAT_SPEC.md)) | Design draft | Public at launch |
 | Reference corpus ([corpus/](corpus/)) | **Acquired** — Bach, Byrd, Schubert, Beethoven 5, Beethoven 9 complete | Public domain sources |
-| Compressor (MusicXML → `.mu`) | Not built | Proprietary |
-| Deterministic player | Not built | Public at launch |
-| LLM player | Not built | **The product — proprietary** |
+| Compressor (MusicXML → `.mu`) | **Landed** (S2 [tools/muse_roll](tools/muse_roll/); container S5 [tools/muse_mu](tools/muse_mu/); seed S3 series through #147) | Proprietary |
+| Deterministic player | **Landed** (P1 [tools/muse_decode](tools/muse_decode/); renderer P2 [tools/muse_play](tools/muse_play/)) | Public at launch |
+| LLM player | In progress — session-file harness L1 [tools/muse_mockup](tools/muse_mockup/), renderer L2 [tools/muse_render](tools/muse_render/), A/B rig L3 [tools/muse_compare](tools/muse_compare/), distiller L4 [tools/muse_distill](tools/muse_distill/) | **The product — proprietary** |
 
 ## The corpus
 
