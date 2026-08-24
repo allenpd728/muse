@@ -37,6 +37,11 @@ SUITES+=("chain_smoke:muse_chain/test_chain_smoke.py")
 SUITES+=("muse_explorer:muse_explorer/tests")
 # Probes (fast tier): seed-iteration probe engine.
 SUITES+=("muse_probes:muse_probes/tests")
+# Generate loop (fast tier): schema, provider, generate, integration.
+SUITES+=("muse_mockup:muse_mockup")
+SUITES+=("muse_provider:muse_provider/tests")
+SUITES+=("muse_generate:muse_generate/tests")
+SUITES+=("muse_grow:muse_grow/tests")
 # P1/P2/L-series (fast tier): decoder, renderer, mockup harness, A/B rig,
 # distiller — all corpus-light.
 SUITES+=("muse_decode:muse_decode/tests")
