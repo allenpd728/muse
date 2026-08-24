@@ -117,6 +117,23 @@ function audioPanel(workId) {
   </div>`;
 }
 
+function growthPanel(workId, growth) {
+  if (!growth) return '';
+  const rows = Object.entries(growth).map(([trait, info]) => {
+    const cls = info.verdict === 'growing' ? 'pass' : (info.verdict === 'regressing' ? 'fail' : '');
+    const detail = info.delta !== undefined && info.delta !== null ? ` (${info.delta > 0 ? '+' : ''}${info.delta})` :
+      (info.from ? ` (${info.from} → ${info.to})` : '');
+    return `<div class="probe"><span>${trait}</span><span class="${cls}">${info.verdict}${detail}</span></div>`;
+  }).join('');
+  return `<div class="card"><h3>Growth (v1 → v2)</h3>${rows}
+    <p class="note">per-trait verdicts from the distiller's iteration compare</p></div>`;
+}
+
+async function loadGrowth(workId) {
+  const name = `${workId}.growth.v1-to-v2.json`;
+  return await loadJSON(`data/seeds/${name}`);
+}
+
 async function main() {
   const works = await loadJSON('data/works.json');
   const container = document.getElementById('works');
@@ -150,10 +167,11 @@ async function main() {
       const seedText = await loadText(`data/seeds/${entry.file}`);
       const seed = seedText ? parseSeedYaml(seedText) : null;
       const probes = await loadJSON(`data/seeds/${entry.probes}`);
+      const growth = await loadGrowth(entry.work_id);
       const div = document.createElement('div');
       div.className = 'work';
       div.innerHTML = `<h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
-        <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${audioPanel(entry.work_id)}</div>`;
+        <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id)}</div>`;
       container.appendChild(div);
     }
     if (!idx.seeds.length) {
