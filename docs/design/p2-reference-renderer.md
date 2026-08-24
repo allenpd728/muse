@@ -1,6 +1,7 @@
-# P2 — Reference renderer (design doc, scaffold)
+# P2 — Reference renderer (design doc)
 
-**Phase 2 — Deterministic player. Status: scaffold.**
+**Phase 2 — Deterministic player. Status: implemented (2026-08-24, #198 →
+[tools/muse_play](../../tools/muse_play/)).**
 
 ## Purpose
 
