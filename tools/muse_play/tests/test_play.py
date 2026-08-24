@@ -84,3 +84,58 @@ def test_sub_sample_note_renders(tmp_path):
     meta = render_work(w, str(tmp_path / "short.wav"))
     assert meta["notes"] == 2
     assert meta["duration_sec"] > 0
+
+
+# --- .mu container input (issue #225, spec gap 1): the CLI's format list
+# now matches P1's acceptance — containers decode via muse_decode.
+
+import os
+import subprocess
+import sys
+
+REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+TOOLS = os.path.join(REPO, "tools")
+VECTOR = os.path.join(TOOLS, "muse_ci", "vectors", "bach-bwv227.1.mu")
+
+
+def test_cli_mu_container_renders(tmp_path):
+    """P3's golden vector renders through the CLI end-to-end."""
+    assert os.path.exists(VECTOR), "P3 vector store must exist"
+    out = tmp_path / "vec.wav"
+    proc = subprocess.run(
+        [sys.executable, "-m", "muse_play", VECTOR, "-o", str(out)],
+        cwd=TOOLS, capture_output=True, text=True, timeout=60,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "279 notes" in proc.stdout
+    assert "4 parts" in proc.stdout
+    with wave.open(str(out)) as w:
+        assert w.getnframes() > 44100
+
+
+def test_mu_matches_source_render(tmp_path):
+    """The .mu container and its corpus source decode to the same render
+    bytes — the S1 contract through two input paths."""
+    sys.path.insert(0, os.path.join(TOOLS, "muse_decode"))
+    sys.path.insert(0, os.path.join(TOOLS, "muse_mu"))
+    sys.path.insert(0, os.path.join(TOOLS, "muse_roll"))
+    from muse_decode import decode
+
+    a = render_work(decode(VECTOR), str(tmp_path / "from_mu.wav"))
+    b = render_work(load(corpus_path("bach", "bwv227.1.mxl")),
+                    str(tmp_path / "from_src.wav"))
+    assert a["notes"] == b["notes"] == 279
+    assert open(tmp_path / "from_mu.wav", "rb").read() == \
+        open(tmp_path / "from_src.wav", "rb").read()
+
+
+def test_cli_unsupported_format_still_loud(tmp_path):
+    """Truly unsupported suffixes keep the loud exit-2 contract."""
+    bogus = tmp_path / "nope.txt"
+    bogus.write_text("not music")
+    proc = subprocess.run(
+        [sys.executable, "-m", "muse_play", str(bogus)],
+        cwd=TOOLS, capture_output=True, text=True, timeout=60,
+    )
+    assert proc.returncode == 2
+    assert "unsupported" in proc.stderr.lower()

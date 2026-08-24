@@ -9,7 +9,7 @@ fallback). The renderer-side proof of the S1 contract; L2 lives above.
 python -m muse_play <source> [-o out.wav]
 ```
 
-source: `.xml`, `.mxl`, `.mid`. Reads through the W1 IR and renders WAV
+source: `.xml`, `.mxl`, `.mid`, `.mu`. MusicXML/MIDI read through the W1 IR; `.mu` containers decode via P1 (muse_decode). Renders WAV
 at 44100 mono.
 
 ## Renders
