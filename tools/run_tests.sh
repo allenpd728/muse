@@ -59,6 +59,8 @@ SUITES+=("muse_play:muse_play/tests")
 SUITES+=("muse_render:muse_render/tests")
 SUITES+=("muse_compare:muse_compare/tests")
 SUITES+=("muse_distill:muse_distill/tests")
+SUITES+=("muse_mockup:muse_mockup")
+SUITES+=("muse_workbench_runner:muse_workbench_runner/tests")
 # P3 (fast tier): decoder conformance gate — .mu golden vectors, sha256-pinned
 # canonical streams; full-registry verify is decode-only (~2s).
 SUITES+=("muse_ci:muse_ci/tests")

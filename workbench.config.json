@@ -1,0 +1,23 @@
+{
+  "runner": "tools/muse_workbench_runner",
+  "sandbox": "local",
+  "allowlist": [
+    "muse_seed.validate",
+    "muse_seed.create",
+    "muse_probes.run",
+    "muse_grow.iterate",
+    "muse_play.render",
+    "muse_analyze.run",
+    "muse_diff.run",
+    "muse_tests.fast"
+  ],
+  "prompt_enabled": true,
+  "reach": "sandbox-only",
+  "terminal": {
+    "enabled": false,
+    "mode": "embedded",
+    "session": "tmux",
+    "attach_chat": false,
+    "pane_target": "openhands"
+  }
+}
