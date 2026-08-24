@@ -1,4 +1,4 @@
-# Bug — muse_analyze test references dropped CLI flag (`--all`)
+# Bug (CLOSED — fixed by b5f99e9, #237) — muse_analyze test references dropped CLI flag (`--all`)
 
 **Found:** 2026-08-24, run=20260824-1034-f7e8, while running the full tier
 as gate evidence for #214.
