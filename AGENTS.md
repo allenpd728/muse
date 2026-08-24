@@ -85,7 +85,7 @@ One command runs the whole repo (issue #167):
 
 ```bash
 pip install -r tools/requirements.test.txt
-./tools/run_tests.sh          # fast tier (~3.5 min, 509 tests, 16 suites)
+./tools/run_tests.sh          # fast tier (~4 min, 552 tests, 17 suites)
 ./tools/run_tests.sh --full   # everything incl. slow suites (~5 min)
 ./tools/run_tests.sh --list   # suite inventory
 ```
@@ -157,6 +157,7 @@ tools/muse_distill/   # L4 mockup → seed revision distiller
 tools/muse_play/      # P2 reference renderer (soundfont tier)
 tools/muse_event/     # E1 execution scaffold (corpus ladder)
 tools/muse_decode/    # P1 reference decoder (.mu → event stream)
+tools/muse_ci/        # P3 conformance suite (.mu golden vectors + decoder gate)
 tools/muse_probes/    # W-B1 seed-iteration probe engine
 tools/muse_mockup/    # L1 mockup harness
 tools/qa_frontend/    # T2 headless DOM QA (Playwright)

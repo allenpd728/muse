@@ -1,0 +1,83 @@
+{
+  "format": "muse-ci-pins-v1",
+  "vectors": {
+    "bach-bwv227.1": {
+      "canonical_bytes": 40189,
+      "mu": "bach-bwv227.1.mu",
+      "sha256": "12e6798fa192529e7ae55ebf095a687a6d4ce32f9ff0d349aebb00ba6eede18d",
+      "source": "corpus/bach/bwv227.1.mxl"
+    },
+    "bach-bwv227.11": {
+      "canonical_bytes": 29020,
+      "mu": "bach-bwv227.11.mu",
+      "sha256": "37598abe2381b08fa3849a03d9f06befc02a3a4c909faebf010ea3519389543e",
+      "source": "corpus/bach/bwv227.11.mxl"
+    },
+    "bach-bwv227.3": {
+      "canonical_bytes": 54480,
+      "mu": "bach-bwv227.3.mu",
+      "sha256": "d2df59a67a1a748d08b96afea6b6a0124be3bf1608da29365ddf2c960d217a46",
+      "source": "corpus/bach/bwv227.3.mxl"
+    },
+    "bach-bwv227.7": {
+      "canonical_bytes": 46363,
+      "mu": "bach-bwv227.7.mu",
+      "sha256": "2c75c73fa8c5611d796e27296279a2bc31ca134123d67b5de7819e978a6657d1",
+      "source": "corpus/bach/bwv227.7.mxl"
+    },
+    "beethoven-sym5-mov1": {
+      "canonical_bytes": 2013010,
+      "mu": "beethoven-sym5-mov1.mu",
+      "sha256": "a8dcf9a6b8161915a826da4c6fde53c77c7cef86fe884b8fa6877094a8a0a1c2",
+      "source": "corpus/beethoven/beethoven-sym5-mov1.xml"
+    },
+    "beethoven-sym9": {
+      "canonical_bytes": 35858004,
+      "mu": "beethoven-sym9.mu",
+      "sha256": "de3868130eb3cbdcb8ab91ccea32db65c062a9fb0716c84c0bbd4d1f68feca90",
+      "source": "corpus/beethoven/beethoven-sym9.xml"
+    },
+    "byrd-1-kyrie": {
+      "canonical_bytes": 11794,
+      "mu": "byrd-1-kyrie.mu",
+      "sha256": "2136cc852229f78b5995c56fb5452fc25de84b38b9a63ba0916f7da4b46b19ba",
+      "source": "corpus/byrd/1-Kyrie.mid"
+    },
+    "byrd-2-gloria": {
+      "canonical_bytes": 139429,
+      "mu": "byrd-2-gloria.mu",
+      "sha256": "e7d715f47791dd4082330566d1c3932ebec2ddd74e7b87367629c0fb668510ad",
+      "source": "corpus/byrd/2-Gloria.mid"
+    },
+    "byrd-3-credo": {
+      "canonical_bytes": 215026,
+      "mu": "byrd-3-credo.mu",
+      "sha256": "7a43674afc7920034eda3d05d74bb10eff08bd6ad98bef4ab07ea4da61ee91c2",
+      "source": "corpus/byrd/3-Credo.mid"
+    },
+    "byrd-4-sanctus": {
+      "canonical_bytes": 48763,
+      "mu": "byrd-4-sanctus.mu",
+      "sha256": "0b577cb1ad29a9c759de4a344df9ca258a8750a65dcf7ac987ddc12d5159a389",
+      "source": "corpus/byrd/4-Sanctu.mid"
+    },
+    "byrd-5-benedictus": {
+      "canonical_bytes": 20860,
+      "mu": "byrd-5-benedictus.mu",
+      "sha256": "427d1691cc880d93376f9fcf75b1f30d09829e49762637d1fd7029517cb05eca",
+      "source": "corpus/byrd/5-Bened.mid"
+    },
+    "byrd-6-agnus": {
+      "canonical_bytes": 57520,
+      "mu": "byrd-6-agnus.mu",
+      "sha256": "673574dca74bda23fa6a769495439cc25151a0962d0bacf1ffcf4791b0ae1e7d",
+      "source": "corpus/byrd/6-Agnus.mid"
+    },
+    "schubert-d810": {
+      "canonical_bytes": 3809779,
+      "mu": "schubert-d810.mu",
+      "sha256": "07c77f22aee1227a1482ab32df21189752536288822c98ac44db952889a4b2ec",
+      "source": "corpus/schubert/death-and-the-maiden.mxl"
+    }
+  }
+}
