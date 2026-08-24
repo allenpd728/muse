@@ -155,6 +155,10 @@ tools/muse_render/    # L2 mockup → audio renderer
 tools/muse_compare/   # L3 model A/B comparison rig
 tools/muse_distill/   # L4 mockup → seed revision distiller
 tools/muse_play/      # P2 reference renderer (soundfont tier)
+tools/muse_decode/    # P1 reference decoder (.mu → event stream)
+tools/muse_probes/    # W-B1 seed-iteration probe engine
+tools/muse_mockup/    # L1 mockup harness
+tools/qa_frontend/    # T2 headless DOM QA (Playwright)
 tools/run_tests.sh    # unified test runner (fast/--full/--list)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
