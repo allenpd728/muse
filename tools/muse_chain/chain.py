@@ -1,9 +1,10 @@
 """E2E chain harness — corpus source → IR → roll → container → decode → render.
 
 Each stage is a named function returning StageResult (PASS/FAIL/SKIP);
-a failing stage isolates the owning task by name. P1 (sandboxed decoder)
-and P2 (renderer) are stub stages until they land: the chain runs S2's
-decode as the decoder stand-in and reports the stubs as SKIP.
+a failing stage isolates the owning task by name. Decode runs the real P1
+(tools/muse_decode) against the written .mu container; render runs the real
+P2 (tools/muse_play) on the P1-decoded Work. Both landed 2026-08-24 (#197,
+#198); this harness is where their seams (S5→P1, P1→P2) are exercised.
 
 Determinism: pack twice → identical roll bytes; artifacts are compared
 as payloads (never zip container bytes, whose timestamps vary).
@@ -42,6 +43,10 @@ REGISTRY = [
 # losslessness structurally (canonical compare) instead.
 DIFF_BUDGET_NOTES = 30000
 
+# P2 render allocates a 44.1kHz mono buffer for the whole work; above this
+# many notes the render stage is skipped (B9 ≈ 239k notes ≈ 65 min of audio).
+RENDER_BUDGET_NOTES = 30000
+
 
 @dataclass
 class StageResult:
@@ -76,7 +81,7 @@ def _stage_pack(work):
     return a, StageResult("pack(S2)", "PASS", f"{len(a)} bytes, deterministic")
 
 
-def _stage_container(work_id, relpath, roll_bytes, seed_bytes):
+def _stage_container(work_id, relpath, roll_bytes, seed_bytes, out_dir):
     from muse_mu import build_manifest, read_mu, write_mu
 
     prov = {"source": f"corpus/{relpath}", "author": "muse_chain",
@@ -88,28 +93,26 @@ def _stage_container(work_id, relpath, roll_bytes, seed_bytes):
     members = {"roll.bin": roll_bytes, "seed.bin": seed_bytes}
     manifest = build_manifest(work_id=work_id, license=lic, provenance=prov,
                               members=members)
-    with tempfile.NamedTemporaryFile(suffix=".mu", delete=False) as tmp:
-        path = tmp.name
-    try:
-        write_mu(path, manifest, members)
-        back, got = read_mu(path)
-    finally:
-        os.unlink(path)
+    path = os.path.join(out_dir, f"{work_id}.mu")
+    write_mu(path, manifest, members)
+    back, got = read_mu(path)
     if got != members:
-        return None, StageResult("container(S5)", "FAIL",
-                                 "member round-trip mismatch")
-    return back.to_json().encode(), StageResult(
+        return None, None, StageResult("container(S5)", "FAIL",
+                                       "member round-trip mismatch")
+    return path, back.to_json().encode(), StageResult(
         "container(S5)", "PASS", "manifest verified, hashes match")
 
 
-def _stage_decode(work, roll_bytes):
-    rt = roll_decode(roll_bytes)
+def _stage_decode(work, container_path):
+    """S5→P1 seam: the real P1 decoder reads the written .mu container."""
+    from muse_decode import decode as mu_decode
+
+    rt = mu_decode(container_path)
     if _canonical(rt) != _canonical(work):
-        return StageResult("decode(P1-stub)", "FAIL",
-                           "event stream mismatch after decode")
-    return StageResult(
-        "decode(P1-stub)", "PASS",
-        "event stream identical (S2 decode stand-in; P1 sandboxed decoder pending)")
+        return None, StageResult("decode(P1)", "FAIL",
+                                 "event stream mismatch after decode")
+    return rt, StageResult(
+        "decode(P1)", "PASS", "event stream identical (P1 reference decoder)")
 
 
 def _stage_diff(work, roll_bytes):
@@ -126,8 +129,25 @@ def _stage_diff(work, roll_bytes):
     return StageResult("verify(W4)", "PASS", "recall=precision=1.0")
 
 
-def _stage_render():
-    return StageResult("render(P2)", "SKIP", "renderer not yet implemented")
+def _stage_render(work, out_dir):
+    """P1→P2 seam: the real P2 renderer turns the decoded Work into audio."""
+    if work.note_count > RENDER_BUDGET_NOTES:
+        return StageResult("render(P2)", "SKIP",
+                           f"{work.note_count} notes > {RENDER_BUDGET_NOTES} budget")
+    from muse_play.play import render_work
+
+    wav = os.path.join(out_dir, "render.wav")
+    info = render_work(work, wav)
+    with open(wav, "rb") as fh:
+        if fh.read(4) != b"RIFF":
+            return StageResult("render(P2)", "FAIL", "output is not a WAV")
+    size = os.path.getsize(wav)
+    if size < 1000 or info["duration_sec"] <= 0:
+        return StageResult("render(P2)", "FAIL",
+                           f"suspicious render: {size} bytes, {info['duration_sec']}s")
+    return StageResult("render(P2)", "PASS",
+                       f"{info['notes']} notes → {info['duration_sec']}s WAV "
+                       f"({size} bytes)")
 
 
 def run_work(work_id, relpath, seed_bytes=b"chain-seed-placeholder") -> ChainResult:
@@ -146,14 +166,21 @@ def run_work(work_id, relpath, seed_bytes=b"chain-seed-placeholder") -> ChainRes
         return result
     result.artifacts["roll.bin"] = roll_bytes
 
-    manifest_json, s = _stage_container(work_id, relpath, roll_bytes, seed_bytes)
-    result.stages.append(s)
-    if manifest_json is not None:
-        result.artifacts["manifest.json"] = manifest_json
+    with tempfile.TemporaryDirectory(prefix="muse-chain-") as out_dir:
+        container_path, manifest_json, s = _stage_container(
+            work_id, relpath, roll_bytes, seed_bytes, out_dir)
+        result.stages.append(s)
+        if manifest_json is not None:
+            result.artifacts["manifest.json"] = manifest_json
+        if container_path is None:
+            return result
 
-    result.stages.append(_stage_decode(work, roll_bytes))
-    result.stages.append(_stage_diff(work, roll_bytes))
-    result.stages.append(_stage_render())
+        decoded, s = _stage_decode(work, container_path)
+        result.stages.append(s)
+        result.stages.append(_stage_diff(work, roll_bytes))
+        if decoded is None:
+            return result
+        result.stages.append(_stage_render(decoded, out_dir))
     return result
 
 

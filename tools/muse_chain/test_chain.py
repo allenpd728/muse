@@ -26,9 +26,8 @@ class TestStagesCompose:
         r = run_work(wid, rel)
         assert r.ok
         stages = {s.stage.split("(")[0]: s.status for s in r.stages}
-        for stage in ("parse", "pack", "container", "decode", "verify"):
+        for stage in ("parse", "pack", "container", "decode", "verify", "render"):
             assert stages[stage] == "PASS", stage
-        assert stages["render"] == "SKIP"
 
     def test_artifacts_present_and_bytes(self):
         r = run_work(*SMALL[0])
@@ -43,6 +42,13 @@ class TestStagesCompose:
         assert verify.status == "SKIP"
         decode = next(s for s in r.stages if s.stage.startswith("decode"))
         assert decode.status == "PASS"  # structural check carries the load
+
+    def test_render_skips_over_budget(self):
+        """B9 ≈ 239k notes ≈ 65 min of 44.1kHz audio — render budget gates it."""
+        r = run_work("beethoven-sym9", "beethoven/beethoven-sym9.xml")
+        assert r.ok
+        render = next(s for s in r.stages if s.stage.startswith("render"))
+        assert render.status == "SKIP"
 
 
 class TestFailureIsolation:
@@ -84,8 +90,8 @@ class TestCLI:
     def test_single_work_exit_zero(self):
         r = self.run_cli("--work", "bach/bwv227.1.mxl")
         assert r.returncode == 0
-        assert r.stdout.count("OK") >= 5
-        assert "SKIP" in r.stdout
+        assert r.stdout.count("OK") >= 6
+        assert "SKIP" not in r.stdout
 
     def test_determinism_flag(self):
         r = self.run_cli("--determinism")
