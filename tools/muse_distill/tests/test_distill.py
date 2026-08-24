@@ -50,3 +50,43 @@ def test_dump_yaml_and_json():
     j = dump_delta(d, fmt="json")
     assert "tempo_range" in y or "tempo" in y
     assert '"tempo"' in j
+
+
+def test_wavering_curve_classified_wavering():
+    """Spec gap 1: a monotonic fall is neither flat (range ≥ 2) nor arch
+    (first > last) — the wavering path, pinned positive."""
+    m = make_mockup(
+        [Note(60, 0, 480, 60)],
+        tempo_map=[(0, 120000), (100, 110000), (200, 100000)],
+    )
+    i = extract_interpretation(m)
+    assert i.tempo_curve_shape == "wavering"
+    assert i.tempo_range == (100.0, 120.0)
+
+
+def test_cli_end_to_end(tmp_path):
+    """Spec gap 4: the CLI entry point writes the delta YAML."""
+    import os
+    import subprocess
+    import sys
+
+    from muse_mockup import dump_mockup
+
+    m = make_mockup(
+        [Note(60, 0, 480, 60), Note(64, 480, 480, 80)],
+        tempo_map=[(0, 60000), (100, 90000), (200, 80000)],
+    )
+    mockup_path = tmp_path / "w.mockup.json"
+    mockup_path.write_text(dump_mockup(m, fmt="json"))
+    out_path = tmp_path / "w.delta.yaml"
+    tools_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    proc = subprocess.run(
+        [sys.executable, "-m", "muse_distill", str(mockup_path),
+         "--out", str(out_path)],
+        cwd=tools_dir, capture_output=True, text=True, timeout=30,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "arch curve" in proc.stdout
+    text = out_path.read_text()
+    assert "tempo_curve_shape: arch" in text
+    assert "min_bpm: 60.0" in text
