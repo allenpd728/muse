@@ -40,3 +40,13 @@ still pass and are the template.
 Note: the fast tier doesn't run qa_frontend (slow suite), so DOM drift
 lands silently — the runner-discovery contract (#217) registers the suite
 but the gate cadence is the gap; consider a periodic slow-tier run.
+
+---
+
+## Closed 2026-08-24 (run=20260824-1059-b671)
+
+Fixed by sibling commits c5ac9b6 (W-B3: restore /workbench/ route),
+738d9eb (#229: retarget to W-B6 routes), de87fba (route pin: /workbench/
+is the #227 redirect shell). Verified on dev:
+`cd tools/qa_frontend && python -m pytest` → 55 passed, 5 skipped
+(live smoke skips without QA_LIVE=1).
