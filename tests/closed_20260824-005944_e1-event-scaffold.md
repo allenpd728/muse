@@ -32,3 +32,27 @@ Run: `cd tools/muse_event && python -m pytest` (<1 s).
 ## Invocation
 
 `cd tools/muse_event && python -m pytest` (<1 s).
+
+---
+
+## Closed 2026-08-24 (issue #226, run=20260824-1059-b671)
+
+Landed coverage: `tools/muse_event/tests/test_event.py` grew 4 → 7
+tests, with a small wire in `event.py`:
+
+- **Gap 2 (missing-corpus partial failure)** — `event_chain` now checks
+  source existence and fails the rung gracefully (`found_working=False`
+  + the missing path in `error`); the ladder continues past the failed
+  rung and the ledger records it. `run_ladder` resolves corpus paths
+  against the repo root (previously cwd-relative — silently unchecked,
+  so the old suite passed from any directory whether or not the corpus
+  was there).
+- **Gap 4 (flush-on-completion)** — pinned: no ledger file before
+  `run_ladder` completes, written once at the end.
+
+Gaps 1 and 3 stand: the chain invocation contract waits on the real
+stage calls (CLI vs in-process is undecided), and era-throughput is a
+passthrough until budgets differentiate mockup behavior.
+
+Gate: `cd tools/muse_event && python -m pytest` → 7 passed (<1 s);
+`./tools/run_tests.sh` fast tier → all suites green.
