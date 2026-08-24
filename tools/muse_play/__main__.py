@@ -2,8 +2,9 @@
 
     python -m muse_play <source> [-o out.wav]
 
-source: a MusicXML (.xml/.mxl) or MIDI (.mid) corpus file, or any path the
-W1 IR loads. `.mu` container support is the P3 gate's job.
+source: a MusicXML (.xml/.mxl) or MIDI (.mid) corpus file, any path the
+W1 IR loads, or a `.mu` container (decoded via P1's muse_decode — the
+container seam P3 pins).
 """
 
 from __future__ import annotations
@@ -19,14 +20,28 @@ from muse_ir import IRError, load  # noqa: E402
 from .play import PlayError, render_work  # noqa: E402
 
 
+def _load_source(source: str):
+    """`.mu` containers decode via P1; everything else goes to the W1 IR."""
+    if source.endswith(".mu"):
+        here = os.path.dirname(__file__)
+        for dep in ("muse_decode", "muse_mu", "muse_roll"):
+            sys.path.insert(0, os.path.join(here, "..", dep))
+        from muse_decode import DecodeError, decode
+        try:
+            return decode(source)
+        except DecodeError as exc:
+            raise IRError(str(exc)) from exc
+    return load(source)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="muse-play")
-    ap.add_argument("source", help="source file: .xml/.mxl/.mid")
+    ap.add_argument("source", help="source file: .xml/.mxl/.mid/.mu")
     ap.add_argument("-o", "--output", default=None)
     args = ap.parse_args(argv)
 
     try:
-        work = load(args.source)
+        work = _load_source(args.source)
     except IRError as exc:
         print(f"muse-play: {exc}", file=sys.stderr)
         return 2
