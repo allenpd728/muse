@@ -59,7 +59,7 @@ justified by Phase 0 evidence (a construct without corpus evidence doesn't ship)
 | Task | What it is | Status |
 |---|---|---|
 | P1 — Reference decoder | `.mu` roll stream → event stream. Deterministic, sandboxed, resource-bounded. | todo |
-| P2 — Reference renderer | Event stream → audio (soundfont tier). CLI: `muse play file.mu`. | todo |
+| P2 — Reference renderer | Event stream → audio (soundfont tier). CLI: `muse play file.mu`. | **done** (#198 → [tools/muse_play](../tools/muse_play/)) |
 | P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | todo |
 
 **Phase 2 done when:** every corpus `.mu` round-trips through the player and
