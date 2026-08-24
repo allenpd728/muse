@@ -89,7 +89,10 @@ function probePanel(probes, workId) {
   if (P.budget_fit) {
     for (const c of P.budget_fit.checks) {
       const cls = c.inside ? 'pass' : 'warn';
-      const txt = c.inside ? 'inside budget' : `outside (span ${c.span_fraction}x)`;
+      // Threshold chip: span shows mean deviation; out-of-budget reads
+      // explicitly "outside budget (avg span N.x)" instead of raw float.
+      const txt = c.inside ? 'inside budget'
+        : c.span_fraction ? `outside budget (avg span ${c.span_fraction}x)` : 'outside budget';
       rows += `<div class="probe"><span>budget: ${c.param}</span><span class="${cls}">${txt}</span></div>`;
     }
   }
