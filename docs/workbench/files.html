@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Muse — files (read-only)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: ui-monospace, monospace; background:#0d1117; color:#c9d1d9; margin:0; display:grid; grid-template-columns: 240px 1fr; height:100vh; }
+  nav.tree { border-right:1px solid #30363d; padding:1rem; overflow:auto; user-select:none; }
+  nav.tree .dir, nav.tree .file { padding:.12rem .3rem; font-size:.78rem; border-radius:4px; }
+  nav.tree .dir { color:#8b949e; }
+  nav.tree .file { color:#58a6ff; cursor:pointer; }
+  nav.tree .file:hover { background:#161b22; }
+  main { padding:1rem; overflow:auto; }
+  pre.view { margin:0; font-size:.75rem; line-height:1.35; color:#a5d6ff; white-space:pre; }
+  .note { font-size:.7rem; color:#8b949e; padding:1rem; }
+</style>
+</head>
+<body>
+<nav class="tree" id="tree">loading…</nav>
+<main id="view"><p class="note">select a file on the left — read-only, git-first write stays in the repo</p></main>
+<script>
+// Tree reads the http.server listing HTML for `docs/`; click fetches the
+// file path directly and renders it readonly. No write path — per W-B7
+// design ("edit-in-place is out").
+async function getList(path) {
+  const r = await fetch(path);
+  const html = await r.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return [...doc.querySelectorAll('a')].map(a => ({ href: a.getAttribute('href'), name: a.textContent.trim() }));
+}
+async function showTree(dir, target) {
+  const items = await getList(dir);
+  const ul = document.createElement('ul');
+  for (const item of items) {
+    if (!item.href) continue;
+    const name = item.href.replace(/\/+$/, '');
+    const li = document.createElement('li');
+    if (item.href.endsWith('/')) {
+      // directory — keep as small folder label
+      li.innerHTML = `<span class="dir">${name}/</span>`;
+      li.onclick = () => showTree(`${dir}${item.href}`, target);
+    } else {
+      li.innerHTML = `<span class="file" data-path="${dir}${item.href}">${name}</span>`;
+      li.onclick = () => view(`${dir}${item.href}`);
+    }
+    ul.appendChild(li);
+  }
+  target.innerHTML = '';
+  target.appendChild(ul);
+}
+async function view(path) {
+  const r = await fetch(path);
+  const text = await r.text();
+  const view = document.getElementById('view');
+  const ext = path.split('.').pop();
+  const cls = { md: 'language-markdown', py: 'language-python', yaml: 'language-yaml', yml: 'language-yaml', json: 'language-json', sh: 'language-bash' }[ext] || '';
+  view.innerHTML = `<pre class="view" aria-label="${path.slice(3)}">${escapeHtml(text)}</pre>`;
+}
+function escapeHtml(s) { return s.replace(/[&<]/g, c => ({'&':'&amp;','<':'&lt;'}[c])); }
+document.addEventListener('DOMContentLoaded', () => showTree('./', document.getElementById('tree')));
+</script>
+</body>
+</html>
