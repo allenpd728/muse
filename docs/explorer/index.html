@@ -59,7 +59,14 @@ async function boot() {
     row.className = 'work-row';
     row.innerHTML = `<span>${w.title}</span>
       <span class="meta">${w.parts} parts · ${fmt(w.notes)} notes</span>`;
+    // Keyboard access (#245): rows must be focusable and Enter/Space
+    // activatable, not mouse-only.
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
     row.onclick = () => show(w);
+    row.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(w); }
+    };
     list.appendChild(row);
   });
 

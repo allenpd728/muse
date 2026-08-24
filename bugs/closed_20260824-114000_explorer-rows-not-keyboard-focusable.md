@@ -1,4 +1,4 @@
-# Bug — explorer work rows not keyboard-focusable
+# Bug (CLOSED — fixed by this commit, #245) — explorer work rows not keyboard-focusable
 
 **Found:** 2026-08-24, run=20260824-1056-xtbc, while working Tests:
 Frontend QA Tier 2 (#223, spec tests/open_20260824-002500_frontend-qa-tier2.md

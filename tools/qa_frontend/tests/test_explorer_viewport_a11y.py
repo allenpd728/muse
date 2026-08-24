@@ -91,3 +91,20 @@ def test_back_button_keyboard_operable(server, session):
     assert page.evaluate("document.activeElement.className") == "back"
     page.keyboard.press("Enter")
     assert page.locator(".detail").count() == 0
+
+
+def test_work_rows_keyboard_focusable_and_activatable(server, session):
+    """#245: rows must be tabbable and Enter/Space must open the detail."""
+    page = _goto(server, session, DESKTOP)
+    row = page.locator(".work-row").first
+    assert row.get_attribute("tabindex") == "0"
+    assert row.get_attribute("role") == "button"
+    row.focus()
+    assert page.evaluate("document.activeElement.className") == "work-row"
+    page.keyboard.press("Enter")
+    assert page.locator(".detail").count() == 1
+    # Space on the same pattern: back to list, re-activate with Space
+    page.locator("button.back").click()
+    page.locator(".work-row").first.focus()
+    page.keyboard.press(" ")
+    assert page.locator(".detail").count() == 1
