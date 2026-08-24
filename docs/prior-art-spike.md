@@ -68,7 +68,7 @@ extracted curves into prompt rules). The extraction tooling exists; the
 
 | Borrow | What | Use |
 |---|---|---|
-| **DAWproject** (Bitwig/PreSonus) | Open DAW exchange (zip of XML: tempo, tracks, params); `dawproject-py` exists | **The export path** — hand producers a real session file |
+| **DAWproject** (Bitwig/PreSonus) | Open DAW exchange (zip of XML: tempo, tracks, params); `dawproject-py` exists | Possible export path — **founder-gated per decision-log D20** (mockups are confidential pipeline state; do not build export without sign-off) |
 | **Ardour session XML** | Open session format | Alternative export target |
 
 Not needed for the spike (MIDI + sfizz suffices); valuable later for the
