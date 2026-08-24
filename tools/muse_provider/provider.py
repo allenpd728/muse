@@ -28,12 +28,15 @@ class Provider:
 
 class GeminiProvider(Provider):
     name = "gemini"
-    DEFAULT_MODEL = "gemini-2.0-flash"
+    # Free-tier model rot: 2.0/2.5 404, flash-latest 503s under load.
+    # Working as of 2026-08-24; re-probe /v1beta/models if it 404s again.
+    DEFAULT_MODEL = "gemini-3-flash-preview"
 
-    def __init__(self, api_key=None, model=None, live=False):
+    def __init__(self, api_key=None, model=None, live=False, timeout=180):
         self.api_key = api_key or os.environ.get("GOOGLE_API_KEY")
         self.model = model or self.DEFAULT_MODEL
         self.live = live  # network calls only when live=True
+        self.timeout = timeout  # full-DNA responses (100s of notes) are slow
 
     def generate(self, prompt: str) -> dict:
         if not self.live:
@@ -55,7 +58,7 @@ class GeminiProvider(Provider):
             url, data=body, headers={"Content-Type": "application/json"}
         )
         try:
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 payload = json.load(resp)
         except Exception as e:
             raise ProviderError(f"gemini call failed: {e}") from e

@@ -37,9 +37,12 @@ def validate_mockup_schema(mockup):
         _check_ticks(mockup["dynamics"], "dynamics", ("tick", "level"),
                      lambda e: 0 <= e["level"] <= 1)
 
-    for entry in mockup.get("balance", []):
+    balance = mockup.get("balance", [])
+    _check(isinstance(balance, list), "balance", "must be a list")
+    for entry in balance:
+        _check(isinstance(entry, dict), "balance", "entry must be a dict")
         _check(isinstance(entry.get("gain"), (int, float)) and entry["gain"] >= 0,
-               _path("balance", entry.get("part", "?")), "gain must be >= 0")
+               _path("balance", str(entry.get("part", "?"))), "gain must be >= 0")
 
     parts = mockup["parts"]
     _check(isinstance(parts, dict), "parts", "must be a mapping of part id → notes")
@@ -51,6 +54,9 @@ def validate_mockup_schema(mockup):
 
 
 def _check_ticks(entries, name, keys, predicate):
+    _check(isinstance(entries, list), name, "must be a list")
+    for e in entries:
+        _check(isinstance(e, dict), name, "entry must be a dict")
     ticks = [e.get(keys[0]) for e in entries]
     _check(all(isinstance(t, int) and t >= 0 for t in ticks), name, "ticks must be non-negative ints")
     _check(ticks == sorted(ticks), name, "ticks must be ordered")
@@ -70,6 +76,8 @@ def _validate_note(note, path):
             _check(isinstance(note[key], (int, float)) and note[key] >= 0,
                    _path(path, key), "must be >= 0")
     if "swell" in note:
+        _check(isinstance(note["swell"], list), _path(path, "swell"),
+               "swell must be a list of [position, level] pairs")
         for pt in note["swell"]:
             _check(isinstance(pt, list) and len(pt) == 2, _path(path, "swell"),
                    "swell points are [position, level] pairs")

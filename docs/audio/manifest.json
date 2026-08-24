@@ -1,0 +1,28 @@
+{
+ "format": "muse-audio-manifest-v1",
+ "works": {
+  "bwv227.1": {
+   "llm-v2": {
+    "duration_sec": 48.657,
+    "file": "bwv227.1.llm-v2.wav",
+    "notes": 279,
+    "origin": "llm-live",
+    "sha256": "9ff87862e398d71acbe1ed6c96c6383cf03b28a410c5bcc79758c3242406b652"
+   },
+   "v1": {
+    "duration_sec": 45.886,
+    "file": "bwv227.1.v1.wav",
+    "notes": 279,
+    "origin": "stand-in",
+    "sha256": "b8b41e28b988dabaf64c43374253c2dbce29777de7295d00191715af2775444e"
+   },
+   "v2": {
+    "duration_sec": 44.133,
+    "file": "bwv227.1.v2.wav",
+    "notes": 279,
+    "origin": "stand-in",
+    "sha256": "2d4f682f8af1f9c50935059f645262267ee1f48bad7837a2ecbe9c258497c9bd"
+   }
+  }
+ }
+}

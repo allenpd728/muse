@@ -1,32 +1,38 @@
-# Bug — L2 renderer hardcodes ppq=480 (#246)
+# Bug — L2 renderer hardcodes ppq=480 (real works render at wrong speed)
 
-**Filed by:** issue #246 (2026-08-24, surfaced during #243 render-bridge
-work; the referenced `bugs/open_20260824-230000_*` file never landed in
-the repo — this entry is the record).
-**Closed:** 2026-08-24, run=20260824-2254-2185.
+**Found:** 2026-08-24, run=20260824-1032-xjzf, rendering seed-revision
+audio for #243. Issue: #246.
+**Disposition:** fixed in the #243 commit (mockup carries ppq; render
+uses it) — see the closed entry's commit reference.
 
-## Symptom (from #246)
+## Symptom
 
-`tools/muse_render/render.py` `ticks_to_sec` defaulted `ppq=480` and
-`render_mockup` never overrode it. Real corpus works use other domains:
-mxl-derived works ppq=2 (bwv227.1, Schubert, Beethoven), Byrd MIDIs
-ppq=192. bwv227.1 rendered as 0.69s instead of ~47s (240× too fast).
+`tools/muse_render/render.py` `ticks_to_sec(tick, tempo_map, ppq=480)` is
+called by `render_mockup` without a ppq argument. Corpus works are not
+ppq=480: mxl-derived works parse to ppq=2 (bwv227.1, schubert, beethoven),
+Byrd MIDIs to ppq=192. bwv227.1 renders as 0.689s of audio instead of
+~47s (240× too fast); Byrd renders 2.5× too fast.
 
-## Resolution
+## Repro
 
-`Mockup` carries `ppq` (additive field, default 480; serialized only when
-non-default so existing artifacts are byte-stable) and `render_mockup`
-consumes it for every `ticks_to_sec` call. The generate loop's schema v1
-has no ppq field — the render bridge sets it from the work at render
-time; schema-level ppq remains a possible follow-up (noted in #246).
+```bash
+python3 tools/muse_audio/cli.py corpus/bach/bwv227.1.mxl \
+    --seed seeds/bwv227.1.v1.seed.yaml --label v1
+# → bwv227.1.v1.wav, 0.689s (should be ~47s at the seed's 62..129 bpm arch)
+```
 
-## Verification
+## Root cause
 
-- Regression tests `tools/muse_render/tests/test_render_ppq.py` (6):
-  ppq=2 domain renders 152 ticks as 38.5s (the exact bug-report case),
-  ppq=192 domain renders 12288 ticks as 32.5s, default-480 behavior
-  unchanged, ppq serialization round-trip (implicit when default),
-  corpus premise pin (IR reports ppq 2 and 192), bwv227.1-shaped render
-  lands in the DoD's 45–75s band.
-- muse_render suite: 21 passed; muse_mockup suite: 20 passed; full fast
-  gate green.
+The Mockup model has no ppq field, so the renderer assumes the MIDI
+standard 480. The chain harness renders via muse_play (P2 handles ppq
+correctly) and muse_render's own tests use synthetic tick domains, so no
+suite exercised a real work's tick resolution through L2.
+
+## Fix (landed with #243)
+
+`Mockup.ppq: int = 480` (additive, backwards-compatible default), carried
+through dump/load; `render_mockup` passes `mockup.ppq` to `ticks_to_sec`;
+the render bridge (muse_audio) sets it from `work.meta.ppq`. The L1
+generate loop's schema v1 has no ppq field — mockups from the LLM are in
+the work's tick domain, so the bridge stamps ppq at render time;
+schema-level ppq is a possible follow-up.

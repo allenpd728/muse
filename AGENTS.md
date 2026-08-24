@@ -163,6 +163,7 @@ tools/muse_play/      # P2 reference renderer (soundfont tier)
 tools/muse_event/     # E1 execution scaffold (corpus ladder)
 tools/muse_decode/    # P1 reference decoder (.mu → event stream)
 tools/muse_ci/        # P3 conformance suite (.mu golden vectors + decoder gate)
+tools/muse_audio/     # workbench render bridge (seed revision → WAV + audio manifest)
 tools/muse_probes/    # W-B1 seed-iteration probe engine
 tools/muse_mockup/    # L1 mockup harness
 tools/qa_frontend/    # T2 headless DOM QA (Playwright)

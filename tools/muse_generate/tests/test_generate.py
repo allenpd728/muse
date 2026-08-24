@@ -29,11 +29,14 @@ def seed_work():
 
 
 def _valid_mockup(work):
+    # full DNA density (D9): one entry for every pitched note of every part
     return {
         "work_id": "bwv227.1",
         "tempo_map": [{"tick": 0, "bpm": 96.0}],
         "parts": {
-            p.id: [{"i": j, "velocity": 64} for j, n in enumerate(p.notes[:2])]
+            p.id: [{"i": j, "velocity": 64}
+                   for j, n in enumerate(p.notes)
+                   if n.pitch is not None and "unpitched" not in n.notations]
             for p in work.parts
         },
         "seed": {"note": "recorded"},

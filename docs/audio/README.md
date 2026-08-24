@@ -28,6 +28,17 @@ QA/explorer/workbench surfaces.
   (`docs/spike/*.wav`) predates this convention and is committed because
   those files are part of the spike's evidence record. New rendered audio
   stays session-local.
+- **`manifest.json` is committed** (it is JSON, not audio): the workbench
+  page's per-revision audio index, written by `tools/muse_audio`
+  (#243). Stand-in entries (`origin: stand-in`) regenerate byte-for-byte
+  from (work, seed revision) — the manifest's sha256 pins them. `llm-*`
+  entries are live-LLM renders: artifacts of a moment, regenerated only
+  by an explicit new live run (never silently). Regenerate stand-ins with:
+
+  ```bash
+  python3 tools/muse_audio/cli.py corpus/bach/bwv227.1.mxl \
+      --seed seeds/bwv227.1.v1.seed.yaml --label v1
+  ```
 
 ## Why not commit rendered audio
 

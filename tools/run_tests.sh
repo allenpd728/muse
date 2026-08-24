@@ -69,6 +69,9 @@ SUITES+=("muse_event:muse_event/tests")
 SUITES+=("muse_ci:muse_ci/tests")
 # Docs coherence (fast tier): design-doc/status-cache pins (E2 venue plan #230).
 SUITES+=("docs:../tests/docs")
+# Workbench audio bridge (fast tier): stand-in renders + manifest + live-path
+# wiring on recorded fixtures (no network).
+SUITES+=("muse_audio:muse_audio/tests")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
   "muse_chain:muse_chain"
