@@ -33,6 +33,33 @@
 <div id="works"></div>
 <script>
 async function loadJSON(p) { const r = await fetch(p); return r.ok ? r.json() : null; }
+async function loadText(p) { const r = await fetch(p); return r.ok ? r.text() : null; }
+
+// Minimal YAML → object for the seed fields the panel renders (params +
+// philosophy). The seed is also committed as JSON in the probes artifact,
+// but the panel reads the authored YAML directly.
+function parseSeedYaml(text) {
+  const seed = { params: {}, philosophy: {}, work_id: '?', format_version: '?' };
+  let section = null, subsection = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.replace(/\s+#.*$/, '');
+    if (!line.trim()) continue;
+    const indent = line.match(/^ */)[0].length;
+    const m = line.trim().match(/^([^:]+):\s*(.*)$/);
+    if (!m) continue;
+    const [, key, val] = m;
+    if (indent === 0) {
+      if (key === 'params' || key === 'philosophy') { section = key; subsection = null; }
+      else { section = null; seed[key] = val.replace(/^['"]|['"]$/g, ''); }
+    } else if (section && indent === 2) {
+      if (val === '') { subsection = key; seed[section][key] = {}; }
+      else seed[section][key] = val;
+    } else if (section && subsection && indent >= 4) {
+      seed[section][subsection][key] = val;
+    }
+  }
+  return seed;
+}
 
 function seedPanel(seed) {
   if (!seed) return '<div class="card"><h3>Seed</h3><p>none committed</p></div>';
@@ -69,7 +96,8 @@ async function main() {
   // seeds committed in data/seeds/
   const seedIndex = await loadJSON('data/seeds/index.json') || { seeds: [] };
   for (const entry of seedIndex.seeds) {
-    const seed = await loadJSON(`data/seeds/${entry.file}`);
+    const seedText = await loadText(`data/seeds/${entry.file}`);
+    const seed = seedText ? parseSeedYaml(seedText) : null;
     const probes = await loadJSON(`data/seeds/${entry.probes}`);
     const div = document.createElement('div');
     div.className = 'work';
