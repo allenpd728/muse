@@ -26,6 +26,19 @@ individually for deep links. As routes:
 - `/workbench/detail/<file-id>` → workbench panels for one file
 - `/workbench/terminal/` → the terminal mode (drawer+prompt+chat panes)
 
+### File explorer + text viewer (new, ~2KB)
+
+Not heavy — the static server (`http.server` over `docs/`) already serves
+a directory listing on GET and deliver the file content. The page's file
+panel is two GET fetches: a tree build on listing HTML, plus a readonly
+`<pre>` filler with syntax coloring via Prism-like. It adds about 2KB of
+JS + no extra weight.
+
+**Read boundries.** "Edit-in-place" is intentionally not in this path:
+write is git-first per seed convention; the text viewer is a read surface.
+Design seeds this guard rails before the temptation to add a write text
+box shows up later.
+
 ## One wire mechanism, four surfaces
 
 A single `terminal component` (xterm-style) embedded in the page proxies
