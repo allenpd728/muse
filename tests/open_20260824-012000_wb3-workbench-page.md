@@ -25,3 +25,15 @@ python3 tools/muse_probes/cli.py seeds/bwv227.1.seed.yaml --work corpus/bach/bwv
     > docs/workbench/data/seeds/bwv227.1.probes.json
 # serve: python3 -m http.server -d docs/workbench 8000
 ```
+
+## Addendum 2026-08-24 (#229, run=20260824-1107-409b)
+
+- **Routes:** the page lives at `docs/workbench/detail.html` (W-B6 rename);
+  `test_workbench_routes.py` pins the contract. `/workbench/` bare is a
+  directory listing — if a master index shell lands, flip that pin.
+- **Era filter is decorative for verdicts today:** the select re-renders
+  but probe rows come from the committed artifact (computed at
+  era=baroque). Per-era budget verdicts need page-side recompute +
+  per-era budget data — pinned as current behavior in
+  test_workbench_dod.py::test_era_filter_verdicts_are_artifact_driven_today;
+  flip it when the recompute lands.

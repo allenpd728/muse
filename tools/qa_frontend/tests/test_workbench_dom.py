@@ -32,7 +32,7 @@ def session():
 
 def _goto(server, session):
     page = session.new_page()
-    page.goto(server.url + "/workbench/", wait_until="networkidle")
+    page.goto(server.url + "/workbench/detail.html", wait_until="networkidle")
     return page
 
 
@@ -97,7 +97,7 @@ def test_workbench_missing_probes_shows_fallback(server, session):
     failure mode the QA tests exist to catch — it must not be silent)."""
     page = session.new_page()
     page.route("**/data/seeds/*.probes.json", lambda route: route.abort())
-    page.goto(server.url + "/workbench/", wait_until="networkidle")
+    page.goto(server.url + "/workbench/detail.html", wait_until="networkidle")
     text = page.locator("body").inner_text()
     assert "no probe artifact" in text.lower() or "load error" in text.lower()
 
