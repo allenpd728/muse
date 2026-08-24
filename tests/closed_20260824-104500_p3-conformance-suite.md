@@ -44,3 +44,22 @@ python3 tools/muse_ci/cli.py verify --full           # the gate itself
   DecodeError classes (P1's own tests cover this at unit level today).
 - Cross-decoder conformance: the store is language-agnostic by design —
   a future non-Python decoder can be gated against the same vectors.
+
+## Closed 2026-08-24 (#231, run=20260824-2254-2185)
+
+Ratified: every spec behavior maps to a landed test class
+(TestVectorGate / TestStoreIntegrity / TestTamperDetection /
+TestDeterminism / TestCli / TestCorpusCoverage /
+test_conformance_full.py::regeneration) — 43 tests green.
+
+Extension landed (the negative-vector follow-up):
+`tools/muse_ci/tests/test_negative_vectors.py`, 17 tests over four
+malformed input classes (not-a-zip, missing manifest, missing roll,
+corrupt roll payload) — each derived from the committed positive vector
+by controlled corruption (provenance reviewable, no opaque binaries),
+each pinned to its DecodeError message fragment, each proven to FAIL the
+verify gate and the CLI (exit 1) without raising. P1's unit coverage was
+unit-level; this tier pins the failure surface at the conformance gate,
+where a cross-decoder gate will consume it.
+
+Suite: `cd tools && python -m pytest muse_ci/tests -q` → 60 passed.
