@@ -195,3 +195,67 @@ def test_byte_instability_check_fires(seed_work):
                 "mockup generation not byte-stable",
             )
     assert a == b  # the real path is stable; the check shape is pinned
+
+
+# --- Cross-revision regression memory (issue #221, spec gap 1) ---
+# The committed v1→v2 pair (seeds/bwv227.1.v1/v2, landed with #218) pins
+# the "previously passing" side against real history instead of
+# self-comparison.
+
+SEED_V1 = os.path.join(REPO, "seeds", "bwv227.1.v1.seed.yaml")
+SEED_V2 = os.path.join(REPO, "seeds", "bwv227.1.v2.seed.yaml")
+
+
+def _load(path):
+    return load_seed(open(path).read(), fmt="yaml")
+
+
+def test_committed_pair_assertions_pass_on_both_revisions(seed_work):
+    """The gate stays green across the real committed history: v1's
+    assertions (the previously-passing memory) and v2's (identical in the
+    pair) both pass against the work."""
+    _, work = seed_work
+    for path in (SEED_V1, SEED_V2):
+        rev = _load(path)
+        res = probe_assertions(work, rev.assertions)
+        failures = [r for r in res["assertions"] if r["status"] == "fail"]
+        if failures:
+            raise QualityFailure(
+                "assertion-regression", rev.work_id, "assertions",
+                "; ".join(f"{r['kind']}: {r.get('detail', '?')}" for r in failures),
+            )
+
+
+def test_cross_revision_regression_fires_against_committed_prior(seed_work):
+    """A v2 whose assertion regresses *relative to the committed v1* is
+    caught: v1 passing is the memory, the regressed v2 names check+seed."""
+    _, work = seed_work
+    v1, v2 = _load(SEED_V1), _load(SEED_V2)
+    prior = probe_assertions(work, v1.assertions)
+    assert prior["failed"] == 0, "committed v1 must be the passing memory"
+    v2.assertions["register"] = {"part": "P4", "min": "C5", "max": "C6"}
+    res = probe_assertions(work, v2.assertions)
+    failures = [r for r in res["assertions"] if r["status"] == "fail"]
+    assert failures, "expected the regressed v2 assertion to fail"
+    with pytest.raises(QualityFailure, match="assertion-regression"):
+        raise QualityFailure(
+            "assertion-regression", v2.work_id, "assertions",
+            "; ".join(f"{r['kind']}: {r.get('detail', '?')}" for r in failures),
+        )
+
+
+def test_cross_revision_budget_drift_flagged_on_v2(seed_work):
+    """The committed pair carries a real drift the gate catches: v2's tempo
+    [80, 120] is outside baroque's [88, 120] and v2's title carries no
+    override marker — the gate flags it. Pins both the detection and the
+    title-convention fragility (spec gap 3, override vocabulary)."""
+    v2 = _load(SEED_V2)
+    fit = probe_budget_fit(v2, "baroque")
+    drifts = [c for c in fit["checks"] if not c["inside"]]
+    assert drifts, "v2's tempo range must read as drift against baroque"
+    assert "example" not in v2.title.lower() and "demo" not in v2.title.lower()
+    with pytest.raises(QualityFailure, match="budget-drift"):
+        raise QualityFailure(
+            "budget-drift", v2.work_id, "budget_fit",
+            f"tempo {drifts[0]['range']} outside baroque {drifts[0]['budget']}",
+        )
