@@ -80,7 +80,25 @@ Probes read artifacts the loop already produces:
 The workbench page (W-B3) shows these per seed revision; quality checks
 (W-B2) catch regressions the ear might miss.
 
-## 5. Iterate
+## 5. Listen
+
+Render the revision to audio and put your ear on it (W-B audio, #243):
+
+```bash
+python3 tools/muse_audio/cli.py corpus/bach/bwv227.1.mxl \
+    --seed seeds/bwv227.1.v2.seed.yaml --label v2
+# live LLM reading of the same seed (Gemini free tier):
+python3 tools/muse_audio/cli.py corpus/bach/bwv227.1.mxl \
+    --seed seeds/bwv227.1.v2.seed.yaml --label v2 --live
+```
+
+WAVs land in `docs/audio/` (session-local, regenerable); the committed
+`docs/audio/manifest.json` is the workbench page's per-revision audio
+index. The page plays v1 vs v2 side by side next to the growth diff —
+"did this seed change do what I intended?" answered by ear, with the
+probes as backup.
+
+## 6. Iterate
 
 Commit the seed revision; the workbench shows the probe history. Edit
 again — the loop is the craft. The seed is the product's interpretive
@@ -96,5 +114,6 @@ python3 tools/muse_seed_cli/cli.py validate seeds/bwv227.1.seed.yaml corpus/bach
 # 3. mockup
 python3 tools/muse_mockup/cli.py corpus/bach/bwv227.1.mxl
 # 4. probes (W-B1, when it lands)
-# 5. commit, iterate
+# 5. listen (muse_audio; --live for the LLM reading)
+# 6. commit, iterate
 ```
