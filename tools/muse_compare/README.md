@@ -16,8 +16,13 @@ python -m muse_compare <work> [--models A,B] [--era classical] [--out-dir DIR]
 ```python
 from muse_compare import run_compare
 meta = run_compare(work, "classical", ["model-x", "model-y"], out_dir)
-# meta: models, artifacts per model (path+hash), ledger
+# meta: models, artifacts per model (path+hash), ledger, deltas
 ```
+
+`deltas.json` (also `meta["deltas"]`) carries the per-pair derived stats
+from DoD #195: tempo default/range, tempo-flex budget, and density range
+deltas per sorted model pair — params-level until a real conductor
+harness plugs the mockup seam.
 
 ## Tests
 
@@ -25,8 +30,9 @@ meta = run_compare(work, "classical", ["model-x", "model-y"], out_dir)
 cd tools/muse_compare && python -m pytest
 ```
 
-5 tests: determinism, per-model distinct hashes, artifacts written, ledger
-hashes match files, single-model ok.
+19 tests: determinism, per-model distinct hashes, artifacts written, ledger
+hashes match files, single-model ok, delta-stats shape/values/persistence,
+blinding-seam pins (gap tests), CLI end-to-end.
 
 ## Note
 
