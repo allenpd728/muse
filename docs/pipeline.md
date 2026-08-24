@@ -141,6 +141,7 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 | Frontend QA tiers | T1 static contract (done #164); T2 headless DOM (Playwright); T3 live deploy smoke | T2 filed [#183](https://github.com/allenpd728/muse/issues/183), T3 filed [#184](https://github.com/allenpd728/muse/issues/184) |
 | Seed workbench | explorer grown into the seed-iteration instrument panel: probes (W-B1), quality-check gate (W-B2), workbench page (W-B3), loop docs (W-B4) | [design](design/seed-workbench.md); W-B1 filed [#185](https://github.com/allenpd728/muse/issues/185), W-B2 [#186](https://github.com/allenpd728/muse/issues/186), W-B3 [#187](https://github.com/allenpd728/muse/issues/187), W-B4 [#188](https://github.com/allenpd728/muse/issues/188) |
 | Seed growth harness | close the loop: seed → mockup (L1) → distill (L4) → revised seed → growth report; the workbench's trajectory view | [design](design/seed-growth-harness.md); G1 filed [#203](https://github.com/allenpd728/muse/issues/203), G2 [#204](https://github.com/allenpd728/muse/issues/204), G3 [#205](https://github.com/allenpd728/muse/issues/205) |
+| L1 generate loop (real) | score + seed → LLM → mockup at full DNA density, generate → validate → fix, bounded retries; the stand-in replacement | [design](design/l1-generate-loop.md); L1.1 [#206](https://github.com/allenpd728/muse/issues/206), L1.2 [#207](https://github.com/allenpd728/muse/issues/207), L1.3 [#208](https://github.com/allenpd728/muse/issues/208), L1.4 [#209](https://github.com/allenpd728/muse/issues/209) |
 
 ## Explicitly not (yet)
 
