@@ -19,9 +19,9 @@ tests call W2's loader and W4's diff as libraries).
 | W2 → S1 | golden-vector verify uses W2 | covered (S1 tests) |
 | S2 → S5 | pack payload → container member | covered (tools/muse_roll/tests, #165) |
 | S5 → S2 | container read → unpack | covered (tools/muse_roll/tests, #165) |
-| S1 → P1 | golden vectors → decoder input | **not covered** (P1 todo) |
-| S5 → P1 | container → decoder | **not covered** (P1 todo) |
-| P1 → P2 | event stream → renderer | **not covered** (P1/P2 todo) |
+| S1 → P1 | golden vectors → decoder input | stub contract (s1_stream DECODER pin, #168); real-P1 flip residual |
+| S5 → P1 | container → decoder | covered (chain decode stage runs real muse_decode on the written .mu, #201) |
+| P1 → P2 | event stream → renderer | covered (chain render stage runs real muse_play on the P1-decoded Work, #201) |
 | W3 → S2 | pattern inventory informs dictionary | **not covered** (dict deferred) |
 
 ### Integration infrastructure

@@ -66,3 +66,21 @@ def test_empty_parts_fail_loudly(tmp_path):
     from muse_assert import AssertionError as _  # noqa
     with pytest.raises(Exception):
         render_work(w, str(tmp_path / "empty.wav"))
+
+
+def test_sub_sample_note_renders(tmp_path):
+    """A note whose duration rounds to <1 audio sample (fast tempo, 1-tick
+    duration) must not crash the envelope (regression: env[-0:] broadcast)."""
+    from muse_ir import Maps, Meta, Note, Part, Work
+    w = Work(
+        parts=[Part(id="P1", name="P1", notes=[
+            Note(pitch=69, onset=0, duration=1),          # sub-sample at high tempo
+            Note(pitch=72, onset=480, duration=480),
+        ])],
+        maps=Maps(tempo=[(0, 240000)]),                   # 240 bpm
+        meta=Meta(source_format="musicxml", ppq=480),
+    )
+    w.parts[0].sort_notes()
+    meta = render_work(w, str(tmp_path / "short.wav"))
+    assert meta["notes"] == 2
+    assert meta["duration_sec"] > 0

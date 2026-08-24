@@ -74,10 +74,12 @@ def render_work(work, out_path: str) -> dict:
         env = np.ones(n, dtype=np.float32)
         a = min(0.01, n * 0.2 / SR)
         d = min(0.05, n * 0.2 / SR)
-        if a > 0:
-            env[: int(a * SR)] = np.linspace(0, 1, int(a * SR), dtype=np.float32)
-        if d > 0 and int(d * SR) < n:
-            env[-int(d * SR) :] *= np.linspace(1, 0, int(d * SR), dtype=np.float32)
+        ka = int(a * SR)
+        kd = int(d * SR)
+        if ka > 0:
+            env[:ka] = np.linspace(0, 1, ka, dtype=np.float32)
+        if 0 < kd < n:
+            env[-kd:] *= np.linspace(1, 0, kd, dtype=np.float32)
         amp = (velocity / 127.0) * 0.2
         wave_ = np.sin(2 * math.pi * freq * t) * env * amp
         i0 = int(onset_sec * SR)

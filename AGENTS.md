@@ -85,7 +85,7 @@ One command runs the whole repo (issue #167):
 
 ```bash
 pip install -r tools/requirements.test.txt
-./tools/run_tests.sh          # fast tier (~2.5 min, 392 tests)
+./tools/run_tests.sh          # fast tier (~3.5 min, 509 tests, 16 suites)
 ./tools/run_tests.sh --full   # everything incl. slow suites (~5 min)
 ./tools/run_tests.sh --list   # suite inventory
 ```
