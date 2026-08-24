@@ -14,12 +14,9 @@ import time
 
 import pytest
 
-# Beethoven 9 analysis takes ~30s alone; keep the budget test but make it
-# opt-in for the fast suite (CI skips via -m "not slow"; slow suites include it).
-slow = pytest.mark.skipif(
-    os.environ.get("MUSE_SKIP_SLOW", "").lower() in ("1", "true", "yes"),
-    reason="MUSE_SKIP_SLOW set — skipping Beethoven 9 budget test (~30s)",
-)
+# Beethoven 9 analysis takes ~30s alone; slow-marked so the fast tier
+# (run_tests.sh, -m "not slow") deselects it and --full includes it (#214).
+slow = pytest.mark.slow
 
 from muse_ir import load
 from muse_ir.model import Meta, Note, Part, Work
