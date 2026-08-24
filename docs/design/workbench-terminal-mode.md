@@ -12,6 +12,20 @@ shell runs the agent CLI or the repo commands. This doc specifies the
 real pipeline workflow GUI on top of a proper terminal path, not an
 ssh-in-html gimmick.
 
+## Entry point — one master index.html, not a do-it-all page
+
+The existing pages don't fuse — they are *plugins in a routing shell*. The
+master `index.html` (to be authored at `docs/workbench/index.html`) is thin:
+it mounts the corpus tree, `explorer/` and `workbench/` pages read-only
+as before, plus the new terminal mode, and routes into one surface at a
+time. The answer is routing, not fusion — the old pages remain available
+individually for deep links. As routes:
+
+- `/` → corpus tree
+- `/explorer/` → old explorer page (read-only)
+- `/workbench/detail/<file-id>` → workbench panels for one file
+- `/workbench/terminal/` → the terminal mode (drawer+prompt+chat panes)
+
 ## One wire mechanism, four surfaces
 
 A single `terminal component` (xterm-style) embedded in the page proxies
