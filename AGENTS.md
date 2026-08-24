@@ -85,9 +85,14 @@ One command runs the whole repo (issue #167):
 
 ```bash
 pip install -r tools/requirements.test.txt
-./tools/run_tests.sh          # fast tier (~4 min, 552 tests, 17 suites)
-./tools/run_tests.sh --full   # everything incl. slow suites (~5 min)
+./tools/run_tests.sh          # fast tier (26 suites, 630 tests; ~1.8 min parallel on 4 cores, ~3.5 min --serial)
+./tools/run_tests.sh --full   # + slow suites muse_analyze/muse_chain/qa_frontend and @pytest.mark.slow tests
 ./tools/run_tests.sh --list   # suite inventory
+./tools/run_tests.sh --jobs N # cap suite parallelism (default nproc, ≤8); --serial = -j1
+
+Slow-test convention: tests too heavy for the fast tier carry
+`@pytest.mark.slow` (registered in `tools/pytest.ini`); the fast tier
+deselects them with `-m "not slow"`, `--full` runs them.
 ```
 
 **Gate of record.** Until the GitHub Actions runner issue resolves

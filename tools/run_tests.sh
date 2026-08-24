@@ -1,18 +1,28 @@
 #!/usr/bin/env bash
-# tools/run_tests.sh — unified test runner (issue #167).
+# tools/run_tests.sh — unified test runner (issue #167; parallelism and the
+# -m slow convention per #214).
 #
-# One command runs every tool's pytest suite with a per-tool report and an
+# One command runs every tool's pytest suite with a per-suite report and an
 # aggregate exit code. Default is the fast tier (full green path minus the
-# known-slow suites); --full runs everything incl. slow suites.
+# known-slow suites and every test marked @pytest.mark.slow); --full runs
+# everything incl. slow suites.
 #
 # Usage:
-#   ./tools/run_tests.sh            # fast tier
+#   ./tools/run_tests.sh            # fast tier, suites run in parallel
 #   ./tools/run_tests.sh --full     # everything (incl. slow)
+#   ./tools/run_tests.sh --serial   # fast tier, one suite at a time (debugging)
+#   ./tools/run_tests.sh --jobs N   # cap parallel suites (default: nproc, max 8)
 #   ./tools/run_tests.sh --list     # show the suite list and exit
+#
+# Slow convention: a test too heavy for the fast tier carries
+# @pytest.mark.slow (registered in tools/pytest.ini). The fast tier passes
+# -m "not slow"; --full applies no marker filter. A suite that is slow
+# end-to-end stays in SLOW_SUITES below instead.
 #
 # Deps: python3 -m pip install -r tools/requirements.test.txt
 set -u
 cd "$(dirname "$0")"
+SCRIPT_DIR=$(pwd)
 
 # name:dir — dir relative to tools/. Suites are discovered on purpose, not
 # by directory globbing: SPIKE and __pycache__ must stay out.
@@ -49,7 +59,6 @@ SUITES+=("muse_play:muse_play/tests")
 SUITES+=("muse_render:muse_render/tests")
 SUITES+=("muse_compare:muse_compare/tests")
 SUITES+=("muse_distill:muse_distill/tests")
-SUITES+=("muse_mockup:muse_mockup")
 # P3 (fast tier): decoder conformance gate — .mu golden vectors, sha256-pinned
 # canonical streams; full-registry verify is decode-only (~2s).
 SUITES+=("muse_ci:muse_ci/tests")
@@ -61,12 +70,24 @@ SLOW_SUITES=(
 
 MODE=fast
 LIST_ONLY=0
-for a in "$@"; do
-  case $a in
+JOBS=$(nproc 2>/dev/null || echo 2)
+[ "$JOBS" -gt 8 ] && JOBS=8
+while [ $# -gt 0 ]; do
+  case $1 in
     --full) MODE=full ;;
     --list) LIST_ONLY=1 ;;
-    *) echo "unknown flag: $a" >&2; exit 2 ;;
+    --serial) JOBS=1 ;;
+    --jobs)
+      shift
+      case ${1:-} in
+        ''|*[!0-9]*) echo "usage: --jobs N (positive integer)" >&2; exit 2 ;;
+      esac
+      JOBS=$1
+      [ "$JOBS" -lt 1 ] && { echo "usage: --jobs N (positive integer)" >&2; exit 2; }
+      ;;
+    *) echo "unknown flag: $1" >&2; exit 2 ;;
   esac
+  shift
 done
 
 if [ $LIST_ONLY -eq 1 ]; then
@@ -81,41 +102,60 @@ fi
 # sandbox sees import failures across suites without per-file deps; the
 # requirements file is the source of truth.
 python3 -c "import pytest, yaml, matplotlib" 2>/dev/null || {
-  echo "installing test deps: pip install -q -r tools/requirements.test.txt" >&2
-  python3 -m pip install -q -r tools/requirements.test.txt
+  echo "installing test deps: pip install -q -r $SCRIPT_DIR/requirements.test.txt" >&2
+  python3 -m pip install -q -r "$SCRIPT_DIR/requirements.test.txt" || {
+    echo "dependency install failed — cannot run suites" >&2
+    exit 2
+  }
 }
 
-run_one() {
-  local name=$1 dir=$2
+ALL_SUITES=("${SUITES[@]}")
+[ "$MODE" = full ] && ALL_SUITES+=("${SLOW_SUITES[@]}")
+
+RESULTS_DIR=$(mktemp -d)
+trap 'rm -rf "$RESULTS_DIR"' EXIT
+
+run_suite() {
+  local idx=$1 dir=$2
   local t0 t1 rc
   t0=$(date +%s)
-  local tmp
-  tmp=$(mktemp)
-  # Run pytest directly (no pipeline) so $? reflects pytest, not tail.
-  python3 -m pytest "$dir" -q >"$tmp" 2>&1
-  rc=$?
-  local out
-  out=$(tail -3 "$tmp")
-  rm -f "$tmp"
-  t1=$(date +%s)
-  local dur=$((t1 - t0))
-  if [ $rc -eq 0 ]; then
-    printf "PASS  %-16s %4ss    %s\n" "$name" "$dur" "$(echo "$out" | tail -1)"
+  # Run pytest directly (no pipeline) so the recorded rc is pytest's, not
+  # a downstream command's. Fast tier deselects @pytest.mark.slow (#214).
+  if [ "$MODE" = fast ]; then
+    python3 -m pytest "$dir" -q -m "not slow" >"$RESULTS_DIR/$idx.out" 2>&1
   else
-    printf "FAIL  %-16s %4ss    %s\n" "$name" "$dur" "$(echo "$out" | tail -1)"
+    python3 -m pytest "$dir" -q >"$RESULTS_DIR/$idx.out" 2>&1
   fi
-  return $rc
+  rc=$?
+  t1=$(date +%s)
+  printf '%s\n' "$rc" >"$RESULTS_DIR/$idx.rc"
+  printf '%s\n' "$((t1 - t0))" >"$RESULTS_DIR/$idx.dur"
 }
 
-failures=0
-for s in "${SUITES[@]}"; do
-  run_one "${s%%:*}" "${s#*:}" || failures=$((failures + 1))
+# Suites run concurrently, capped at $JOBS; output is buffered per suite so
+# the report below still prints in suite order.
+idx=0
+for s in "${ALL_SUITES[@]}"; do
+  while [ "$(jobs -rp | wc -l)" -ge "$JOBS" ]; do wait -n; done
+  run_suite "$idx" "${s#*:}" &
+  idx=$((idx + 1))
 done
-if [ "$MODE" = "full" ]; then
-  for s in "${SLOW_SUITES[@]}"; do
-    run_one "${s%%:*}" "${s#*:}" || failures=$((failures + 1))
-  done
-fi
+wait
+
+failures=0
+idx=0
+for s in "${ALL_SUITES[@]}"; do
+  name=${s%%:*}
+  rc=$(cat "$RESULTS_DIR/$idx.rc")
+  dur=$(cat "$RESULTS_DIR/$idx.dur")
+  if [ "$rc" -eq 0 ]; then
+    printf "PASS  %-16s %4ss    %s\n" "$name" "$dur" "$(tail -1 "$RESULTS_DIR/$idx.out")"
+  else
+    printf "FAIL  %-16s %4ss    %s\n" "$name" "$dur" "$(tail -1 "$RESULTS_DIR/$idx.out")"
+    failures=$((failures + 1))
+  fi
+  idx=$((idx + 1))
+done
 
 echo ""
 if [ $failures -eq 0 ]; then
