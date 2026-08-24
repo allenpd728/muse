@@ -61,10 +61,12 @@ if [ $LIST_ONLY -eq 1 ]; then
   exit 0
 fi
 
-# Dependency check up front (environment resets wipe user site-packages).
-python3 -c "import pytest" 2>/dev/null || {
-  echo "pytest missing; install: pip install -r tools/requirements.test.txt" >&2
-  exit 2
+# Install deps upfront (issue #192). Pytest alone is not enough — a fresh
+# sandbox sees import failures across suites without per-file deps; the
+# requirements file is the source of truth.
+python3 -c "import pytest, yaml, matplotlib" 2>/dev/null || {
+  echo "installing test deps: pip install -q -r tools/requirements.test.txt" >&2
+  python3 -m pip install -q -r tools/requirements.test.txt
 }
 
 run_one() {
