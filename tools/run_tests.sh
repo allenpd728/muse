@@ -40,6 +40,7 @@ SUITES+=("muse_probes:muse_probes/tests")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
   "muse_chain:muse_chain"
+  "qa_frontend:qa_frontend/tests"
 )
 
 MODE=fast
