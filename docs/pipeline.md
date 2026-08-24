@@ -60,7 +60,7 @@ justified by Phase 0 evidence (a construct without corpus evidence doesn't ship)
 |---|---|---|
 | P1 — Reference decoder | `.mu` roll stream → event stream. Deterministic, sandboxed, resource-bounded. | **done** (#197 → [tools/muse_decode](../tools/muse_decode/)) |
 | P2 — Reference renderer | Event stream → audio (soundfont tier). CLI: `muse play file.mu`. | **done** (#198 → [tools/muse_play](../tools/muse_play/)) |
-| P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | filed [#212](https://github.com/allenpd728/muse/issues/212) (re-filed; #199 closed-as-duplicate in its #165 debate) |
+| P3 — Conformance suite | Golden vectors: `.mu` → event-stream pairs. CI gate. | **done** (#212 → [tools/muse_ci](../tools/muse_ci/)) |
 
 **Phase 2 done when:** every corpus `.mu` round-trips through the player and
 the diff tool confirms the score reconstructs the source losslessly.
