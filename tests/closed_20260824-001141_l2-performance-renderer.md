@@ -37,3 +37,22 @@ Run: `cd tools/muse_render && python -m pytest` (<1 s).
 ## Invocation
 
 `cd tools/muse_render && python -m pytest` (<1 s).
+
+## Closed 2026-08-24 (#219, run=20260824-1107-409b)
+
+Landed in tools/muse_render/tests/test_render_gaps.py (9 tests):
+
+- **Gap 2 (per-part gain):** gain scales amplitude; the 0.5/1.0 ratio
+  survives linearly below the normalization threshold; string-valued
+  part_map entries and orphan parts both fall back to unity gain.
+- **Gap 4 (determinism anchors):** fresh Renderer instances are byte-equal
+  (no hidden process state); rendering does not mutate the input mockup.
+  Golden-WAV-per-corpus-tier remains future work for when the sfizz tier
+  lands (a committed golden against the sine scaffold would churn).
+- **Gap 5 (before-first-tempo-tick):** onset ahead of the map's first tick
+  uses the default 120 bpm — pinned at both the conversion and rendered-
+  waveform level; empty/None tempo maps fall back the same way.
+
+Not covered, per the spec's own deferral: gap 1 (sfizz/SFZ primary tier —
+no sample libraries wired in) and gap 3 (Sonic-level features belong to
+the L4 distiller domain, not this render path).
