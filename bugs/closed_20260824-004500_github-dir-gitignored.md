@@ -41,3 +41,14 @@ Combined with blocker #194: even after a workflow-scope token arrives,
 new workflow files will be silently skipped unless every agent remembers
 `git add -f`. Documented in the #194 comment; decision belongs to the
 human, so this sits as an open entry until the rule is settled.
+
+---
+
+**Closed:** 2026-08-24, run=20260824-1034-f7e8, issue #213.
+**Resolution:** rule narrowed by commit `1d7dc9ee` ("Gate of record: pre-push
+hook + gitignore correction", 2026-08-24T00:38:54Z) — `.github/` →
+`.github/README.md`, the narrow-the-rule option above. The bug entry was
+written from a pre-fix checkout (00:45 vs. fix at 00:38).
+**Verified on dev:** `git add .github/workflows/x.yml` succeeds (staged, not
+refused); `git check-ignore .github/workflows/live-smoke.yml` exits 1 (not
+ignored); `git check-ignore .github/README.md` still matches the narrowed rule.
