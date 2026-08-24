@@ -102,9 +102,51 @@ def generate(explorer_dir=EXPLORER, quick=False):
     return works
 
 
+def generate_workbench(workbench_dir=None):
+    """Regenerate workbench artifacts: per-seed probe JSON + seed index.
+
+    Reads every committed seed in seeds/, computes probes via muse_probes,
+    and writes docs/workbench/data/seeds/{index.json, *.probes.json} plus
+    the seed YAML copy the page renders. Deterministic for fixed inputs.
+    """
+    from muse_probes.probes import compute_probes
+    from muse_seed import load_seed
+
+    wb = workbench_dir or os.path.join(REPO, "docs", "workbench")
+    seeds_out = os.path.join(wb, "data", "seeds")
+    os.makedirs(seeds_out, exist_ok=True)
+    index = {"seeds": []}
+    seeds_dir = os.path.join(REPO, "seeds")
+    for fname in sorted(os.listdir(seeds_dir)):
+        if not fname.endswith((".yaml", ".yml")):
+            continue
+        seed = load_seed(open(os.path.join(seeds_dir, fname)).read(), fmt="yaml")
+        work_rel = getattr(seed, "provenance", {}).get("source")
+        if not work_rel:
+            continue
+        work = muse_corpus.load_file(os.path.join(muse_corpus.CORPUS_ROOT, work_rel.replace("corpus/", "")))
+        report = compute_probes(seed, work)
+        probes_name = fname.replace(".seed.yaml", ".probes.json").replace(".yml", ".probes.json")
+        with open(os.path.join(seeds_out, probes_name), "w") as fh:
+            fh.write(report.to_json())
+        with open(os.path.join(seeds_out, fname), "w") as fh:
+            fh.write(open(os.path.join(seeds_dir, fname)).read())
+        index["seeds"].append({
+            "work_id": seed.work_id,
+            "file": fname,
+            "probes": probes_name,
+        })
+    with open(os.path.join(seeds_out, "index.json"), "w") as fh:
+        json.dump(index, fh, indent=1)
+        fh.write("\n")
+    return index
+
+
 def main():
     works = generate()
+    index = generate_workbench()
     print(f"explorer: {len(works)} works → docs/explorer/")
+    print(f"workbench: {len(index['seeds'])} seeds → docs/workbench/")
     return 0
 
 
