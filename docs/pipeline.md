@@ -85,7 +85,7 @@ against S3 — the founder's ear gates quality. Design docs:
 | L1 — Mockup harness | score + seed → LLM → mockup at full DNA density. Generate → validate → fix, bounded retries. | **done #173** (tools/muse_mockup/) |
 | L2 — Performance renderer | Mockup → audio via sfizz + SFZ samples (SSO/VPO tier). The "worth listening to" bar. | **done** (#193 → [tools/muse_render](../tools/muse_render/)) |
 | L3 — Model comparison rig | Same score+seed, different LLMs → different mockups. Blind A/B listening. | **done** (#195 → [tools/muse_compare](../tools/muse_compare/)) |
-| L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | todo |
+| L4 — Distiller | Mockup → extracted interpretation → seed revision. The learning loop. | **done** (#196 → [tools/muse_distill](../tools/muse_distill/)) |
 
 **Phase 4 done when:** one corpus work, performed by the LLM player, passes
 the founder's by-ear evaluation as a musical performance — a reading worth a
