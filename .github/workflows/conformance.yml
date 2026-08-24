@@ -1,6 +1,6 @@
 name: conformance
 
-on:
+"on":
   push:
     branches: [dev, main]
   pull_request:
