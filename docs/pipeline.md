@@ -60,7 +60,7 @@ justified by Phase 0 evidence (a construct without corpus evidence doesn't ship)
 |---|---|---|
 | P1 — Reference decoder | `.mu` roll stream → event stream. Deterministic, sandboxed, resource-bounded. | **done** (#197 → [tools/muse_decode](../tools/muse_decode/)) |
 | P2 — Reference renderer | Event stream → audio (soundfont tier). CLI: `muse play file.mu`. | **done** (#198 → [tools/muse_play](../tools/muse_play/)) |
-| P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | todo |
+| P3 — Conformance suite | Golden vectors: (file → event stream) pairs. CI gate. | filed [#212](https://github.com/allenpd728/muse/issues/212) (re-filed; #199 closed-as-duplicate in its #165 debate) |
 
 **Phase 2 done when:** every corpus `.mu` round-trips through the player and
 the diff tool confirms the score reconstructs the source losslessly.
@@ -96,8 +96,8 @@ hall.
 | Task | What it is | Status |
 |---|---|---|
 | E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | **done** (#200 → [tools/muse_event](../tools/muse_event/)) |
-| E2 — The venue | Concert hall, projection, the "giant computer" staging. | todo |
-| E3 — The recording | Document the event; publish. | todo |
+| E2 — The venue | Concert hall, projection, the "giant computer" staging. | filed [#210](https://github.com/allenpd728/muse/issues/210) |
+| E3 — The recording | Document the event; publish. | filed [#211](https://github.com/allenpd728/muse/issues/211) (blocked by E2) |
 
 **Phase 5 done when:** deferred until Phase 4 produces one concert-worthy
 work.
