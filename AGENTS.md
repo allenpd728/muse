@@ -90,6 +90,13 @@ pip install -r tools/requirements.test.txt
 ./tools/run_tests.sh --list   # suite inventory
 ```
 
+**Gate of record.** Until the GitHub Actions runner issue resolves
+(issue #194), the working gate is the pre-push hook: enable it once per
+checkout with `git config core.hooksPath scripts`, and every push to `dev`
+runs the fast tier and refuses on failure. The workflow files are valid
+YAML and resume as the server-side gate the moment account health
+resolves.
+
 ## Seed iteration loop
 
 The founder's loop for authoring a seed (see `docs/seed-iteration.md` for a
