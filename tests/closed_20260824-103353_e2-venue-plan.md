@@ -41,3 +41,24 @@ if a docs-tests suite is registered there; otherwise standalone
 - The doc may later promote from `draft` to `final` — the coherence check
   should accept any non-`scaffold` promoted state, and fail only on
   disagreement between the three caches.
+
+## Closed 2026-08-24 (#230, run=20260824-2254-2185)
+
+Landed in `tests/docs/test_e2_venue_plan.py` (7 tests), wired into the
+runner as the `docs` suite (`../tests/docs` — the first registered suite
+outside tools/):
+
+1. DoD sections present (Venue option / Staging mechanics / Projection
+   design / Provenance + rights, keyword-matched headings).
+2. Plan content pins (named recommendation + capacity, deliberation
+   pacing, `ai_involvement` + no-lookalikes).
+3. Three-cache coherence (doc Status line, design index row, pipeline
+   row — all promoted, none scaffold/filed, all reference #210).
+4. E3 downstream contract (broadcast non-goal, venue-agreement recording
+   rights).
+
+Sensitivity verified by mutation testing: removing the recommendation,
+regressing the pipeline row to `scaffold`, and dropping the manifest
+reference each fail their pin. Suite runs in <0.1s; invocation:
+`python3 -m pytest tests/docs/test_e2_venue_plan.py -q` or
+`./tools/run_tests.sh` (fast tier, `docs` row).

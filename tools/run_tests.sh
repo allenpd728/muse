@@ -67,6 +67,8 @@ SUITES+=("muse_event:muse_event/tests")
 # P3 (fast tier): decoder conformance gate — .mu golden vectors, sha256-pinned
 # canonical streams; full-registry verify is decode-only (~2s).
 SUITES+=("muse_ci:muse_ci/tests")
+# Docs coherence (fast tier): design-doc/status-cache pins (E2 venue plan #230).
+SUITES+=("docs:../tests/docs")
 SLOW_SUITES=(
   "muse_analyze:muse_analyze"
   "muse_chain:muse_chain"
