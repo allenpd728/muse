@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Muse Mockup v1 (L1 session file)",
+  "description": "score + seed → mockup at full DNA density. Per-note devices are first-class fields (W7 evidence: spike mockups v1–v3).",
+  "type": "object",
+  "required": ["work_id", "tempo_map", "parts"],
+  "properties": {
+    "work_id": {"type": "string"},
+    "tempo_map": {
+      "type": "array",
+      "description": "(tick, milli-bpm) fixed point, tick-ordered",
+      "items": {
+        "type": "object",
+        "required": ["tick", "bpm"],
+        "properties": {
+          "tick": {"type": "integer", "minimum": 0},
+          "bpm": {"type": "number", "exclusiveMinimum": 0},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "dynamics": {
+      "type": "array",
+      "description": "dynamic curve (tick, level 0..1), tick-ordered",
+      "items": {
+        "type": "object",
+        "required": ["tick", "level"],
+        "properties": {
+          "tick": {"type": "integer", "minimum": 0},
+          "level": {"type": "number", "minimum": 0, "maximum": 1},
+          "part": {"type": "string"}
+        }
+      }
+    },
+    "balance": {
+      "type": "array",
+      "description": "per-part gain",
+      "items": {
+        "type": "object",
+        "required": ["part", "gain"],
+        "properties": {
+          "part": {"type": "string"},
+          "gain": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "parts": {
+      "type": "object",
+      "description": "part id → note list (score-indexed)",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["i", "velocity"],
+          "properties": {
+            "i": {"type": "integer", "minimum": 0, "description": "note index in the part's IR order"},
+            "velocity": {"type": "integer", "minimum": 1, "maximum": 127},
+            "attack_sec": {"type": "number", "minimum": 0},
+            "release_sec": {"type": "number", "minimum": 0},
+            "legato_overlap_ms": {"type": "number", "minimum": 0},
+            "swell": {
+              "type": "array",
+              "description": "[[position 0..1, level 0..1], ...] — dynamic shape within the note",
+              "items": {"type": "array", "minItems": 2, "maxItems": 2,
+                        "items": {"type": "number", "minimum": 0, "maximum": 1}}
+            },
+            "onset_offset_ms": {"type": "number", "description": "chord spread / humanization (±)"},
+            "part": {"type": "string"}
+          }
+        }
+      }
+    },
+    "seed": {"type": "object", "description": "the seed this mockup realizes (embedded for provenance)"},
+    "stand_in": {"type": "boolean", "default": false}
+  }
+}
