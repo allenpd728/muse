@@ -95,7 +95,7 @@ hall.
 
 | Task | What it is | Status |
 |---|---|---|
-| E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | todo |
+| E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | **done** (#200 → [tools/muse_event](../tools/muse_event/)) |
 | E2 — The venue | Concert hall, projection, the "giant computer" staging. | todo |
 | E3 — The recording | Document the event; publish. | todo |
 

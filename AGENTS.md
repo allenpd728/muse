@@ -155,6 +155,7 @@ tools/muse_render/    # L2 mockup → audio renderer
 tools/muse_compare/   # L3 model A/B comparison rig
 tools/muse_distill/   # L4 mockup → seed revision distiller
 tools/muse_play/      # P2 reference renderer (soundfont tier)
+tools/muse_event/     # E1 execution scaffold (corpus ladder)
 tools/muse_decode/    # P1 reference decoder (.mu → event stream)
 tools/muse_probes/    # W-B1 seed-iteration probe engine
 tools/muse_mockup/    # L1 mockup harness
