@@ -145,6 +145,7 @@ tools/muse_ops/       # S4 language validator
 tools/muse_assert/    # S3.5 assertions
 tools/muse_author/    # C2 AI-assisted authoring
 tools/muse_render/    # L2 mockup → audio renderer
+tools/muse_compare/   # L3 model A/B comparison rig
 tools/run_tests.sh    # unified test runner (fast/--full/--list)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only
