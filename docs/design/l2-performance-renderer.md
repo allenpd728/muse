@@ -1,6 +1,7 @@
-# L2 — Performance renderer (design doc, draft)
+# L2 — Performance renderer (design doc)
 
-**Phase 4 — The product. Status: draft.**
+**Phase 4 — The product. Status: implemented (2026-08-24, #193 →
+[tools/muse_render](../../tools/muse_render/)).**
 
 ## Purpose
 
@@ -37,6 +38,21 @@ or fallback to GM.
 
 - **Inputs:** mockup session files (tempo map, note list, curves).
 - **Outputs:** WAV renders to the output directory (CLI emits audio).
+
+## Event log (implementation, 2026-08-24)
+
+- **Landed as the generalization of the SPIKE's `render_sso.py`** — the
+  envelope at the pitch frequency with per-part gain and tempo-map
+  conversion, packaged over Mockup as the input model.
+- **sfizz toolchain** isn't wired; the CLI-first fallback uses the
+  envelope path which replaces the `import sfizz` dependency. SPIKE tier
+  samples remain the follow-up.
+- **Findings on fabric's fallback path were part of the initial test
+  focus** — envelope at the pitch frequency with attack/decay
+  normalization; replay determinism verified (same input → same bytes).
+- **The samples library registration (SSO/VPO) stays pending** — golden
+  WAVs on the small/mid tier are the anchor the follow-up should pass.
+
 - **Non-goals:** notation software, video/audio mixing, streaming
   playback (L3 will handle A/B output).
 
