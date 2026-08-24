@@ -1,6 +1,7 @@
-# L4 — Distiller (design doc, scaffold)
+# L4 — Distiller (design doc)
 
-**Phase 4 — The product. Status: scaffold.**
+**Phase 4 — The product. Status: implemented (2026-08-24, #196 →
+[tools/muse_distill](../../tools/muse_distill/)).**
 
 ## Purpose
 
