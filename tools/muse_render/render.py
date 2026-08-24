@@ -71,15 +71,16 @@ class Renderer:
         """Mockup → WAV. Returns metadata dict (parts rendered, note count,
         duration)."""
         mockup.validate()
+        ppq = mockup.ppq or 480  # tick domain rides the mockup (#246)
         parts_gain = {}
         for name, info in (mockup.part_map or {}).items():
             parts_gain[name] = info.get("gain", 1.0) if isinstance(info, dict) else 1.0
-        max_end = max(self.ticks_to_sec(n.onset + n.duration, mockup.tempo_map) for n in mockup.notes) + 0.5
+        max_end = max(self.ticks_to_sec(n.onset + n.duration, mockup.tempo_map, ppq) for n in mockup.notes) + 0.5
         buf = np.zeros(int(max_end * SR), dtype=np.float32)
         for n in mockup.notes:
             gain = parts_gain.get(n.part, 1.0)
-            onset_sec = self.ticks_to_sec(n.onset, mockup.tempo_map)
-            dur_sec = self.ticks_to_sec(n.onset + n.duration, mockup.tempo_map) - onset_sec
+            onset_sec = self.ticks_to_sec(n.onset, mockup.tempo_map, ppq)
+            dur_sec = self.ticks_to_sec(n.onset + n.duration, mockup.tempo_map, ppq) - onset_sec
             t0, nb = self._render_note(n.pitch, onset_sec, dur_sec, n.velocity, gain=gain)
             i0 = int(t0 * SR)
             i1 = min(len(buf), i0 + len(nb))
