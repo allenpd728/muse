@@ -1,9 +1,9 @@
 {
-  "seeds": [
-    {
-      "work_id": "bwv227.1",
-      "file": "bwv227.1.seed.yaml",
-      "probes": "bwv227.1.probes.json"
-    }
-  ]
+ "seeds": [
+  {
+   "work_id": "bwv227.1",
+   "file": "bwv227.1.seed.yaml",
+   "probes": "bwv227.1.probes.json"
+  }
+ ]
 }
