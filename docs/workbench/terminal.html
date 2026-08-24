@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Muse — terminal mode (W-B8)</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: ui-monospace, monospace; background:#0d1117; color:#c9d1d9; margin:0; padding:1.6rem; }
+  h1 { font-size:1.3rem; color:#f0f6fc; }
+  .drawer { margin:1rem 0; display:flex; flex-wrap:wrap; gap:.4rem; }
+  .drawer button { background:#161b22; color:#58a6ff; border:1px solid #58a6ff; border-radius:6px; padding:.4rem .8rem; cursor:pointer; }
+  .drawer button:hover { background:#58a6ff; color:#0d1117; }
+  .prompt { display:flex; gap:.4rem; margin:1rem 0; }
+  .prompt input { flex:1; background:#161b22; color:#c9d1d9; border:1px solid #30363d; padding:.4rem; font:inherit; }
+  .prompt button { background:#21262d; color:#c9d1d9; border:1px solid #30363d; padding:.4rem 1rem; cursor:pointer; }
+  #out { background:#161b22; border:1px solid #30363d; border-radius:6px; padding:1rem; font-size:.78rem; white-space:pre; overflow:auto; max-height:60vh; }
+  .ok { border-left:4px solid #238636; }
+  .fail { border-left:4px solid #f85149; }
+  .low { color:#8b949e; }
+  #chatframe { border:1px solid #30363d; border-radius:6px; padding:.6rem; margin-top:1rem; font-size:.75rem; }
+  #chatframe .head { color:#8b949e; }
+</style>
+</head>
+<body>
+<h1>Muse — terminal mode <span class="low">(W-B8)</span></h1>
+<p class="low">The interactive surface over the W-B5 runner. Drawer buttons and the prompt both POST against the local runner; chat is a hint toward the chat API.</p>
+
+<div class="drawer" id="drawer"></div>
+
+<div class="prompt">
+  <input id="cmd" placeholder="muse_probes.run --help" />
+  <button id="run">run</button>
+  <button id="help">--help</button>
+</div>
+
+<div id="out" class="low">no command yet — click a drawer button or use the prompt</div>
+
+<div id="chatframe">
+  <span class="head">chat pane (hint): no embedded tokens — this pane just points the terminal at the right wire.</span>
+</div>
+
+<script>
+const RUNNER_URL = 'http://127.0.0.1:9145';
+
+const DRAWER = [
+  { name:'analyze', cmd:'muse_analyze.run', args:['--all'] },
+  { name:'render',  cmd:'muse_play.render',  args:[] },
+  { name:'probes',  cmd:'muse_probes.run',   args:[] },
+  { name:'grow',    cmd:'muse_grow.iterate', args:[] },
+  { name:'tests',   cmd:'muse_tests.fast',   args:[] },
+  { name:'diff',    cmd:'muse_diff.run',     args:[] },
+  { name:'seedValidate', cmd:'muse_seed.validate', args:['seeds/bwv227.1.seed.yaml','corpus/bwv227.1.mxl'] },
+];
+
+async function runCmd(cmd, args=[]) {
+  const out = document.getElementById('out');
+  try {
+    const r = await fetch(RUNNER_URL + '/api/run', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: cmd, args })
+    });
+    const j = await r.json();
+    out.className = j.ok ? 'ok' : 'fail';
+    const err = j.error ? `error: ${j.error}\n` : '';
+    out.textContent = `${j.name} [rc:${j.rc}] ${err}stdout:\n${j.stdout||''}\nstderr:\n${j.stderr||''}`;
+  } catch (e) {
+    out.className = 'fail';
+    out.textContent = `runner unreachable — start with: python3 tools/muse_workbench_runner/server.py\n(hosted on ${RUNNER_URL})`;
+  }
+}
+
+const dl = document.getElementById('drawer');
+for (const d of DRAWER) {
+  const b = document.createElement('button');
+  b.textContent = d.name;
+  b.onclick = () => runCmd(d.cmd, d.args);
+  dl.appendChild(b);
+}
+document.getElementById('run').onclick = () => {
+  const v = document.getElementById('cmd').value.trim();
+  const [name, ...args] = v.split(/\s+/);
+  if (name) runCmd(name, args);
+};
+document.getElementById('help').onclick = () => {
+  const v = document.getElementById('cmd').value.trim();
+  const [name] = v.split(/\s+/);
+  if (name) runCmd(name, ['--help']);
+};
+document.getElementById('cmd').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('run').click();
+});
+</script>
+</body>
+</html>
