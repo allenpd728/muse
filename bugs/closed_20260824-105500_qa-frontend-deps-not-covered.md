@@ -1,4 +1,4 @@
-# Bug — runner dep guard doesn't cover qa_frontend (playwright)
+# Bug (CLOSED — fixed by this commit, #238) — runner dep guard doesn't cover qa_frontend (playwright)
 
 **Found:** 2026-08-24, run=20260824-1034-f7e8, while running the full tier
 as gate evidence for #214.

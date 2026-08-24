@@ -117,7 +117,19 @@ python3 -c "import pytest, yaml, matplotlib" 2>/dev/null || {
 }
 
 ALL_SUITES=("${SUITES[@]}")
-[ "$MODE" = full ] && ALL_SUITES+=("${SLOW_SUITES[@]}")
+if [ "$MODE" = full ]; then
+  ALL_SUITES+=("${SLOW_SUITES[@]}")
+  # qa_frontend needs the headless Chromium binary; install full-tier only
+  # (one-time ~115MB download, cached at ~/.cache/ms-playwright). Fast tier
+  # never touches the browser (#238).
+  python3 -c "from playwright.sync_api import sync_playwright; sync_playwright().start().chromium.launch().close()" 2>/dev/null || {
+    echo "installing chromium for qa_frontend: python3 -m playwright install chromium" >&2
+    python3 -m playwright install chromium || {
+      echo "chromium install failed — qa_frontend suite will fail" >&2
+      exit 2
+    }
+  }
+fi
 
 RESULTS_DIR=$(mktemp -d)
 trap 'rm -rf "$RESULTS_DIR"' EXIT

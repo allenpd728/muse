@@ -8,9 +8,14 @@ errors fail the suite.
 ## Setup (one-time)
 
 ```bash
-pip install playwright
+pip install playwright          # now covered by tools/requirements.test.txt (#238)
 python3 -m playwright install chromium
 ```
+
+The unified runner handles both: `pip` deps come from
+tools/requirements.test.txt, and `./tools/run_tests.sh --full` installs
+Chromium for the qa_frontend suite automatically (fast tier never touches
+the browser).
 
 ## Tests
 
