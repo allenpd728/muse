@@ -29,8 +29,8 @@ python3 tools/muse_probes/cli.py seeds/bwv227.1.seed.yaml --work corpus/bach/bwv
 ## Addendum 2026-08-24 (#229, run=20260824-1107-409b)
 
 - **Routes:** the page lives at `docs/workbench/detail.html` (W-B6 rename);
-  `test_workbench_routes.py` pins the contract. `/workbench/` bare is a
-  directory listing — if a master index shell lands, flip that pin.
+  `test_workbench_routes.py` pins the contract. `/workbench/` bare serves a
+  redirect shell → detail.html (restored by #227).
 - **Era filter is decorative for verdicts today:** the select re-renders
   but probe rows come from the committed artifact (computed at
   era=baroque). Per-era budget verdicts need page-side recompute +

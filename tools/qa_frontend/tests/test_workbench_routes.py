@@ -36,13 +36,14 @@ def session():
         yield ps
 
 
-def test_bare_workbench_path_is_not_a_page(server):
-    """`/workbench/` must NOT silently serve as a page again — if an
-    index.html master shell lands (W-B6 lineage), flip this test to assert
-    the shell's content instead of the listing."""
+def test_bare_workbench_path_redirects_to_detail(server):
+    """`/workbench/` is a thin shell that redirects to the interactive
+    surface (restored by #227 after the W-B6 rename broke the old tests).
+    Pin the shell's contract: serves HTML, points at detail.html."""
     with urllib.request.urlopen(server.url + "/workbench/") as r:
         body = r.read().decode()
-    assert "Directory listing for /workbench/" in body
+    assert "<html" in body.lower()
+    assert "detail.html" in body, "bare /workbench/ must route to the detail page"
 
 
 @pytest.mark.parametrize("route", WORKBENCH_ROUTES)
