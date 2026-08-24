@@ -41,3 +41,18 @@ Low today: tempo bounds in authored proposals are *derived* from the
 budget (default = budget midpoint, tested), so the budget's influence is
 present even though the annotation is dropped. The gap is auditability —
 a reviewer of a proposal YAML cannot see which budget sanctioned it.
+
+---
+
+**Closed:** 2026-08-24, run=20260824-2254-2185, issue #236.
+**Resolution:** schema path — `era_budget` added to the S3 seed schema as
+an optional top-level field (decision recorded in
+`docs/design/s3-seed-format/SPEC.md` decisions log). `Seed` carries it
+end-to-end (`load_seed`/`dump_seed`/`validate_seed`; mapping-when-present),
+`muse_author` CLI passes it through the rebuild, and C1
+(`muse_seed_cli validate`) fails authored proposals
+(`provenance.author: muse_author`) that lack it. Hand-authored seeds
+without the field still validate. Tests:
+`tools/muse_seed/test_era_budget_seam.py` (8 tests) — round-trip,
+absent-stays-absent, non-mapping rejection, C1 presence assertion,
+author-CLI end-to-end.

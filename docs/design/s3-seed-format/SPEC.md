@@ -102,3 +102,11 @@ use. Byte-exact for serialization depends on C1.
   renamed to `assertions` for grammar uniformity. Validator:
   `tools/muse_seed/variation.py`, wired into `validate_seed()`
   (`variation_points` key from S3.1).
+- **Era budget (2026-08-24, #236):** optional top-level `era_budget` field.
+  Authoring provenance, not interpretive space: the budget table that
+  sanctioned the proposal's ranges, captured at authoring time so the
+  proposal stays auditable when era budgets are recalibrated later (C3/C5).
+  Mapping when present; absent on hand-authored seeds. C1
+  (`muse_seed_cli validate`) requires it on proposals whose
+  `provenance.author` is `muse_author`. Additive — no existing seed
+  breaks; v0 grammar per §6.

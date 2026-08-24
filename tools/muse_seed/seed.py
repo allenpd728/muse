@@ -12,7 +12,7 @@ class SeedError(ValueError):
 
 TOP_LEVEL_KEYS = {
     "format_version", "work_id", "title", "params", "philosophy",
-    "variation_points", "assertions", "provenance",
+    "variation_points", "assertions", "provenance", "era_budget",
 }
 
 REQUIRED_KEYS = {"format_version", "work_id", "params", "assertions"}
@@ -28,9 +28,10 @@ class Seed:
     variation_points: list = field(default_factory=list)
     assertions: dict = field(default_factory=dict)
     provenance: dict = field(default_factory=dict)
+    era_budget: dict | None = None  # optional (S3 decisions log, 2026-08-24)
 
     def to_dict(self):
-        return {
+        d = {
             "format_version": self.format_version,
             "work_id": self.work_id,
             "title": self.title,
@@ -40,6 +41,9 @@ class Seed:
             "assertions": self.assertions,
             "provenance": self.provenance,
         }
+        if self.era_budget is not None:
+            d["era_budget"] = self.era_budget
+        return d
 
 
 def validate_seed(seed: Seed):
@@ -56,6 +60,8 @@ def validate_seed(seed: Seed):
         raise SeedError("assertions must be a mapping")
     if not isinstance(seed.variation_points, list):
         raise SeedError("variation_points must be a list")
+    if seed.era_budget is not None and not isinstance(seed.era_budget, dict):
+        raise SeedError("era_budget must be a mapping when present")
     if seed.variation_points:
         from muse_seed.variation import VariationError, validate_variation_points
 
@@ -88,6 +94,7 @@ def load_seed(data: str, fmt: str = "yaml") -> Seed:
         variation_points=d.get("variation_points", []),
         assertions=d.get("assertions", {}),
         provenance=d.get("provenance", {}),
+        era_budget=d.get("era_budget"),
     )
     validate_seed(seed)
     return seed

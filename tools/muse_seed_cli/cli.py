@@ -57,6 +57,14 @@ def _validate(seed_path, work_path):
         return 1
     print("OK  seed schema valid")
 
+    # Authored proposals must carry the sanctioning budget (S3 decisions
+    # log 2026-08-24; the auditability the field exists for).
+    if seed.provenance.get("author") == "muse_author" and seed.era_budget is None:
+        print("FAIL  authored proposal missing era_budget "
+              "(provenance.author is muse_author — the budget that sanctioned "
+              "the proposal must ride the seed)")
+        return 1
+
     work = load_work(work_path)
     try:
         validate_assertions(work, seed.assertions)
