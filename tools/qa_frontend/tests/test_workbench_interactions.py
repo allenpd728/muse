@@ -32,7 +32,7 @@ def session():
 
 def _goto(server, session):
     page = session.new_page()
-    page.goto(server.url + "/workbench/", wait_until="networkidle")
+    page.goto(server.url + "/workbench/detail.html", wait_until="networkidle")
     return page
 
 
