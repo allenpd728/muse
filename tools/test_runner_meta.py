@@ -76,3 +76,49 @@ def test_requirements_file_mentions_deps():
     text = open(reqs).read()
     for needed in ("pytest", "mido", "pyyaml", "matplotlib"):
         assert needed in text, f"requirements.test.txt missing {needed!r}"
+
+
+# --- Discovery contract (issue #217, spec gap 1): the inventory test above
+# pins a hardcoded suite list; this one derives the expectation from the
+# tree, so a new tool landing without registration fails on its own.
+
+# Paths excluded from the contract by design: spike scripts are pre-workflow,
+# and this meta suite runs directly, not via the runner.
+DISCOVERY_EXCLUDE_DIRS = {"spike", "__pycache__"}
+DISCOVERY_EXCLUDE_FILES = {"test_runner_meta.py"}
+
+
+def _registered_dirs():
+    """--list inventory as a set of paths relative to tools/ (dirs or files)."""
+    out = _ls()
+    dirs = set()
+    for line in out.splitlines():
+        line = line.strip()
+        if "=" in line:
+            dirs.add(line.split("=", 1)[1])
+    return dirs
+
+
+def _discovered_test_files():
+    found = []
+    for root, dirs, files in os.walk(TOOLS):
+        dirs[:] = [d for d in dirs if d not in DISCOVERY_EXCLUDE_DIRS]
+        for f in files:
+            if f.startswith("test_") and f.endswith(".py") \
+                    and f not in DISCOVERY_EXCLUDE_FILES:
+                found.append(os.path.relpath(os.path.join(root, f), TOOLS))
+    return sorted(found)
+
+
+def test_discovery_contract_all_test_files_registered():
+    """Every test file under tools/ must be covered by a --list entry —
+    the 'new suite must be registered' rule as an assertion, not a
+    convention. If this fails, either register the suite in
+    run_tests.sh or add a documented exclusion above."""
+    registered = _registered_dirs()
+    missing = [
+        path for path in _discovered_test_files()
+        if not any(path == entry or path.startswith(entry.rstrip("/") + "/")
+                   for entry in registered)
+    ]
+    assert not missing, f"test files with no registered suite: {missing}"
