@@ -18,6 +18,7 @@ from muse_ir import load as load_work  # noqa: E402
 from muse_seed import load_seed  # noqa: E402
 
 from muse_probes.probes import (  # noqa: E402
+    MOCKUP_FN,
     ProbeError,
     compute_probes,
     probe_assertions,
@@ -31,6 +32,11 @@ from muse_probes.probes import (  # noqa: E402
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 SEED = os.path.join(REPO, "seeds", "bwv227.1.seed.yaml")
+SEED_V1 = os.path.join(REPO, "seeds", "bwv227.1.v1.seed.yaml")
+SEED_V2 = os.path.join(REPO, "seeds", "bwv227.1.v2.seed.yaml")
+SEED_VARIATION = os.path.join(
+    REPO, "tools", "muse_probes", "tests", "fixtures",
+    "bwv227.1.variation.seed.yaml")
 WORK = os.path.join(REPO, "corpus", "bach", "bwv227.1.mxl")
 CLI = os.path.join(REPO, "tools", "muse_probes", "cli.py")
 
@@ -144,3 +150,77 @@ def test_cli_gate_and_output(tmp_path):
     )
     assert proc2.returncode == 0
     assert json.loads(out.read_text())["ok"] is True
+
+
+class TestPriorRevisionWiring:
+    """Follow-up from tests/open_20260824-001000_wb1-probe-engine.md: pin the
+    param_diff shape against the committed two-revision pair (G3 fixtures,
+    seeds/bwv227.1.v1 → v2) — the shape workbench history rows consume."""
+
+    def test_revision_pair_diff_shape(self, seed_work):
+        _, work = seed_work
+        v1 = load_seed(open(SEED_V1).read(), fmt="yaml")
+        v2 = load_seed(open(SEED_V2).read(), fmt="yaml")
+        diff = probe_param_diff(v2, prior_seed=v1)
+        assert diff["status"] == "compared"
+        # Only params differ between the committed revisions; title is not a
+        # compared section.
+        assert set(diff["changes"]) == {"params"}
+        change = diff["changes"]["params"]
+        assert change["from"]["tempo"]["min_bpm"] == 62
+        assert change["to"]["tempo"]["min_bpm"] == 80
+        assert change["from"]["tempo"]["max_bpm"] == 129
+        assert change["to"]["tempo"]["max_bpm"] == 120
+        assert change["from"]["energy"]["level"] == 0.5
+        assert change["to"]["energy"]["level"] == 0.75
+        assert change["from"]["density"]["max_notes_per_beat"] == 4
+        assert change["to"]["density"]["max_notes_per_beat"] == 6
+
+    def test_report_wires_prior_seed(self, seed_work):
+        _, work = seed_work
+        v1 = load_seed(open(SEED_V1).read(), fmt="yaml")
+        v2 = load_seed(open(SEED_V2).read(), fmt="yaml")
+        report = compute_probes(v2, work, prior_seed=v1)
+        assert report.probes["param_diff"]["status"] == "compared"
+        parsed = json.loads(report.to_json())
+        assert parsed["probes"]["param_diff"]["changes"]["params"]["to"][
+            "tempo"]["min_bpm"] == 80
+
+    def test_no_prior_shape(self, seed_work):
+        seed, work = seed_work
+        report = compute_probes(seed, work)
+        assert report.probes["param_diff"] == {"status": "no-prior",
+                                               "changes": {}}
+
+
+class TestCoverageWithRealVariationPoints:
+    """Follow-up: a seed with actual regions pins exercised/unused — the
+    example seed ships variation_points: []."""
+
+    def test_exercised_and_unused_regions(self, seed_work):
+        _, work = seed_work
+        seed = load_seed(open(SEED_VARIATION).read(), fmt="yaml")
+        report = compute_probes(seed, work)
+        cov = report.probes["coverage"]
+        assert cov == {"variation_points": 2, "exercised": 1,
+                       "unused": ["tempo_flex"], "coverage": 0.5}
+
+    def test_gate_still_ok_with_variation_points(self, seed_work):
+        _, work = seed_work
+        seed = load_seed(open(SEED_VARIATION).read(), fmt="yaml")
+        report = compute_probes(seed, work)
+        assert report.ok is True
+
+
+def test_mockup_fn_contract(seed_work):
+    """The pin the real L1 swap must satisfy unchanged: MOCKUP_FN takes the
+    work and returns deterministic (part, pitch, onset, duration) tuples."""
+    _, work = seed_work
+    a = MOCKUP_FN(work)
+    b = MOCKUP_FN(work)
+    assert a == b and a, "MOCKUP_FN must be deterministic and non-empty"
+    for part, pitch, onset, duration in a:
+        assert isinstance(part, str)
+        assert pitch is not None
+        assert isinstance(onset, int)
+        assert duration > 0
