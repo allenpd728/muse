@@ -32,3 +32,23 @@ Run: `cd tools/muse_compare && python -m pytest` (<1 s).
 ## Invocation
 
 `cd tools/muse_compare && python -m pytest` (<1 s).
+
+## Closed 2026-08-24 (#220, run=20260824-1107-409b)
+
+Landed in tools/muse_compare/tests/test_compare_gaps.py (7 tests):
+
+- **Gap 3 (A/B delta stats):** a per-pair tempo delta over the seed
+  artifacts the rig writes — computable from artifacts alone,
+  antisymmetric, and sensitive to the rig's default_bpm perturbation
+  (min/max stay shared; only default moves). Mockup-level IOI/dynamics
+  deltas still wait on real mockups (gap 1).
+- **Gap 1 seam pins:** artifacts carry per-model provenance labels, and
+  the model label + tempo bump are the *only* differences between seeds —
+  anything else drifting would break blinding.
+- **Gap 4 (persistence within the rig's guarantee):** re-running the same
+  roster reproduces byte-identical artifacts and ledger, so per-work
+  archival is "keep the dir". Cross-session roster persistence remains a
+  follow-up feature, not testable against today's per-run design.
+
+Not covered, per the spec's own deferral: real LLM endpoint calls (gap 1)
+and the blind listening page (gap 2, explorer QA path).
