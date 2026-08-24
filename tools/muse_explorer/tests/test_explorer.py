@@ -76,3 +76,63 @@ def test_page_mount_safety():
     assert "http://" not in html and "https://" not in html.replace(
         "https://github.com", ""
     ), "no external runtime resources"
+
+
+# --- Tests: #178 follow-up ---
+
+
+def test_all_piano_roll_references_resolve():
+    """Every committed works.json piano_roll path must point at a real,
+    non-empty PNG — the page renders exactly these paths, so a missing or
+    truncated image is a broken page, not a data nit."""
+    committed = json.load(open(os.path.join(EXPLORER, "data", "works.json")))
+    assert committed["works"], "works.json is empty"
+    for entry in committed["works"]:
+        path = os.path.join(EXPLORER, entry["piano_roll"])
+        assert os.path.exists(path), f"{entry['id']}: missing {entry['piano_roll']}"
+        assert os.path.getsize(path) > 1000, f"{entry['id']}: {entry['piano_roll']} suspiciously small"
+        with open(path, "rb") as fh:
+            assert fh.read(8) == b"\x89PNG\r\n\x1a\n", f"{entry['id']}: not a PNG"
+
+
+def test_pattern_merge_covers_all_works():
+    """W3 report → explorer seam: every committed work must carry non-empty
+    pattern counts. The counts are regex-parsed from docs/analysis-report.md;
+    a report-format change must fail here loudly, not zero the page."""
+    committed = json.load(open(os.path.join(EXPLORER, "data", "works.json")))
+    for entry in committed["works"]:
+        assert entry["patterns"], (
+            f"{entry['id']} ({entry['file']}): empty patterns — regenerate "
+            "with python3 tools/muse_explorer/generate.py, or the W3 report "
+            "format drifted from the parser"
+        )
+
+
+def test_pattern_counts_missing_report_returns_empty(tmp_path, monkeypatch):
+    """No analysis report → no patterns, no crash (page degrades)."""
+    import muse_explorer.generate as gen
+
+    monkeypatch.setattr(gen, "REPORT", str(tmp_path / "absent.md"))
+    assert gen._pattern_counts() == {}
+
+
+def test_pattern_counts_ignores_malformed_blocks(tmp_path, monkeypatch):
+    """Only well-formed 'N distinct patterns' lines land in the merge;
+    prose and half-formed lines are skipped, not coerced."""
+    import muse_explorer.generate as gen
+
+    report = tmp_path / "report.md"
+    report.write_text(
+        "# Analysis\n"
+        "## bach/bwv227.1.mxl\n"
+        "exact repeats: 889 distinct patterns\n"
+        "this line is prose, not a count\n"
+        "transposed repeats: not-a-number distinct patterns\n"
+        "## byrd/1-Kyrie.mid\n"
+        "imitative entries: 12 distinct patterns\n"
+    )
+    monkeypatch.setattr(gen, "REPORT", str(report))
+    assert gen._pattern_counts() == {
+        "bach/bwv227.1.mxl": {"exact repeats": 889},
+        "byrd/1-Kyrie.mid": {"imitative entries": 12},
+    }
