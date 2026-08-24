@@ -32,7 +32,13 @@ download (~150 MB) is a one-time environment cost; CI caches it. Runs in
 the unified runner as a new suite. ~10–15 tests, all headless, no network
 beyond localhost.
 
-## Tier 3 — Live deploy smoke (proposed)
+## Tier 3 — Live deploy smoke (proposed; DEFERRED 2026-08-24)
+
+> **Deferred 2026-08-24.** The Netlify QA site is paused by founder decision;
+> resume later. Tier 3 is on hold — the live site is not a working QA
+> dependency until re-enabled (netlify.toml header comment tracks this).
+> Tier 1 (static contract) and Tier 2 (headless DOM on 127.0.0.1:0) remain
+> the frontend QA path; `QA_LIVE=1` is left as the resume switch.
 
 Post-deploy verification against the QA URL itself:
 
