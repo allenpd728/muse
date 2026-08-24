@@ -1,6 +1,7 @@
-# L3 — Model comparison rig (design doc, scaffold)
+# L3 — Model comparison rig (design doc)
 
-**Phase 4 — The product. Status: scaffold.**
+**Phase 4 — The product. Status: implemented (2026-08-24, #195 →
+[tools/muse_compare](../../tools/muse_compare/)).**
 
 ## Purpose
 
