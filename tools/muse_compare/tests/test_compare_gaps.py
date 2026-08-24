@@ -63,6 +63,19 @@ def test_pair_delta_is_computable_and_matches_artifacts(compared):
         )
 
 
+def test_rig_deltas_json_agrees_with_pair_delta(compared):
+    """#242: the rig writes deltas.json itself; the test-local helper stays
+    as the independent cross-check, not the only source of the stat."""
+    out, out_dir = compared
+    a = _load_seed(out_dir, "model-a")
+    b = _load_seed(out_dir, "model-b")
+    d = pair_delta(a, b)
+    rig = json.load(open(os.path.join(out_dir, "deltas.json")))["model-a|model-b"]
+    assert round(rig["tempo_default_delta"], 3) == d["default_bpm"]
+    assert rig["tempo_range_delta"] == round(
+        (d["max_bpm"] - d["min_bpm"]), 3)
+
+
 def test_pair_delta_is_antisymmetric(compared):
     """delta(a,b) == -delta(b,a): the stat is a real difference, not a
     per-model projection."""

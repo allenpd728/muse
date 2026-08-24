@@ -48,6 +48,35 @@ def make_seeds_for_models(work, era_hint, models):
     return seeds
 
 
+def delta_stats(seeds: dict) -> dict:
+    """Per-model-pair derived stats from the seed variants (DoD #195).
+
+    The mockup seam is seed-shaped until a real conductor harness plugs in,
+    so the deltas are params-level: tempo default/range, tempo-flex budget
+    (the dynamics-curve leash), density range. Symmetric — each unordered
+    pair appears once as ``A|B`` with sorted labels. Written next to
+    ledger.json so the ledger and its delta live together.
+    """
+    pairs = {}
+    ordered = sorted(seeds)
+    for i, a in enumerate(ordered):
+        for b in ordered[i + 1:]:
+            pa, pb = seeds[a].get("params", {}), seeds[b].get("params", {})
+            ta, tb = pa.get("tempo", {}), pb.get("tempo", {})
+            pairs[f"{a}|{b}"] = {
+                "tempo_default_delta": tb.get("default_bpm", 0) - ta.get("default_bpm", 0),
+                "tempo_range_delta": (tb.get("max_bpm", 0) - tb.get("min_bpm", 0))
+                - (ta.get("max_bpm", 0) - ta.get("min_bpm", 0)),
+                "tempo_flex_delta": pb.get("variation", {}).get("level", 0)
+                - pa.get("variation", {}).get("level", 0),
+                "density_range_delta": (pb.get("density", {}).get("max_notes_per_beat", 0)
+                                        - pb.get("density", {}).get("min_notes_per_beat", 0))
+                - (pa.get("density", {}).get("max_notes_per_beat", 0)
+                   - pa.get("density", {}).get("min_notes_per_beat", 0)),
+            }
+    return pairs
+
+
 def run_compare(work, era_hint, models, out_dir) -> dict:
     """Per-model seeds + mockup stub artifacts + hash ledger for blinding."""
     os.makedirs(out_dir, exist_ok=True)
@@ -62,9 +91,13 @@ def run_compare(work, era_hint, models, out_dir) -> dict:
     ledger = {m: a["hash"] for m, a in artifacts.items()}
     with open(os.path.join(out_dir, "ledger.json"), "w") as fh:
         json.dump(ledger, fh, indent=2, sort_keys=True)
+    deltas = delta_stats(seeds)
+    with open(os.path.join(out_dir, "deltas.json"), "w") as fh:
+        json.dump(deltas, fh, indent=2, sort_keys=True)
     return {
         "out_dir": out_dir,
         "models": sorted(artifacts),
         "artifacts": artifacts,
         "ledger": ledger,
+        "deltas": deltas,
     }
