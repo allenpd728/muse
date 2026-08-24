@@ -34,3 +34,26 @@ cd tools/muse_probes && python3 -m pytest   # 20 tests, <1s
 - **Era-override vocabulary** — the override note convention ("example"
   marker) is pinned by convention, not schema; S3 may want a formal
   `override_reason` field when the seed schema revs.
+
+---
+
+## Closed 2026-08-24 (issue #221, run=20260824-1059-b671)
+
+Landed coverage: `tools/muse_probes/tests/test_quality_gate.py` grew to
+29 tests (+3), closing the cross-revision regression-memory gap now that
+the committed v1→v2 seed pair exists (#218, `seeds/bwv227.1.v1/v2`):
+
+- **Gate green across real history** — both committed revisions'
+  assertions pass against the work.
+- **Regression fires against the committed prior** — v1 is the passing
+  memory; a regressed v2 register bound is caught with check+seed named.
+- **Cross-revision budget drift flagged on v2** — the pair's real tempo
+  drift ([62,129]→[80,120], outside baroque's floor of 88) is detected,
+  and v2's title carries no override marker, pinning both the detection
+  and the title-convention fragility noted in the era-override gap.
+
+Remaining follow-ups unchanged: CI gate wiring is #163's scope; the
+`override_reason` schema field is an S3-rev decision.
+
+Gate: `cd tools/muse_probes && python -m pytest` → 29 passed (<1 s);
+`./tools/run_tests.sh` fast tier → all suites green.
