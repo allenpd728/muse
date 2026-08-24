@@ -2,6 +2,13 @@
 # Publishes docs/ (spike listener + corpus explorer) as static pages.
 # No build step. The site (muse-qa-58fd708e) builds the dev branch per
 # repo convention. Explorer: /explorer/ · Spike listener: /spike/
+#
+# [DEFERRED 2026-08-24] The founder has paused the Netlify QA site for now;
+# resume later. Tier 3 live smoke (QA_LIVE=1) and the workflow's Netlify
+# build gate are intentionally on hold — Tier 1 (static contract) and
+# Tier 2 (headless DOM on 127.0.0.1:0) remain the live frontend QA path.
+# This file is kept so re-enabling is one comment out, and so agents do
+# not accidentally re-trigger the deploy while looking at frontend QA.
 
 [build]
   base = "docs"
