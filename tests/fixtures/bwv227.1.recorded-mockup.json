@@ -1,0 +1,1454 @@
+{
+ "work_id": "bwv227.1",
+ "tempo_map": [
+  {
+   "tick": 0,
+   "bpm": 96.0
+  },
+  {
+   "tick": 60,
+   "bpm": 90.0
+  },
+  {
+   "tick": 120,
+   "bpm": 96.0
+  }
+ ],
+ "dynamics": [
+  {
+   "tick": 0,
+   "level": 0.5
+  },
+  {
+   "tick": 76,
+   "level": 0.62
+  }
+ ],
+ "balance": [
+  {
+   "part": "P1",
+   "gain": 1.0
+  },
+  {
+   "part": "P2",
+   "gain": 0.85
+  },
+  {
+   "part": "P3",
+   "gain": 0.85
+  },
+  {
+   "part": "P4",
+   "gain": 0.85
+  }
+ ],
+ "parts": {
+  "P1": [
+   {
+    "i": 0,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 1,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 2,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 3,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 4,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 5,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 6,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 7,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 8,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 9,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 10,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 11,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 12,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 13,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 14,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 15,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 16,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 17,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 18,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 19,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 20,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 21,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 22,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 23,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 24,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 25,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 26,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 27,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 28,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 29,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 30,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 31,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 32,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 33,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 34,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 35,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 36,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 37,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 38,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 39,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 40,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 41,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 42,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 43,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 44,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 45,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 46,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 47,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 48,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 49,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 50,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 51,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 52,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 53,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 54,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 55,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 56,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 57,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 58,
+    "velocity": 66,
+    "attack_sec": 0.04
+   }
+  ],
+  "P2": [
+   {
+    "i": 0,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 1,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 2,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 3,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 4,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 5,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 6,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 7,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 8,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 9,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 10,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 11,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 12,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 13,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 14,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 15,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 16,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 17,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 18,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 19,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 20,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 21,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 22,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 23,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 24,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 25,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 26,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 27,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 28,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 29,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 30,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 31,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 32,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 33,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 34,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 35,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 36,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 37,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 38,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 39,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 40,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 41,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 42,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 43,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 44,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 45,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 46,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 47,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 48,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 49,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 50,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 51,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 52,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 53,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 54,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 55,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 56,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 57,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 58,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 59,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 60,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 61,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 62,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 63,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 64,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 65,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 66,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 67,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 68,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 69,
+    "velocity": 69,
+    "attack_sec": 0.04
+   }
+  ],
+  "P3": [
+   {
+    "i": 0,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 1,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 2,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 3,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 4,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 5,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 6,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 7,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 8,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 9,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 10,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 11,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 12,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 13,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 14,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 15,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 16,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 17,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 18,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 19,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 20,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 21,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 22,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 23,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 24,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 25,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 26,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 27,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 28,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 29,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 30,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 31,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 32,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 33,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 34,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 35,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 36,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 37,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 38,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 39,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 40,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 41,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 42,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 43,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 44,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 45,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 46,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 47,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 48,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 49,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 50,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 51,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 52,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 53,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 54,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 55,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 56,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 57,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 58,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 59,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 60,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 61,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 62,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 63,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 64,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 65,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 66,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 67,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 68,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 69,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 70,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 71,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 72,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 73,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 74,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 75,
+    "velocity": 67,
+    "attack_sec": 0.04
+   }
+  ],
+  "P4": [
+   {
+    "i": 0,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 1,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 2,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 3,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 4,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 5,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 6,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 7,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 8,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 9,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 10,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 11,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 12,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 13,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 14,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 15,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 16,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 17,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 18,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 19,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 20,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 21,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 22,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 23,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 24,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 25,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 26,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 27,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 28,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 29,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 30,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 31,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 32,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 33,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 34,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 35,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 36,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 37,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 38,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 39,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 40,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 41,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 42,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 43,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 44,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 45,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 46,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 47,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 48,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 49,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 50,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 51,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 52,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 53,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 54,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 55,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 56,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 57,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 58,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 59,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 60,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 61,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 62,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 63,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 64,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 65,
+    "velocity": 65,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 66,
+    "velocity": 66,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 67,
+    "velocity": 67,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 68,
+    "velocity": 68,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 69,
+    "velocity": 69,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 70,
+    "velocity": 70,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 71,
+    "velocity": 71,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 72,
+    "velocity": 64,
+    "attack_sec": 0.04
+   },
+   {
+    "i": 73,
+    "velocity": 65,
+    "attack_sec": 0.04
+   }
+  ]
+ },
+ "seed": {
+  "work_id": "bwv227.1",
+  "format_version": "0.1"
+ }
+}
