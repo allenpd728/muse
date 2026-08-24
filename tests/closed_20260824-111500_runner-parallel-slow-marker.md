@@ -39,3 +39,27 @@ All pass against the parallel engine.
 
 Synthetic suites belong under a tmp dir the meta suite creates — do NOT
 register them in the real SUITES list.
+
+## Closed 2026-08-24 (#239, run=20260824-2254-2185)
+
+Landed in `tools/test_runner_parallel.py` (8 tests), invoked like the
+meta suite: `cd tools && python3 -m pytest test_runner_parallel.py -q`.
+
+- **Flag parsing:** `--jobs` with no argument / non-numeric / `0` →
+  exit 2; `--serial --list` composes.
+- **Parallel report order:** synthetic slow-first/fast-second pair under
+  `--jobs 4` prints in suite order with wall time < serial bound (the
+  runner copy is table-patched, so the shipped engine is what runs).
+- **Aggregate exit code:** one failing suite among two passing → exit 1,
+  `1 suite(s) failed` on stderr, PASS/FAIL rows in declared order.
+- **Slow-marker split:** synthetic suite with one `@pytest.mark.slow`
+  test — fast run reports `1 passed, 1 deselected`, `--full` reports
+  `2 passed`.
+- **Install-guard path:** static assertion that the guard references
+  `"$SCRIPT_DIR/requirements.test.txt"` and exits 2 on install failure.
+
+Mechanism note: synthetic suites are exercised by copying `run_tests.sh`
+to a tmp dir with SUITES/SLOW_SUITES tables regex-replaced by absolute
+tmp paths — the parallelism, buffering, exit-code, and marker behavior
+under test is the shipped code. The synthetic suites themselves are
+never registered in the real tables.
