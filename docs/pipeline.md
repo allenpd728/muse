@@ -96,7 +96,7 @@ hall.
 | Task | What it is | Status |
 |---|---|---|
 | E1 — The work | One corpus work, fully seeded + mocked + rendered at concert quality. | **done** (#200 → [tools/muse_event](../tools/muse_event/)) |
-| E2 — The venue | Concert hall, projection, the "giant computer" staging. | filed [#210](https://github.com/allenpd728/muse/issues/210) |
+| E2 — The venue | Concert hall, projection, the "giant computer" staging. | **done** (#210 → [docs/design/e2-the-venue.md](design/e2-the-venue.md)) |
 | E3 — The recording | Document the event; publish. | filed [#211](https://github.com/allenpd728/muse/issues/211) (blocked by E2) |
 
 **Phase 5 done when:** deferred until Phase 4 produces one concert-worthy

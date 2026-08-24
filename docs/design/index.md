@@ -68,7 +68,7 @@ respects the rule.
 | L3 — Model comparison rig | [l3-model-comparison](l3-model-comparison.md) | L1, L2 | E1 | scaffold |
 | L4 — Distiller | [l4-distiller](l4-distiller.md) | L1, C1 | E1 | scaffold |
 | E1 — The work | [e1-the-work](e1-the-work.md) | L1–L4 | E2, E3 | scaffold |
-| E2 — The venue | [e2-the-venue](e2-the-venue.md) | E1 | E3 | scaffold |
+| E2 — The venue | [e2-the-venue](e2-the-venue.md) | E1 | E3 | draft (#210) |
 | E3 — The recording | [e3-the-recording](e3-the-recording.md) | E1, E2 | — | scaffold |
 | W6 — B9 compute scaling | [w6-b9-scaling](w6-b9-scaling.md) | W1, W2, W3 | W3, S-series | scaffold |
 | W7 — Mockup schema v0 | [w7-mockup-schema](w7-mockup-schema.md) | W4 + delta + spike | L1 | scaffold |
