@@ -13,6 +13,7 @@ not the model; build the prompt design and the loop.**
 |---|---|---|
 | **zip (.mxl precedent)** | `.mu` container | — (public format) |
 | **JSON manifest** | rights/provenance/hashes, plaintext | — |
+| **DAWproject** (Bitwig/PreSonus) | watchlist: can carry a mockup (tempo, CC, MPE); adopted by Cubase 14+/Studio One as of 2025. Export founder-gated per decision-log D20; see PRIOR_ART_REVIEW appendix (2026-08-25) | open |
 
 ## score parsing / note arrays (IR tools)
 

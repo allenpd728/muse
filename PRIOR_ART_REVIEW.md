@@ -11,6 +11,18 @@ Working analogy: film-score composer writes the skeleton; orchestrators/producer
 
 ---
 
+> **2026-08-25 update (post-pivot, P/L-series era).** The original review
+> surveyed the *schema-era* platform concept (generative composition,
+> listener rendition marketplace). The current product is different: an
+> LLM **conductor** that reads a packaged score + interpretive seed and
+> emits a dense performance *mockup* (tempo map, dynamic curves, per-note
+> expression — a DAW-session-class artifact) rendered to audio by SFZ
+> samples, with assertions validating the mockup against the score.
+> A re-survey of the DAW/AI landscape (this date) confirms the pivot
+> holds up; see the appendix below §8.
+
+---
+
 ## Executive Summary
 
 - **Every layer of the architecture exists as prior art — but nobody owns the full loop.** Symbolic schemas (MusicXML/MEI/JAMS), node-based composition tools (OpenMusic, Opusmodus), generative engines (Suno, AIVA, MusicGen, Endel, LifeScore), and listener-facing adaptive/rendition experiences (Endel, AiMi, Hook, Udio's upcoming "Starstruck") all exist. The open gap is a **composer-authored, portable schema as the canonical release artifact**, rendered by AI in real time, with listeners choosing renditions in an open (non-label-gated) marketplace.
@@ -116,6 +128,93 @@ Since the generative engine renders output audio you control, you are not depend
 5. **Listener MVP:** single page, one schema, 4–6 rendition presets ("genre covers," not artist lookalikes), real-time-ish switching.
 6. **Community validation:** OpenMusic/Opusmodus users, generative-music artists (Eno-school), game-audio composers (Wwise/FMOD mindset is your best mental model).
 7. **Legal groundwork:** FTO patent review (Endel/LifeScore/Reactional), plan licensing posture (licensed training + opt-in source material), DDEX disclosure compliance if distributing to DSPs.
+
+---
+
+---
+
+## Appendix — 2026-08-25 re-survey: DAW-native AI and the conductor question
+
+Scope: what shipped in DAWs/production tools since the original review, and
+whether any prior art exists for the current architecture (score + seed →
+LLM conductor → dense performance mockup → sample render). Sources: vendor
+release notes and press (Ableton, Apple/Logic, Image-Line, Steinberg, Avid,
+PreSonus, Suno, BandLab), plus the expressive-performance research line
+(CPJKU, ISMIR/ICASSP/arXiv). Full query trail in session run
+20260824-1032-xjzf.
+
+### What the DAWs actually shipped (2025–2026)
+
+| Tool | AI feature | Score-aware? | Emits performance data? |
+|---|---|---|---|
+| Ableton Live 12.x | stem separation to new tracks | no | no |
+| Logic Pro 11→12 | AI Session Players (bass/keys jam to chord track), Stem Splitter, ChatGPT integration | chord-track aware, not score-aware | plays MIDI in-session; no exportable mockup |
+| FL Studio 2026 | Gopher AI assistant (build patterns, set BPM, route/name tracks via chat) | no (DAW-control agent) | no |
+| Pro Tools 2025.6 | Splice search-with-sound, speech-to-text | no | no |
+| Cubase 15 | AI stem separation, revised expression maps | no | no |
+| Studio One Pro 7 | neural tempo detection, stem extraction | no | no |
+| BandLab | Auto Mix, Voice Cleaner, text-prompt effect chains, Aiode acquisition | no | no |
+| Suno Studio (ex-WavTool) | browser DAW, AI-MIDI generation, chat operation | no | no (in-browser generation) |
+
+**Read: the entire commercial DAW layer converged on stems, chat control,
+and mixing assistants. None of it parses a score; none of it emits an
+expressive session file.**
+
+### DAWproject adoption (the open session format)
+
+Real but patchy: Cubase 14+ and Studio One import/export it, Bitwig is
+native, and the forums are full of edge-case bugs (tempo maps dropped on
+one export path, CC64 sustain missing, VST inserts not translating). The
+format carries what a mockup needs (tempo track, MIDI CC, MPE). **No AI
+tool emits it.** The D20 founder-gate on any DAWproject export path
+stands; the adoption data says the export story would be genuinely useful
+to producers *and* genuinely leaky, exactly as decided.
+
+### The expressive-performance research line (closest relatives)
+
+- **Basis Mixer / Con Espressione** (Cancino-Chacón, CPJKU): score
+  features → tempo/dynamics via learned basis functions; precomputed
+  per-note parameter vectors. The direct ancestor of the mockup concept —
+  but a *trained* performance model, not an LLM, and CSV not session
+  files. (The spike already cites it; still the right lineage.)
+- **VirtuosoNet** (Jeon et al.): score → tempo/timing/articulation/
+  velocity deviations; pre-trained form only in the wild.
+- **S2A** (ICASSP 2025, tangjjbetsy): integrated score → expressive
+  performance MIDI → audio.
+- **MIDI-GPT / MIDI-VALLE / Midi-LLM** (2024–2026): controllable multitrack
+  MIDI generation, neural-codec performance synthesis, text→MIDI finetunes.
+  Midi-LLM is the closest to "an LLM touches performance parameters" — but
+  it's a finetuned generator, not a general model reading a score + seed.
+
+**Read: trained models do score → expressive MIDI; nobody uses a general
+LLM at inference time as the conductor, with sanctions/assertions bounding
+the output and a session-file mockup as the artifact.**
+
+### What this confirms about the current architecture
+
+1. **The conductor role is unclaimed.** The gap the original review found
+   ("nobody owns the full loop") persists in the new shape: DAWs went to
+   stems/chat, research went to trained renderers. LLM-as-conductor with
+   assertion-bounded mockups has no public prior art.
+2. **The mockup-as-session-file framing is validated from both sides:**
+   Basis Mixer proves the parameter vocabulary; DAWproject proves the
+   format can carry it; neither is connected to an LLM.
+3. **Risk watch:** Logic's Session Players normalize "AI plays along in
+   the DAW" culturally — useful for the event's legibility ("can a machine
+   conduct Beethoven?" lands on an audience that has now heard of AI
+   session musicians). Suno Studio's "AI Music Production OS" framing is
+   the closest rhetorical competitor; its axis is creation, ours is
+   interpretation — the Gould/Bernstein controversy has no analog in
+   text-to-audio.
+
+### New entries for the tech-stack watchlist
+
+- **DAWproject** — format capable of carrying a mockup (tempo, CC, MPE);
+  adoption now real (Cubase 14+, Studio One). Export stays founder-gated
+  per decision-log D20.
+- **S2A / Basis Mixer line** — the trained-renderer comparison class for
+  L3 A/B listening (LLM reading vs trained renderer on the same score is
+  a legible demo).
 
 ---
 
