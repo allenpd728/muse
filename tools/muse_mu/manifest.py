@@ -39,11 +39,22 @@ REQUIRED_MANIFEST_KEYS = frozenset({
 LICENSE_KEYS = frozenset({"renditions", "attribution", "commercial"})
 PROVENANCE_KEYS = frozenset({
     "source", "tools", "ai_involvement", "author", "license_ref",
+    "extends", "operation",
 })
 
 
 def sha256_hex(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def is_sha256_hex(digest) -> bool:
+    if not isinstance(digest, str) or len(digest) != 64:
+        return False
+    try:
+        int(digest, 16)
+    except ValueError:
+        return False
+    return True
 
 
 @dataclass
@@ -102,6 +113,17 @@ class Manifest:
         tools = self.provenance.get("tools")
         if tools is not None and not isinstance(tools, list):
             raise ManifestError("provenance.tools must be a list")
+        # S5.1 (#249): optional lineage fields, copied from the packed
+        # seed's provenance at pack time (S3.7, #248).
+        ext = self.provenance.get("extends")
+        if ext is not None and not is_sha256_hex(ext):
+            raise ManifestError(
+                "provenance.extends must be a sha256 hex digest "
+                "(bare 64-hex, no prefix)")
+        op = self.provenance.get("operation")
+        if op is not None and not isinstance(op, str):
+            raise ManifestError("provenance.operation must be a string "
+                                "(tool@version)")
 
     def _validate_hashes(self):
         if not isinstance(self.hashes, dict) or not self.hashes:
@@ -109,11 +131,7 @@ class Manifest:
         for member, digest in self.hashes.items():
             if member == "manifest.json":
                 raise ManifestError("manifest must not hash itself")
-            if not isinstance(digest, str) or len(digest) != 64:
-                raise ManifestError(f"hashes[{member!r}]: not a sha256 hex digest")
-            try:
-                int(digest, 16)
-            except ValueError:
+            if not is_sha256_hex(digest):
                 raise ManifestError(f"hashes[{member!r}]: not a sha256 hex digest")
 
     def to_dict(self, include_optional=True):

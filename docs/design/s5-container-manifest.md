@@ -38,3 +38,10 @@ readable member — a lawyer reads it with a text editor.
   overlap (author, license_ref) plus the manifest-only `ai_involvement`
   enum (none|assisted|generated), `source`, `tools` — the §3 draft's
   "source, tools, AI involvement disclosure" concretized.
+- **Lineage fields (S5.1, 2026-08-25, #249):** `extends`/`operation`
+  joined `PROVENANCE_KEYS` (optional, validated — `extends` reuses the
+  `_validate_hashes` digest check, now shared as `is_sha256_hex()`). The
+  mirroring rule above is the sync mechanism: at pack time the manifest's
+  `extends`/`operation` are copied from the packed seed's provenance
+  (S3.7, #248) — the seed file is the source of truth, the manifest
+  restates it.
