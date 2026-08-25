@@ -56,15 +56,17 @@ tools/muse_grow/
 - **Growth report**: per-trait delta between iteration n and n-1, with a
   verdict per trait (growing / flat / regressing).
 
-## Proposed tasks (not started)
+## Tasks
 
 | Task | Scope | Blocked by |
 |---|---|---|
-| **G1 — Growth harness** | `tools/muse_grow/`: L1→L4→delta→compare pipeline + growth report JSON | L1 generate loop (real); stand-in marked until then |
-| **G2 — Workbench growth view** | growth report rendered per seed (trait trajectories across iterations) | G1 |
-| **G3 — Iteration fixtures** | two committed seed revisions + their deltas so G1's compare has known-answer tests | G1 |
+| **G1 — Growth harness** ([#203](https://github.com/allenpd728/muse/issues/203)) | `tools/muse_grow/`: L1→L4→delta→compare pipeline + growth report JSON | L1 generate loop (real); stand-in marked until then |
+| **G2 — Workbench growth view** ([#204](https://github.com/allenpd728/muse/issues/204)) | growth report rendered per seed (trait trajectories across iterations) | G1 |
+| **G3 — Iteration fixtures** ([#205](https://github.com/allenpd728/muse/issues/205)) | two committed seed revisions + their deltas so G1's compare has known-answer tests | G1 |
+| **G4 — Expansion-time logging** ([#252](https://github.com/allenpd728/muse/issues/252)) | log `expansion_time_ms` per `operation` tag against `(variation_point_count, note_count)` per `grow_one` call — measurement toward a future expansion-cost estimate (proposal: [lineage chain](proposal-lineage-chain.md) §2.4) | S3.7 ([#248](https://github.com/allenpd728/muse/issues/248)) |
 
-G1 is the foundation; G2/G3 decompose from it.
+G1 is the foundation; G2/G3 decompose from it. G4 is instrumentation
+riding the harness, not a new subsystem.
 
 ## Explicitly not (yet)
 
