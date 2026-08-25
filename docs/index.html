@@ -21,6 +21,16 @@
   .seed-pill { font-size:.65rem; padding:.08rem .45rem; border-radius:5px; margin-left:.5rem; }
   .seeded { background:#238636; color:#fff; }
   .unseeded { background:#f85149; color:#fff; }
+  .pipeline { margin:2rem 0; }
+  .pipeline table { border-collapse:collapse; width:100%; font-size:.8rem; }
+  .pipeline caption { text-align:left; color:#8b949e; font-size:.75rem; padding:.4rem 0; }
+  .pipeline th, .pipeline td { padding:.4rem .6rem; text-align:left; border-bottom:1px solid #21262d; vertical-align:top; }
+  .pipeline th { color:#f0f6fc; }
+  .pipeline td.io { color:#a5d6ff; white-space:nowrap; }
+  .pipeline a { color:#58a6ff; text-decoration:none; }
+  .pipeline a:hover { text-decoration:underline; }
+  .status-done { color:#3fb950; font-weight:bold; }
+  .status-missing { color:#f85149; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -33,6 +43,72 @@
     <a href="workbench/terminal/">/workbench/terminal/ (W-B8)</a>
   </p>
 </nav>
+
+<section class="pipeline">
+  <h2>Pipeline at a glance</h2>
+  <table id="pipeline-table">
+    <caption>
+      Status cached from the issue queue + git log (the system of record)
+      at last doc edit — recheck the queue before trusting a "done" cell.
+      Described; no mockup content exposed (D20).
+    </caption>
+    <thead>
+      <tr><th>Stage</th><th class="io">input → output</th><th>owning tool</th><th>status</th><th>key assets</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>package</td>
+        <td class="io">source (MusicXML/MIDI) → .mu container</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_mu">muse_mu</a> (S5)</td>
+        <td class="status-done">done (#141)</td>
+        <td>zip + plaintext rights manifest, member hashes</td>
+      </tr>
+      <tr>
+        <td>unzip / decode</td>
+        <td class="io">.mu → event stream (IR)</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_decode">muse_decode</a> (P1)</td>
+        <td class="status-done">done (#197)</td>
+        <td>P3 golden vectors <a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_ci">tools/muse_ci</a></td>
+      </tr>
+      <tr>
+        <td>deterministic baseline</td>
+        <td class="io">event stream → audio (soundfont tier)</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_play">muse_play</a> (P2)</td>
+        <td class="status-done">done (#198)</td>
+        <td>free baseline — the score plays identically everywhere</td>
+      </tr>
+      <tr>
+        <td>grow</td>
+        <td class="io">score + seed → mockup (LLM)</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_generate">muse_generate</a> (L1)</td>
+        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/206">#206</a>–<a href="https://github.com/allenpd728/muse/issues/209">#209</a>)</td>
+        <td>generate → validate → fix loop; intelligence lives here, math lives in the score</td>
+      </tr>
+      <tr>
+        <td>validate</td>
+        <td class="io">seed/mockup → pass/fail</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_seed_cli">muse_seed_cli</a> (C1) + <a href="https://github.com/allenpd728/muse/tree/dev/tools/assertions">assertions</a> (C4)</td>
+        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/148">#148</a> / <a href="https://github.com/allenpd728/muse/issues/182">#182</a>)</td>
+        <td>schema check + per-work assertion sets</td>
+      </tr>
+      <tr>
+        <td>render</td>
+        <td class="io">mockup → audio (sfizz/SFZ tier)</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_render">muse_render</a> (L2)</td>
+        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/193">#193</a>)</td>
+        <td>the "worth listening to" bar</td>
+      </tr>
+      <tr>
+        <td>distill</td>
+        <td class="io">mockup → seed revision</td>
+        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_distill">muse_distill</a> (L4)</td>
+        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/196">#196</a>)</td>
+        <td>the learning loop — prompt accumulates interpretive craft</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
 <div id="tree">loading corpus…</div>
 <script>
 // Five reference works. Each has per-file ids (movements for bwv227/byrd,
