@@ -3,11 +3,14 @@
 **Status:** tasks filed (2026-08-25, run=20260825-2247-qogi): S3.7
 [#248](https://github.com/allenpd728/muse/issues/248), S5.1
 [#249](https://github.com/allenpd728/muse/issues/249), L1.10
-[#250](https://github.com/allenpd728/muse/issues/250), S3.8
-[#251](https://github.com/allenpd728/muse/issues/251), G4
+[#250](https://github.com/allenpd728/muse/issues/250), S3.8a
+[#251](https://github.com/allenpd728/muse/issues/251), S3.8b
+[#254](https://github.com/allenpd728/muse/issues/254), G4
 [#252](https://github.com/allenpd728/muse/issues/252), W-B9
 [#253](https://github.com/allenpd728/muse/issues/253). Native blocked-by
-relationships set per the table in §3.
+relationships set per the table in §3. (The original S3.8 was split into
+S3.8a walker + S3.8b mockup persistence/distiller stamping — the combined
+scope was over the one-agent-run sizing rule.)
 
 Written to resolve a real conflict between two independently-drafted docs
 before either lands, and to turn the resolution into filed tasks rather
@@ -113,7 +116,7 @@ seed v2  (distilled from the mockup, L4)
   are not persisted anywhere today (`tools/muse_grow` runs the stand-in
   in memory and writes nothing). The growth loop must commit the
   producing mockup alongside each committed seed revision (scoped under
-  S3.8, §3) or every mockup hop is unverifiable. "Parent missing" is a
+  S3.8b, §3) or every mockup hop is unverifiable. "Parent missing" is a
   first-class verify result, distinct from "parent hash mismatch".
 - **What does NOT get unified:** `run_id`, `provider`, `model_version`,
   `status` (L1.5 §2/§3) are generation-run metadata, not lineage. They
@@ -226,11 +229,11 @@ Add a row to the existing probe table:
 
 | Probe | Question it answers | Source |
 |---|---|---|
-| **Lineage check** | Does this seed revision's `extends` resolve to a real, hash-matching parent artifact? | `provenance.extends` (§1), via S3.8's walker |
+| **Lineage check** | Does this seed revision's `extends` resolve to a real, hash-matching parent artifact? | `provenance.extends` (§1), via S3.8a's walker |
 
 And one sentence under "Iteration history": each committed seed
 revision's row can now show whether its lineage verifies —
-verified / broken / missing, reusing S3.8's three-state report —
+verified / broken / missing, reusing S3.8a's three-state report —
 distinct from whether its assertions pass. The workbench already
 separates regression from growth; this adds a third, orthogonal signal
 (integrity) to the same surface without new UI concepts.
@@ -246,7 +249,8 @@ One adjacent scope line for L4: `tools/muse_distill/distill.py`'s
 `seed_revision()` already stamps `provenance: {distilled_from: work_id,
 note_count}` — it is the natural emitter of `extends` (hash of the
 producing mockup) and `operation: muse_distill@<v>` on distilled
-revisions. Scoped under S3.8, since the chain-walk needs it.
+revisions. Scoped under S3.8b (#254), alongside the mockup persistence
+that gives the hash something to point at.
 
 
 ---
@@ -257,10 +261,11 @@ revisions. Scoped under S3.8, since the chain-walk needs it.
 |---|---|---|---|---|---|
 | **S3.7 — Lineage fields on seed provenance** | [#248](https://github.com/allenpd728/muse/issues/248) | `extends`/`operation` decisions-log entry in `s3-seed-format/SPEC.md` + C1 validator acceptance, per §1 hash convention | none | #249, #250, #251, #252 | S |
 | **S5.1 — Manifest provenance lineage fields** | [#249](https://github.com/allenpd728/muse/issues/249) | `PROVENANCE_KEYS` += `extends`, `operation`; digest validation shared with `_validate_hashes`; pack-time copy sentence in `s5-container-manifest.md` | #248 | #251 | S |
-| **S3.8 — Chain-walk/verify helper** | [#251](https://github.com/allenpd728/muse/issues/251) | walk `extends` across seed revision files + persisted mockups; three-state per-hop report (verified / mismatch / missing); growth loop persists producing mockups; `muse_distill` stamps `extends`/`operation` | #248, #249 | #253 | M |
-| **L1.10 — Mockup `provenance.seed_hash`** | [#250](https://github.com/allenpd728/muse/issues/250) | optional `provenance` object in mockup schema v1 per §2.2; delete vestigial optional `"seed"` property (zero consumers — verified) | #248 | — | M |
+| **S3.8a — Chain-walk/verify helper** | [#251](https://github.com/allenpd728/muse/issues/251) | walk `extends` across committed seed revision files; three-state per-hop report (verified / mismatch / missing); mockup hops report `parent missing` until #254 lands | #248, #249 | #253, #254 | S–M |
+| **S3.8b — Mockup persistence + distiller stamping** | [#254](https://github.com/allenpd728/muse/issues/254) | growth loop commits the producing mockup next to each seed revision; `muse_distill.seed_revision()` emits `extends` (hash of that mockup) + `operation` | #250, #251 | — | M |
+| **L1.10 — Mockup `provenance.seed_hash`** | [#250](https://github.com/allenpd728/muse/issues/250) | optional `provenance` object in mockup schema v1 with `seed_hash` only (run-metadata fields stay with the unfiled typed-provider series); delete vestigial optional `"seed"` property (zero consumers — verified) | #248 | #254 | S |
 | **G4 — Growth harness expansion-time logging** | [#252](https://github.com/allenpd728/muse/issues/252) | `expansion_time_ms` keyed by `operation` against `(variation_point_count, note_count)` in the growth report JSON | #248 | corpus-ladder cost report (future, not yet scoped) | S |
-| **W-B9 — Workbench lineage probe** | [#253](https://github.com/allenpd728/muse/issues/253) | "Lineage check" row in the probe table; verified/broken/missing surfaced per revision in iteration history | #251 | none | S |
+| **W-B9 — Workbench lineage probe** | [#253](https://github.com/allenpd728/muse/issues/253) | "Lineage check" row in the probe table; verified/broken/missing surfaced per revision in iteration history | #251 (walker only) | none | S |
 
 Numbering notes (why not the numbers in earlier drafts of this doc):
 **S3.6** was already taken ("Example seed", #147, closed); **W-B5**

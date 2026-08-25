@@ -71,7 +71,7 @@ trained, nothing is generated beyond the existing mockup path.
 | **W-B6 — Seed corpus tree** | master index shell | done ([#233](https://github.com/allenpd728/muse/issues/233)) |
 | **W-B7 — File explorer** | read-only file explorer + text viewer | done ([#234](https://github.com/allenpd728/muse/issues/234)) |
 | **W-B8 — Terminal mode** | pipeline GUI + embedded prompt/chat | done ([#235](https://github.com/allenpd728/muse/issues/235)) |
-| **W-B9 — Lineage probe** ([#253](https://github.com/allenpd728/muse/issues/253)) | "Lineage check" probe row + per-revision integrity signal (verified/broken/missing) in iteration history (proposal: [lineage chain](proposal-lineage-chain.md) §2.5) | S3.8 ([#251](https://github.com/allenpd728/muse/issues/251)) |
+| **W-B9 — Lineage probe** ([#253](https://github.com/allenpd728/muse/issues/253)) | "Lineage check" probe row + per-revision integrity signal (verified/broken/missing) in iteration history (proposal: [lineage chain](proposal-lineage-chain.md) §2.5) | S3.8a ([#251](https://github.com/allenpd728/muse/issues/251)) |
 
 W-B1 is the foundation; W-B2/W-B3/W-B4 decompose from it. Each fits one
 agent run.
