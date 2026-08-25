@@ -83,3 +83,17 @@ def test_pipeline_table_clean_console(server, page):
     p.reload(wait_until="networkidle")
     p.locator("#pipeline-table").wait_for(timeout=5000, state="visible")
     assert ps.console_errors == [], ps.console_errors[:2]
+
+
+def test_pipeline_table_no_mobile_overflow(server, page):
+    """/index.html must fit 375px — the table wraps (io cells) and the
+    section scrolls internally rather than overflowing the page (the
+    nowrap regression shipped with #241, caught by hand)."""
+    _, ps = page  # reuse the module session — nesting sync_playwright is illegal
+    p = ps.new_page()
+    p.set_viewport_size({"width": 375, "height": 812})
+    p.goto(server.url + "/index.html", wait_until="networkidle")
+    overflow = p.evaluate(
+        "document.documentElement.scrollWidth - document.documentElement.clientWidth"
+    )
+    assert overflow <= 0, f"horizontal overflow at 375px: {overflow}px"

@@ -85,6 +85,7 @@ def _schema_dict_to_mockup(d, work):
     from muse_mockup import Mockup, Note
 
     mockup = Mockup(work_id=d.get("work_id") or "unknown")
+    mockup.ppq = getattr(getattr(work, "meta", None), "ppq", 480)  # the tick domain (#246)
     mockup.tempo_map = [(e["tick"], round(e["bpm"] * 1000))
                         for e in d.get("tempo_map", [])]
     if d.get("dynamics"):
