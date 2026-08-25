@@ -110,3 +110,22 @@ use. Byte-exact for serialization depends on C1.
   (`muse_seed_cli validate`) requires it on proposals whose
   `provenance.author` is `muse_author`. Additive — no existing seed
   breaks; v0 grammar per §6.
+- **Lineage fields (S3.7, 2026-08-25, #248):** two optional top-level
+  `provenance` keys make a seed revision's authoring chain walkable.
+  `extends` is the bare 64-hex SHA-256 (the exact digest shape
+  `tools/muse_mu/manifest.py`'s `_validate_hashes` validates — no
+  `sha256:` prefix) of the *parent artifact's committed file bytes*: a
+  prior seed revision, or the mockup the revision was distilled from
+  (L4). Omitted for a root seed. Committed bytes, not a canonical
+  serialization — lineage points backward at immutable committed
+  revisions, and editing a parent produces a new revision, which is
+  exactly what the chain should detect. `operation` is the
+  `tool@version` (lowercase tool dir name `@` digits, e.g.
+  `muse_distill@1`) that produced the revision — informational only,
+  never chain-verified. One hop over, the mockup schema's
+  `provenance.seed_hash` (L1.10, #250) is the *same* hash: the value the
+  mockup's seed carries as its identity and the next distilled revision
+  puts in `extends`. Directive roots are out of scope until directives
+  exist as files. Validator: `_validate_provenance()` in
+  `tools/muse_seed/seed.py`, wired into `validate_seed()`. Additive — no
+  existing seed breaks.
