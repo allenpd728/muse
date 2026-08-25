@@ -29,6 +29,12 @@ Required members: `manifest.json`, `roll.bin`, `seed.bin`; optional:
 never hashes itself. Signature is optional HMAC-SHA256 over canonical JSON
 (PKI deferred).
 
+Provenance lineage fields (S5.1, optional): `extends` — bare 64-hex
+SHA-256 of the parent artifact's committed bytes; `operation` —
+`tool@version` string. Copied from the packed seed's provenance at pack
+time; `extends` is validated by the same `is_sha256_hex()` check used for
+member hashes.
+
 ## Tests
 
 ```
