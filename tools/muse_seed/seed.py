@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 
 
@@ -16,6 +17,22 @@ TOP_LEVEL_KEYS = {
 }
 
 REQUIRED_KEYS = {"format_version", "work_id", "params", "assertions"}
+
+# Lineage fields (S3.7, #248): extends is the bare 64-hex SHA-256 of the
+# parent artifact's committed bytes; operation is the tool@version that
+# produced the revision. Both optional; omitted on a root seed.
+_OPERATION_RE = re.compile(r"^[a-z][a-z0-9_]*@\d+(\.\d+)*$")
+
+
+def is_sha256_hex(value) -> bool:
+    """Bare 64-char lowercase-or-upper hex digest — the manifest's shape."""
+    if not isinstance(value, str) or len(value) != 64:
+        return False
+    try:
+        int(value, 16)
+    except ValueError:
+        return False
+    return True
 
 
 @dataclass
@@ -62,6 +79,7 @@ def validate_seed(seed: Seed):
         raise SeedError("variation_points must be a list")
     if seed.era_budget is not None and not isinstance(seed.era_budget, dict):
         raise SeedError("era_budget must be a mapping when present")
+    _validate_provenance(seed.provenance)
     if seed.variation_points:
         from muse_seed.variation import VariationError, validate_variation_points
 
@@ -76,6 +94,24 @@ def validate_seed(seed: Seed):
             Philosophy.from_dict(seed.philosophy)
         except PhilosophyError as e:
             raise SeedError(f"philosophy: {e}") from e
+
+
+def _validate_provenance(provenance):
+    """Shape-check the optional lineage fields (S3.7). Provenance keys are
+    otherwise free-form — only extends/operation carry a contract."""
+    if not isinstance(provenance, dict):
+        raise SeedError("provenance must be a mapping")
+    if "extends" in provenance and not is_sha256_hex(provenance["extends"]):
+        raise SeedError(
+            "provenance.extends must be a bare 64-hex sha256 of the parent "
+            "artifact's committed bytes"
+        )
+    if "operation" in provenance:
+        op = provenance["operation"]
+        if not isinstance(op, str) or not _OPERATION_RE.match(op):
+            raise SeedError(
+                "provenance.operation must be tool@version (e.g. muse_distill@1)"
+            )
 
 
 def load_seed(data: str, fmt: str = "yaml") -> Seed:

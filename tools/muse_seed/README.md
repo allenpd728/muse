@@ -29,6 +29,13 @@ Top-level keys: format_version, work_id, title, params, philosophy,
 variation_points, assertions, provenance. Required: format_version,
 work_id, params, assertions.
 
+Provenance lineage fields (S3.7, optional): `extends` — bare 64-hex
+SHA-256 of the parent artifact's committed bytes (prior seed revision or
+producing mockup; omitted for a root seed); `operation` — `tool@version`
+that produced the revision (e.g. `muse_distill@1`; informational, never
+chain-verified). Both shape-checked by `validate_seed()`; other
+provenance keys stay free-form.
+
 ## S3.2 — Parameters + ranges (params.py)
 
 Era-calibrated budgets from delta-analysis:
