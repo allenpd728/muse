@@ -94,6 +94,16 @@ class TestSchemaDictConversion:
         assert n.onset_offset_ms == -3
         assert m.tempo_map == [(0, 96000)]
 
+    def test_ppq_carried_from_work(self):
+        """The schema wire format has no ppq field; the bridge must set it
+        from the work, or every real-work render plays at the wrong speed
+        (bwv227.1 is ppq=2 — 240x too fast at the 480 default, #246 seam)."""
+        work = self._work()
+        d = {"work_id": "bwv227.1", "tempo_map": [{"tick": 0, "bpm": 96.0}],
+             "parts": {"P1": [{"i": 0, "velocity": 90}]}}
+        m = _schema_dict_to_mockup(d, work)
+        assert m.ppq == work.meta.ppq == 2
+
     def test_balance_and_dynamics_carried(self):
         work = self._work()
         d = {
