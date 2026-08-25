@@ -59,7 +59,7 @@ trained, nothing is generated beyond the existing mockup path.
   workbench is the read surface for what you committed. (A future C2
   authoring UI is a separate, proprietary task — this is QA, not authoring.)
 
-## Proposed tasks (not started)
+## Tasks
 
 | Task | Scope | Blocked by |
 |---|---|---|
@@ -67,6 +67,11 @@ trained, nothing is generated beyond the existing mockup path.
 | **W-B2 — Quality-check gate** | the five regression checks as a pytest suite + runner registration | W-B1 |
 | **W-B3 — Workbench page** | explorer view grown: seed panel, probe panel, iteration history rows | W-B1 |
 | **W-B4 — Iteration loop docs** | the edit → validate → mockup → probe loop documented for the founder + agents (AGENTS.md section) | done (#188) — docs/seed-iteration.md |
+| **W-B5 — Workbench runner** | allow-listed command runner for the workbench | done ([#232](https://github.com/allenpd728/muse/issues/232)) |
+| **W-B6 — Seed corpus tree** | master index shell | done ([#233](https://github.com/allenpd728/muse/issues/233)) |
+| **W-B7 — File explorer** | read-only file explorer + text viewer | done ([#234](https://github.com/allenpd728/muse/issues/234)) |
+| **W-B8 — Terminal mode** | pipeline GUI + embedded prompt/chat | done ([#235](https://github.com/allenpd728/muse/issues/235)) |
+| **W-B9 — Lineage probe** ([#253](https://github.com/allenpd728/muse/issues/253)) | "Lineage check" probe row + per-revision integrity signal (verified/broken/missing) in iteration history (proposal: [lineage chain](proposal-lineage-chain.md) §2.5) | S3.8 ([#251](https://github.com/allenpd728/muse/issues/251)) |
 
 W-B1 is the foundation; W-B2/W-B3/W-B4 decompose from it. Each fits one
 agent run.
