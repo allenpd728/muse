@@ -9,6 +9,7 @@ their existence and non-emptiness, pinned by tests.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -117,10 +118,18 @@ def generate_workbench(workbench_dir=None):
     os.makedirs(seeds_out, exist_ok=True)
     index = {"seeds": []}
     seeds_dir = os.path.join(REPO, "seeds")
+    seen_content = {}  # sha256 of bytes -> index entry (content dedup, #273)
     for fname in sorted(os.listdir(seeds_dir)):
         if not fname.endswith((".yaml", ".yml")):
             continue
-        seed = load_seed(open(os.path.join(seeds_dir, fname)).read(), fmt="yaml")
+        raw = open(os.path.join(seeds_dir, fname), "rb").read()
+        digest = hashlib.sha256(raw).hexdigest()
+        if digest in seen_content:
+            # Byte-identical revision copy (pre-lineage checkpoint
+            # convention): one index entry per distinct revision.
+            seen_content[digest].setdefault("aliases", []).append(fname)
+            continue
+        seed = load_seed(raw.decode(), fmt="yaml")
         work_rel = getattr(seed, "provenance", {}).get("source")
         if not work_rel:
             continue
@@ -132,11 +141,13 @@ def generate_workbench(workbench_dir=None):
             fh.write(report.to_json())
         with open(os.path.join(seeds_out, fname), "w") as fh:
             fh.write(open(os.path.join(seeds_dir, fname)).read())
-        index["seeds"].append({
+        entry = {
             "work_id": seed.work_id,
             "file": fname,
             "probes": probes_name,
-        })
+        }
+        index["seeds"].append(entry)
+        seen_content[digest] = entry
     with open(os.path.join(seeds_out, "index.json"), "w") as fh:
         json.dump(index, fh, indent=1)
         fh.write("\n")

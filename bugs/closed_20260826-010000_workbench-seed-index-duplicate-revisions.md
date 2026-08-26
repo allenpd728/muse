@@ -48,3 +48,7 @@ the page groups nothing, so each entry is its own block.
 Cosmetic-but-loud on the page (duplicate panels), and the lineage probe's
 committed evidence contradicts the seeds it describes — the W-B9 feature
 reads broken on its own demo data.
+
+---
+
+**Closed (2026-08-26, run=20260825-2247-qogi):** fixed per the sketch — content-hash dedup in `generate_workbench` (first sorted file wins, duplicates recorded as `aliases`), `probe_lineage` hops relativized against the repo root, workbench data regenerated (v1 artifacts removed as unreferenced; v3 newly indexed). Regression pins in `tools/muse_explorer/tests/test_explorer.py`. Issue #273.

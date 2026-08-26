@@ -80,7 +80,7 @@
   "lineage": {
    "hops": [
     {
-     "child": "/workspace/project/muse/seeds/bwv227.1.seed.yaml",
+     "child": "seeds/bwv227.1.seed.yaml",
      "parent": "",
      "pointer": "",
      "status": "root"
