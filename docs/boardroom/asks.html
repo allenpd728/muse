@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Muse boardroom — Decision asks</title>
+<title>Muse boardroom — decision asks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { color-scheme: dark; }
@@ -16,18 +16,43 @@
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
   nav p { line-height:1.8; }
+  .anchor { color:#8b949e; font-size:.75rem; }
 </style>
 </head>
 <body>
 <header><h1>Decision asks <span class="tag">boardroom</span></h1>
-<p class="note">What the meeting is for. Content lands with B5 (#267). Read-only surface; sources are the repo docs and the issue queue.</p></header>
+<p class="note">What the meeting is for. Three calls, each with its anchor. Read-only surface.</p></header>
 <nav><p>
   <a href="../index.html">/ corpus tree</a> ·
   <a href="../explorer/">/explorer/</a> ·
   <a href="../workbench/detail.html">/workbench/</a> ·
   <a href="../workbench/terminal/">/workbench/terminal/</a> ·
-  <strong>/boardroom/</strong>
+  <a href="index.html">/boardroom/</a>
 </p></nav>
-<div class="card"><p class="note">Content pending — see the linked issue.</p></div>
+
+<section class="card" id="ask-event">
+<h3>1. Bless the event-first strategy — and its budget shape</h3>
+<p>The unveiling is a performance event, not an app launch: a staged evening where the machine
+conducts live, in full view, against the deterministic baseline. The plan recommends a
+university-affiliated hall or science-museum hall, 300–500 seats, projection, house recording.
+Budget shape includes the venue class and the contingency for a commercial sample library if the
+founder's ear rejects the free tier. <span class="anchor">docs/design/e2-the-venue.md; L5 waiver (#117 pipeline); the event anchors the frontier claim</span></p>
+</section>
+
+<section class="card" id="ask-openness">
+<h3>2. Confirm the open-at-launch posture</h3>
+<p>Spec, reference player, and conformance suite go public at launch; seed workbench and LLM
+player stay proprietary. During development the private repo is the lock-down — nothing about
+today's work changes. The ask is to confirm the pivot-to-open stays a decision taken at launch,
+not a pre-commitment that constrains it. <span class="anchor">decision D4 (+ D20 at the artifact level)</span></p>
+</section>
+
+<section class="card" id="ask-e3">
+<h3>3. Schedule the publication-surface decision</h3>
+<p>E3 (the recording) is blocked on two things: the staged event itself, and where the recording
+is published — release format and platform. The recording carries the controversy; the surface
+decision is the one the board can schedule now. <span class="anchor">#211 (blocked-needs-input); docs/design/e3-the-recording.md</span></p>
+</section>
+
 </body>
 </html>
