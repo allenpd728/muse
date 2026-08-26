@@ -42,3 +42,18 @@ Extend `tools/muse_probes/tests/test_probes.py` (fixtures under
   fixed (pre-existing — fails identically before this change).
 - Mockup-hop statuses stay `missing` until S3.8b (#254) persists
   producing mockups.
+
+## Closed 2026-08-26 (#261, run=20260825-1033-cae1)
+
+Extended `tools/muse_probes/tests/test_probes.py` (+7 tests, suite 29 → 36):
+
+1. **Status reduction:** root-is-root-not-verified (the regression pin),
+   verified chain (verified→root hop shape), missing pointer, unknown
+   without seed_path (explanatory note pinned).
+2. **Gate orthogonality:** missing lineage + green fidelity/determinism/
+   assertions still yields ok=True — integrity is a separate signal.
+3. **CLI seam:** muse-probes --out writes the lineage block; exit code
+   unchanged by lineage status.
+4. **Explorer seam:** generate_workbench artifacts all carry lineage;
+   the committed bwv227.1 chain yields root + verified statuses.
+5. **PROBE_KEYS** already amended by the landing commit; suite green.
