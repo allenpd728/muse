@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Muse boardroom — Technical appendix</title>
+<title>Muse boardroom — technical appendix</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { color-scheme: dark; }
@@ -16,18 +16,60 @@
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
   nav p { line-height:1.8; }
+  .anchor { color:#8b949e; font-size:.75rem; }
 </style>
 </head>
 <body>
 <header><h1>Technical appendix <span class="tag">boardroom</span></h1>
-<p class="note">Conformance, confidentiality (D20), no-training (D7), the ear gate (D11). Content lands with B5 (#267). Read-only surface; sources are the repo docs and the issue queue.</p></header>
+<p class="note">For the CTO questions. Sources: docs/decision-log.md (D7, D11, D20), tools/muse_ci (conformance), FORMAT_SPEC.md. Read-only surface.</p></header>
 <nav><p>
   <a href="../index.html">/ corpus tree</a> ·
   <a href="../explorer/">/explorer/</a> ·
   <a href="../workbench/detail.html">/workbench/</a> ·
   <a href="../workbench/terminal/">/workbench/terminal/</a> ·
-  <strong>/boardroom/</strong>
+  <a href="index.html">/boardroom/</a>
 </p></nav>
-<div class="card"><p class="note">Content pending — see the linked issue.</p></div>
+
+<section class="card" id="conformance">
+<h3>Conformance — "identical everywhere, forever" is enforced, not claimed</h3>
+<p>Thirteen committed <code>.mu</code> golden vectors (the whole corpus) are decoded through the
+reference decoder on every gate run; each is pinned by the sha256 of its canonical event stream.
+A decoder that drifts fails CI byte-for-byte. The store is 272K for 13 works. <span class="anchor">tools/muse_ci — P3, #212</span></p>
+</section>
+
+<section class="card" id="d20">
+<h3>The mockup never leaves the pipeline</h3>
+<p>The mockup — the LLM's full interpretation, dense performance data — is confidential pipeline
+state. A leaked mockup is a leaked performance: anyone holding it plus a sample renderer holds
+the reading. The public surfaces are the <code>.mu</code> (score + seed + plaintext manifest) and
+the rendered audio. Nothing else crosses the boundary by default; the one export path in the docs
+(DAWproject) is founder-gated. <span class="anchor">decision D20</span></p>
+</section>
+
+<section class="card" id="d7">
+<h3>No model training in the product path</h3>
+<p>The conductor is a stock, swappable LLM steered by prompt alone — seed + score + instructions.
+No fine-tuning, no training runs, no weights to defend. Consequences: every new model generation
+upgrades the conductor for free (L3 exists to A/B the same work across models), and the
+intelligence lives in the format, not the model — the seed carries the interpretation.
+Fine-tuning is a documented plan-B escape hatch, founder-decided, with evidence. <span class="anchor">decision D7</span></p>
+</section>
+
+<section class="card" id="d11">
+<h3>The ear gates quality; metrics support it</h3>
+<p>Every render is evaluated by ear against the known scores. Automated probes catch what the ear
+might miss on a first pass — budget drift, coverage shrink, assertion regressions, byte
+instability — but musicality is a listening verdict, not a CI gate. There is no "less musical"
+test, deliberately. <span class="anchor">decision D11</span></p>
+</section>
+
+<section class="card" id="provenance">
+<h3>Provenance is mandatory and plaintext</h3>
+<p>Every <code>.mu</code> manifest records source, license, and AI involvement in plaintext —
+readable without tooling. No artist lookalikes without an explicit license record. In the
+post-settlement landscape, the human-authored seed is a registrable work: the architecture is a
+legal asset, not a liability. <span class="anchor">FORMAT_SPEC §7, D12/D13</span></p>
+</section>
+
 </body>
 </html>
