@@ -1,4 +1,15 @@
-# Test spec — B1 boardroom scaffold (docs/boardroom/)
+# Test spec — B1 boardroom scaffold (docs/boardroom/) — CLOSED
+
+
+**Resolution (Tests: #268, verified 2026-08-26, run=20260825-2247-qogi):**
+the B1 commit (4e0f576) shipped `tools/qa_frontend/tests/test_boardroom_scaffold.py`
+with the deliverable — 6 source-scan tests covering pages-exist +
+landing links + shared chrome, master-index link, read-only (no
+forms/mutations), and D20 compliance. The Playwright tier (HTTP 200,
+console errors) is explicitly deferred to the B2–B5 content tasks' own
+Tests issues (#269–#272), per the test file header. Verified:
+`cd tools && python -m pytest qa_frontend/tests/test_boardroom_scaffold.py -q`
+→ 6 passed.
 
 ## Behaviors to verify
 
