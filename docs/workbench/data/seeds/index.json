@@ -17,6 +17,11 @@
    "work_id": "bwv227.1",
    "file": "bwv227.1.v3.seed.yaml",
    "probes": "bwv227.1.v3.probes.json"
+  },
+  {
+   "work_id": "bwv227.1",
+   "file": "bwv227.1.v4.seed.yaml",
+   "probes": "bwv227.1.v4.probes.json"
   }
  ]
 }

@@ -150,6 +150,18 @@ function growthPanel(workId, growth) {
     <p class="note">per-trait verdicts from the distiller's iteration compare</p></div>`;
 }
 
+function rehearsalPanel(workId, directives) {
+  const rows = (directives && directives.directives || []).map(d => `
+    <div class="probe"><span>${d.slug}</span>
+      <span class="tag ${d.lineage === 'verified' ? 'ok' : ''}">${d.lineage}</span></div>
+    <div class="probe-detail"><p class="note">${d.text}</p></div>`).join('');
+  return `<div class="card rehearsal"><h3>Rehearse — ${workId}</h3>
+    <p class="note">dry-run a directive with
+    <code>tools/muse_rehearse/cli.py dry-run seeds/${workId}.seed.yaml "&lt;directive&gt;"</code>,
+    then <code>commit</code> — this pane shows the committed rehearsal log.</p>
+    ${rows || '<p class="note">no directives committed yet</p>'}</div>`;
+}
+
 async function loadGrowth(workId) {
   const name = `${workId}.growth.v1-to-v2.json`;
   return await loadJSON(`data/seeds/${name}`);
@@ -190,10 +202,12 @@ async function main() {
       const seed = seedText ? parseSeedYaml(seedText) : null;
       const probes = await loadJSON(`data/seeds/${entry.probes}`);
       const growth = await loadGrowth(entry.work_id);
+      const directives = await loadJSON(`data/seeds/${entry.work_id}.directives.json`);
       const div = document.createElement('div');
       div.className = 'work';
       div.innerHTML = `<h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
-        <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id, audio)}</div>`;
+        <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id, audio)}</div>
+        ${rehearsalPanel(entry.work_id, directives)}`;
       container.appendChild(div);
     }
     if (!idx.seeds.length) {

@@ -69,10 +69,11 @@ class Hop:
 
 
 def store_files(dirs):
-    """Candidate parent artifacts: committed seed revisions and mockups."""
+    """Candidate parent artifacts: committed seed revisions, mockups, and
+    rehearsal directives (R1/R2: directives are chain roots)."""
     out = []
     for d in dirs:
-        for pat in ("*.seed.yaml", "*.mockup.json"):
+        for pat in ("*.seed.yaml", "*.mockup.json", "*.directive.txt"):
             out.extend(glob.glob(os.path.join(d, "**", pat), recursive=True))
     return sorted(set(out))
 
