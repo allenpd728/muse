@@ -22,7 +22,7 @@ muse_lineage (walker). Verify-and-file; nothing fixed in the audit.
 
 ## Findings (filed)
 
-- muse_grow missing README → #289 (documentation)
+- muse_grow missing README → #287 (documentation)
 
 ## Unit tests
 
