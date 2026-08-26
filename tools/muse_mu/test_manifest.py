@@ -175,3 +175,116 @@ class TestSignature:
 
 def test_sha256_hex():
     assert sha256_hex(b"") == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+
+# --- S5.1 lineage fields (issue #256; spec
+# tests/open_20260826-000500_s5-1-manifest-lineage.md) ---
+
+from muse_mu.manifest import is_sha256_hex  # noqa: E402
+
+GOOD_HASH = "a" * 64
+
+
+class TestLineageFields:
+    """provenance.extends (bare 64-hex) + provenance.operation (string),
+    both optional (S5.1, #249)."""
+
+    def test_no_lineage_fields_valid(self):
+        make_manifest().validate()
+
+    def test_extends_only_valid(self):
+        make_manifest(provenance=dict(PROVENANCE, extends=GOOD_HASH)).validate()
+
+    def test_operation_only_valid(self):
+        make_manifest(provenance=dict(PROVENANCE, operation="muse_distill@1")).validate()
+
+    def test_both_round_trip_through_dict(self):
+        prov = dict(PROVENANCE, extends=GOOD_HASH, operation="muse_author@1.2.3")
+        m = make_manifest(provenance=prov)
+        m2 = Manifest.from_json(m.to_json())
+        assert m2.provenance["extends"] == GOOD_HASH
+        assert m2.provenance["operation"] == "muse_author@1.2.3"
+
+    @pytest.mark.parametrize("bad", [
+        "a" * 63, "a" * 65, "g" * 64, "sha256:" + GOOD_HASH, 123, [GOOD_HASH],
+    ])
+    def test_extends_rejected(self, bad):
+        with pytest.raises(ManifestError, match="extends"):
+            make_manifest(provenance=dict(PROVENANCE, extends=bad)).validate()
+
+    @pytest.mark.parametrize("bad", [42, ["muse_distill@1"]])
+    def test_operation_non_string_rejected(self, bad):
+        with pytest.raises(ManifestError, match="operation"):
+            make_manifest(provenance=dict(PROVENANCE, operation=bad)).validate()
+
+    def test_unknown_key_guard_unchanged(self):
+        """The frozenset grew by exactly two keys; anything else still fails."""
+        with pytest.raises(ManifestError, match="unknown provenance keys"):
+            make_manifest(provenance=dict(PROVENANCE, bogus_key="x")).validate()
+
+    def test_sha256_hex_parity(self):
+        """The extends check and the member-hash check share one
+        implementation — accept/reject identically across the matrix
+        (the extraction regression pin)."""
+        matrix = [GOOD_HASH, GOOD_HASH.upper(), "a" * 63, "a" * 65,
+                  "g" * 64, "sha256:" + GOOD_HASH, "", 123, []]
+        for value in matrix:
+            expect = is_sha256_hex(value)
+            try:
+                m = make_manifest()
+                m.hashes["roll.bin"] = value
+                m._validate_hashes()
+                member_ok = True
+            except ManifestError:
+                member_ok = False
+            try:
+                make_manifest(provenance=dict(PROVENANCE, extends=value)).validate()
+                ext_ok = True
+            except ManifestError:
+                ext_ok = False
+            assert member_ok == expect, f"member-hash parity broke on {value!r}"
+            assert ext_ok == expect, f"extends parity broke on {value!r}"
+
+    def test_container_seam_round_trip_and_tamper(self, tmp_path):
+        """write_mu/read_mu preserve the lineage fields. Note on the
+        tamper surface (spec item 6, corrected): manifest.json is never
+        hashed by design (the manifest never hashes itself), so a repacked
+        manifest alone does NOT trip the hash gate — what it trips is the
+        HMAC verify when signed. The member-hash gate catches tampering
+        with member *content*."""
+        prov = dict(PROVENANCE, extends=GOOD_HASH, operation="muse_distill@1")
+        m = make_manifest(provenance=prov)
+        mu = tmp_path / "t.mu"
+        write_mu(str(mu), m, MEMBERS)
+        back, _members = read_mu(str(mu))
+        assert back.provenance["extends"] == GOOD_HASH
+        assert back.provenance["operation"] == "muse_distill@1"
+
+        # member tamper (the surface the hash gate actually covers)
+        with zipfile.ZipFile(mu) as z:
+            members = {n: z.read(n) for n in z.namelist()}
+        members["roll.bin"] = b"tampered"
+        with zipfile.ZipFile(mu, "w", zipfile.ZIP_DEFLATED) as z:
+            for name, data in members.items():
+                z.writestr(name, data)
+        with pytest.raises(ManifestError, match="hash mismatch"):
+            read_mu(str(mu))
+
+    def test_signed_manifest_tamper_fails_verify(self, tmp_path):
+        """The manifest-side tamper surface: a repacked manifest.json with
+        a forged extends invalidates the signature."""
+        prov = dict(PROVENANCE, extends=GOOD_HASH)
+        m = make_manifest(provenance=prov)
+        m.sign(b"k")
+        mu = tmp_path / "s.mu"
+        write_mu(str(mu), m, MEMBERS)
+        with zipfile.ZipFile(mu) as z:
+            members = {n: z.read(n) for n in z.namelist()}
+        doc = json.loads(members["manifest.json"])
+        doc["provenance"]["extends"] = "b" * 64
+        members["manifest.json"] = json.dumps(doc, indent=2).encode()
+        with zipfile.ZipFile(mu, "w", zipfile.ZIP_DEFLATED) as z:
+            for name, data in members.items():
+                z.writestr(name, data)
+        back, _ = read_mu(str(mu))
+        assert not back.verify(b"k")

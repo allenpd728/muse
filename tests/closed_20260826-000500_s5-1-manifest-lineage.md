@@ -40,3 +40,24 @@ Target file: `tools/muse_mu/test_manifest.py` (extend in place), run with
 - Nothing currently *writes* manifest-level `extends` at pack time (no
   pack CLI reads seeds yet); the copy rule is spec'd but has no call site
   to test until one exists.
+
+## Closed 2026-08-26 (#256, run=20260825-1033-cae1)
+
+Landed in `tools/muse_mu/test_manifest.py::TestLineageFields` (16 tests,
+suite 36 → 52):
+
+1. **Acceptance:** no fields / extends-only / operation-only / both +
+   JSON round-trip preserves both.
+2. **extends rejection:** short/long/non-hex/`sha256:`-prefixed (pin)/
+   non-string/list.
+3. **operation rejection:** non-string (int, list).
+4. **Unknown-key guard:** `bogus_key` still rejected — frozenset grew by
+   exactly two.
+5. **`is_sha256_hex` parity matrix:** extends-path and member-hash-path
+   accept/reject identically across 9 inputs (the extraction regression
+   pin).
+6. **Container seam:** write_mu/read_mu round-trips both fields. Spec
+   premise corrected: manifest.json is never hashed by design, so a
+   repacked manifest alone does NOT trip the hash gate — the tamper
+   surfaces are member content (hash mismatch) and the HMAC signature
+   (forged extends fails verify). Both pinned.
