@@ -21,12 +21,26 @@ def _valid():
         "balance": [{"part": "P1", "gain": 1.0}],
         "parts": {"P1": [{"i": 0, "velocity": 64, "attack_sec": 0.05,
                           "swell": [[0, 0.5], [1, 0.9]]}]},
-        "seed": {},
     }
 
 
 def test_valid_mockup_passes():
     assert validate_mockup_schema(_valid())
+
+
+def test_provenance_seed_hash():
+    m = _valid()
+    m["provenance"] = {"seed_hash": "a" * 64}
+    assert validate_mockup_schema(m)
+    m["provenance"] = {"seed_hash": "sha256:" + "a" * 64}
+    with pytest.raises(SchemaError, match="seed_hash"):
+        validate_mockup_schema(m)
+    m["provenance"] = {"seed_hash": "xyz"}
+    with pytest.raises(SchemaError, match="seed_hash"):
+        validate_mockup_schema(m)
+    m["provenance"] = "not-a-dict"
+    with pytest.raises(SchemaError, match="provenance"):
+        validate_mockup_schema(m)
 
 
 def test_missing_required_field():
@@ -72,6 +86,5 @@ def test_spike_mockup_v3_adapts_and_validates():
         "dynamics": [{"tick": e["tick"], "level": e["level"]} for e in d["dynamics"]],
         "balance": d["balance"],
         "parts": d["notes"],
-        "seed": d["seed"],
     }
     assert validate_mockup_schema(adapted)

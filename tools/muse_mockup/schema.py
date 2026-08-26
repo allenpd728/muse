@@ -2,14 +2,16 @@
 
 Validates a mockup dict against the v1 schema (tools/muse_mockup/schema/
 v1.json): tempo_map/dynamics tick-ordering, per-note device fields with
-bounded ranges, part balance, and the seed provenance block. Fails loudly
-with the path of the first violation.
+bounded ranges, part balance, and the provenance seed_hash (L1.10).
+Fails loudly with the path of the first violation.
 """
 
 from __future__ import annotations
 
 import json
 import os
+
+from muse_seed.seed import is_sha256_hex
 
 
 class SchemaError(ValueError):
@@ -50,6 +52,14 @@ def validate_mockup_schema(mockup):
         _check(isinstance(notes, list), _path("parts", part_id), "notes must be a list")
         for j, note in enumerate(notes):
             _validate_note(note, _path(_path("parts", part_id), f"[{j}]"))
+
+    provenance = mockup.get("provenance")
+    if provenance is not None:
+        _check(isinstance(provenance, dict), "provenance", "must be a dict")
+        seed_hash = provenance.get("seed_hash")
+        if seed_hash is not None:
+            _check(is_sha256_hex(seed_hash), "provenance.seed_hash",
+                   "must be a bare 64-hex sha256 (S3.7 convention)")
     return True
 
 
