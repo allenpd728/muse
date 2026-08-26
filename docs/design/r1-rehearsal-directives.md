@@ -37,6 +37,16 @@ the directive as the chain root. R1 makes that real.
   decided with the grammar, not patched in later). The walker reads
   provenance structurally, so a directive file needs no `extends` of its
   own — it *is* the root by construction.
+- **A directive opens a rehearsal *branch*, not a continuation of the
+  growth chain.** The compiled revision's `extends` is the directive's
+  hash (the branch root), not the prior seed revision. So a rehearsal
+  revision walks `revision → directive (root)` — a short branch that
+  forked from the v1→v2→… growth chain. Both share the same
+  `extends`/`seed_hash` hash convention; the Study pane shows the
+  rehearsal log, the iteration history shows the growth chain. A
+  conductor iterating on *one* directive (dry-run → refine → commit
+  again) chains *within* the branch: the second revision's parent is
+  the first rehearsal revision, which walks back to the directive.
 - **Why root and not a mockup-parent:** a directive is human-authored
   intent, upstream of any seed. It has no parent. This is the third
   root type the chain supports (alongside root seeds and, one day,
@@ -87,16 +97,18 @@ entire format-first review, made concrete in the next section.
 - One verb per directive. A directive with two verbs ("rebalance and
   tempo_arch") is a parse error suggesting two directives — the lineage
   model wants one intent per root.
-- **Region references are tick-based.** The W1 IR model does not carry
-  measure/bar structure (notes are tick-positioned; barlines are not
-  surfaced), so a directive names its region as ticks or as a
-  *variation-point label/section reference the seed already defines*
-  (S3.4 variation points have optional `label`s and tick `region`s —
-  reuse that vocabulary rather than inventing a bar-map). A "bar 40"
-  style reference is therefore **not** in the v1 grammar; it needs an
-  IR bar-index (a W-series addition), and is listed under non-goals so
-  the grammar doesn't promise a resolution the IR can't give. An
-  unresolvable region reference is a parse error, not a guess.
+- **Region references resolve to ticks; "bar N" is supported via the
+  meter map.** The IR model doesn't store barlines, but it carries a
+  full meter map (`work.maps.meter`: `(tick, numerator, denominator)`
+  per change, score-global) and `ppq`. Bars are therefore *computable*:
+  walking the meter map accumulating `numerator × (4/denominator) × ppq`
+  ticks per bar yields each bar's onset tick. The grammar accepts
+  `bar N` (and `bars N–M`) and resolves to `[bar_onset(N), bar_onset(M_end))`.
+  A "bar" with no meter map (degenerate MIDI, no time signature) is a
+  parse error naming the problem, not a guess. Ticks and
+  variation-point labels are equally valid; the conductor never
+  computes ticks by hand.
+- An unresolvable region reference is a parse error, not a guess.
 - Degrees default to the era budget's midpoint when unquantified; the
   dry-run preview shows the actual number so "bring the horns up"
   becomes "+8% energy in the named region" before it commits.
@@ -203,7 +215,8 @@ the system says whether the directive did what was asked.
 - No philosophy-field directives (see rejected list).
 - No score edits. Ever.
 - No auto-commit. Every committed directive passed a human's dry-run.
-- **No bar/measure region references in v1.** The W1 IR doesn't surface
-  bar structure; regions are tick ranges or variation-point labels. A
-  bar-indexed reference syntax ("bar 40") wants a W-series IR bar-index
-  first — format leads grammar, as with verbs.
+- **Bar references are tick-resolved, not stored.** The grammar accepts
+  "bar N" by computing onsets from the IR meter map (parse rules); it
+  does not add a bar index to the IR. If a future W-series adds one,
+  the grammar can switch to it — the resolution is internal, the
+  conductor-facing syntax unchanged.

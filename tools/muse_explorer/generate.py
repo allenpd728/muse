@@ -151,7 +151,44 @@ def generate_workbench(workbench_dir=None):
     with open(os.path.join(seeds_out, "index.json"), "w") as fh:
         json.dump(index, fh, indent=1)
         fh.write("\n")
+    _write_directives_artifacts(seeds_dir, seeds_out)
     return index
+
+
+def _write_directives_artifacts(seeds_dir, seeds_out):
+    """Per-work <work>.directives.json — the rehearsal log the workbench
+    pane renders: each committed directive with its lineage status (R2)."""
+    from muse_lineage.lineage import walk
+
+    for entry in os.listdir(seeds_dir):
+        if not entry.endswith(".directives") or not os.path.isdir(
+                os.path.join(seeds_dir, entry)):
+            continue
+        work_id = entry[: -len(".directives")]
+        ddir = os.path.join(seeds_dir, entry)
+        rows = []
+        for f in sorted(os.listdir(ddir)):
+            if not f.endswith(".directive.txt"):
+                continue
+            path = os.path.join(ddir, f)
+            text = open(path).read().splitlines()[0] if open(path).read() else ""
+            # the revision this directive produced points back at it; find
+            # it by scanning for a seed whose extends == this file's hash.
+            from muse_lineage.lineage import sha256_file, store_files
+            digest = sha256_file(path)
+            status = "root"
+            for cand in store_files([seeds_dir]):
+                if cand.endswith(".seed.yaml") and digest in open(cand).read():
+                    hops = walk(cand, [seeds_dir])
+                    status = ("verified" if all(
+                        h.status in ("verified", "root") for h in hops)
+                        else "broken")
+                    break
+            rows.append({"slug": f[: -len(".directive.txt")], "text": text,
+                         "lineage": status})
+        with open(os.path.join(seeds_out, f"{work_id}.directives.json"), "w") as fh:
+            json.dump({"work_id": work_id, "directives": rows}, fh, indent=1)
+            fh.write("\n")
 
 
 def main():

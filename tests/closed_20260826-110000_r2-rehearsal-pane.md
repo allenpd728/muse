@@ -1,7 +1,21 @@
-# Test spec — R2 rehearsal pane (implementation-facing)
+# Test spec — R2 rehearsal pane (implementation-facing) — CLOSED
 
 Written 2026-08-26 per R1 (#282) §What R2 builds; spec for the tests R2
 (#283) must land. R1 itself is document work and ships no runtime tests.
+
+
+**Resolution (R2 #283, 2026-08-26, run=20260825-2247-qogi):** landed in
+`tools/muse_rehearse/tests/test_rehearse.py` (18 tests): all five verbs'
+accept + knob effect, unknown-verb/two-verb/unknown-part rejections,
+bar/tick/label region resolution incl. the meter-map bar computation and
+Byrd meter-change tracking, bar-out-of-range and bar-without-work
+rejects, dry-run writes nothing + param_diff seed-to-seed (no mockup),
+commit stamps directive-file extends + operation and the walk resolves
+revision→directive→root, budget clamping, no auto-commit. Bar-reference
+syntax ("bar 44") landed after the founder's correction — it is computed
+from the IR meter map, not a non-goal. Suite: `cd tools && python -m
+pytest muse_rehearse -q` → 18 passed. CLI: `tools/muse_rehearse/cli.py`.
+Workbench Rehearse pane reads a generated `<work>.directives.json`.
 
 ## Coverage R2 must write
 
