@@ -56,6 +56,13 @@ tools/muse_grow/
   (growth cannot be measured on a flat mockup — that is itself a finding).
 - **L4 input**: `muse_distill.seed_revision(mockup)` → delta dict
   (interpretation + provenance). No auto-apply; the harness compares deltas.
+- **Mockup persistence (S3.8b, #254):** `--mockup-out` writes the
+  producing mockup next to the seed revisions (`seeds/<work>.<rev>.mockup.json`)
+  carrying `provenance.seed_hash` (the seed's bytes hash, L1.10); the
+  distilled delta's `provenance.extends` names that mockup's bytes and
+  `operation` stamps `muse_distill@1`. The lineage walker (S3.8a) then
+  resolves the mockup hop. First live chain: `seeds/bwv227.1.v3.seed.yaml`
+  → `bwv227.1.v2.mockup.json` → `bwv227.1.v2.seed.yaml` → root.
 - **Growth report**: per-trait delta between iteration n and n-1, with a
   verdict per trait (growing / flat / regressing).
 

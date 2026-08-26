@@ -58,8 +58,14 @@ def extract_interpretation(mockup: Mockup) -> Interpretation:
     )
 
 
-def seed_revision(mockup: Mockup) -> dict:
-    """Mockup → seed revision dict a human can review and apply."""
+def seed_revision(mockup: Mockup, mockup_path: str = None) -> dict:
+    """Mockup → seed revision dict a human can review and apply.
+
+    S3.8b (#254): `operation` is always stamped (muse_distill produced
+    this revision); when `mockup_path` is given (the persisted producing
+    mockup), `extends` carries the SHA-256 of its committed bytes — the
+    S3.7 lineage pointer.
+    """
     i = extract_interpretation(mockup)
     return {
         "work_id": mockup.work_id,
@@ -82,8 +88,18 @@ def seed_revision(mockup: Mockup) -> dict:
             "tempo_curve_shape": i.tempo_curve_shape,
             "part_gains": i.part_gains,
         },
-        "provenance": {"distilled_from": mockup.work_id, "note_count": i.note_count},
+        "provenance": _provenance(mockup, i, mockup_path),
     }
+
+
+def _provenance(mockup, interpretation, mockup_path):
+    prov = {"distilled_from": mockup.work_id,
+            "note_count": interpretation.note_count,
+            "operation": "muse_distill@1"}
+    if mockup_path:
+        from muse_lineage.lineage import sha256_file
+        prov["extends"] = sha256_file(mockup_path)
+    return prov
 
 
 def dump_delta(delta: dict, fmt="yaml") -> str:

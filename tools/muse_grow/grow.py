@@ -43,9 +43,27 @@ def _mockup_from_work(work):
 MOCKUP_FN = _mockup_from_work  # real L1 generate loop swaps this when it lands
 
 
-def grow_one(work, seed):
+def persist_mockup(mockup, out_path, seed_path=None):
+    """Write the producing mockup (S3.8b, #254). The file carries
+    provenance.seed_hash — the SHA-256 of the seed it realizes — so the
+    lineage walker can continue through the mockup hop to the parent seed.
+    """
+    from muse_mockup import dump_mockup
+    from muse_lineage.lineage import sha256_file
+
+    d = json.loads(dump_mockup(mockup, fmt="json"))
+    if seed_path:
+        d["provenance"] = {"seed_hash": sha256_file(seed_path)}
+    with open(out_path, "w") as fh:
+        fh.write(json.dumps(d, indent=1, sort_keys=True) + "\n")
+    return out_path
+
+
+def grow_one(work, seed, mockup_out=None, seed_path=None):
     """One iteration: build a mockup from the work via MOCKUP_FN, distill it,
-    return (delta_dict, stand_in_flag).
+    return (delta_dict, stand_in_flag). When mockup_out is given, the
+    producing mockup is persisted first so the delta's extends names
+    committed bytes (S3.8b).
 
     G4 (#252): the delta carries an `expansion` entry — wall-clock
     expansion_time_ms for the MOCKUP_FN build, keyed by operation tag
@@ -65,8 +83,11 @@ def grow_one(work, seed):
         return {"error": f"mockup generation failed: {e}"}, True
     expansion_ms = (time.perf_counter_ns() - t0) / 1e6
 
+    if mockup_out:
+        persist_mockup(mockup, mockup_out, seed_path=seed_path)
+
     try:
-        delta = seed_revision(mockup)
+        delta = seed_revision(mockup, mockup_path=mockup_out)
     except Exception as e:
         return {"error": f"distill failed: {e}"}, True
 
