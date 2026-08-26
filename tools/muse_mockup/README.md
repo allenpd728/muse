@@ -29,6 +29,20 @@ seed revision puts in `provenance.extends` (S3.7 convention; same
 typed-provider series. The earlier embedded full-`seed` property was
 removed — nothing produced or consumed it.
 
+Two file shapes exist, deliberately (#274, resolved 2026-08-26):
+**dataclass dump** (`dump_mockup` — flat `notes`, `[tick, mbpm]` tempo
+tuples, per-note ms fields, `ppq`) is what the mockup CLI and
+`muse_grow.persist_mockup` write; it round-trips via `load_mockup` and is
+the canonical shape for committed `*.mockup.json` artifacts. **Schema
+v1.json** (parts mapping, `{tick, bpm}`, sec fields) is the in-flight
+session-file contract for the L-series generate loop — the shape the
+generation pass validates against. `provenance.seed_hash` is the only
+provenance field the dump shape needs today; the lineage walker
+(`muse_lineage`) reads provenance structurally and is shape-agnostic. The
+dump shape dropping `attack/release` is the stand-in's flat data, not a
+lossy mapping — when the real L1 emits those fields, reconsider then
+whether the dump should grow to schema-shape.
+
 ## Tests
 
 Test spec: [tests/open_20260823-235000_l1-mockup.md](../../tests/open_20260823-235000_l1-mockup.md).
