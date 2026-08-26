@@ -28,6 +28,60 @@
   <a href="../workbench/terminal/">/workbench/terminal/</a> ·
   <strong>/boardroom/</strong>
 </p></nav>
-<div class="card"><p class="note">Content pending — see the linked issue.</p></div>
+<div id="memo">
+<section class="card">
+  <h3>The claim</h3>
+  <p><strong>Score-aware AI interpretation ships nowhere.</strong> Generators
+  produce finished audio with no score and no interpretive layer; DAWs render
+  scores mechanically; adaptive engines (Endel/LifeScore) keep the composer
+  material proprietary and output functional music. The interpretation axis —
+  a sanctioned, inspectable, licensed space between score and audio — is
+  unclaimed.</p>
+</section>
+
+<section class="card">
+  <h3>The tool table</h3>
+  <table id="tools">
+    <tr><th>Tool</th><th>What it is</th><th>Why it can't occupy the axis</th></tr>
+    <tr><td>Ableton Live 12</td><td>DAW; Max for Live generative devices</td><td>Real-time performance surface, no score semantics, no rights manifest</td></tr>
+    <tr><td>Logic Pro (Session Players)</td><td>DAW with AI session musicians</td><td>Style emulation inside the mix, not a portable interpretive artifact</td></tr>
+    <tr><td>FL Studio (Gopher AI)</td><td>DAW with in-loop AI assistant</td><td>Arrangement help, not interpretation of a fixed score</td></tr>
+    <tr><td>Pro Tools</td><td>Studio-standard DAW</td><td>No generative or interpretive layer at all</td></tr>
+    <tr><td>Cubase / Studio One</td><td>Composer DAWs</td><td>Expression maps shape playback; the space is fixed, not sanctioned-open</td></tr>
+    <tr><td>BandLab</td><td>Browser DAW, social</td><td>Creator onboarding, no score layer</td></tr>
+    <tr><td>Suno Studio</td><td>Browser DAW with generation (ex-WavTool)</td><td>Prompt → finished track; the score never exists as an object</td></tr>
+    <tr><td>Research line — Basis Mixer, VirtuosoNet, S2A, Midi-LLM</td><td>Academic expressive-performance models</td><td>Papers and checkpoints, not a format; nothing a rights holder can license</td></tr>
+  </table>
+</section>
+
+<section class="card">
+  <h3>Why text-to-audio can't occupy the axis</h3>
+  <p>Generation answers "make me a track." Interpretation answers "perform
+  <em>this</em> work, within <em>these</em> sanctions, and prove provenance."
+  Text-to-audio has no fixed work to interpret, no sanctioned space to stay
+  inside, and no manifest to disclose. The axis is defined by the artifact
+  (score + prompt + rights), not by model quality — a better generator still
+  isn't a conductor.</p>
+</section>
+
+<section class="card">
+  <h3>The legal environment</h3>
+  <ul>
+    <li><strong>Post-settlement licensed future:</strong> the majors' lawsuits against Suno/Udio ended in licensed, opt-in generation deals (Udio+UMG "Starstruck", Suno+WMG). Generation is being pulled onto licensed rails — our schema-first, manifest-mandatory design was built for exactly this world.</li>
+    <li><strong>Schema-first is a legal asset:</strong> a human-authored seed (the interpretive schema) is copyrightable — it strengthens provenance and authorship claims over the AI-performed output, and it is the thing a rights holder can actually license.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h3>Risk register</h3>
+  <ul>
+    <li><strong>Label walled gardens</strong> — Starstruck-style deals could fence the "many sanctioned renditions" marketplace before it opens. Mitigation: the open spec + independent corpus ladder; the artifact is portable by design.</li>
+    <li><strong>Patent FTO</strong> — Endel/LifeScore/Reactional hold adaptive/generative-music patents; a freedom-to-operate review is a pre-build requirement for the engine, not an afterthought.</li>
+    <li><strong>Niche composer-tool adoption</strong> — the authoring craft (seeds, budgets, assertions) is expert-facing; adoption risk concentrates in the workbench's usability, which is why the loop tooling came first.</li>
+  </ul>
+</section>
+
+<p class="note">Source: <a href="https://github.com/allenpd728/muse/blob/dev/PRIOR_ART_REVIEW.md">PRIOR_ART_REVIEW.md</a> (the schema-first-era landscape review) + the 2026-08-25 appendix discussion. Read-only surface.</p>
+</div>
 </body>
 </html>
