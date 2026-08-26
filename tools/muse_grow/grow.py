@@ -22,6 +22,7 @@ def _mockup_from_work(work):
     """Deterministic L1 stand-in (same shape as the probe engine's stand-in):
     flat-velocity notes at score onsets with zero offsets."""
     mockup = Mockup(work_id=getattr(getattr(work, "meta", None), "title", None) or "unknown")
+    mockup.ppq = getattr(getattr(work, "meta", None), "ppq", 480)  # the tick domain (#246)
     for p in work.parts:
         for n in p.notes:
             if n.pitch is None or "unpitched" in n.notations:
