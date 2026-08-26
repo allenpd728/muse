@@ -52,7 +52,10 @@ Muse's unveiling is a **performance event**, not an app launch. The precedent
 is 1957's Illiac Suite and the 1962 Gould/Bernstein controversy: computer
 music enters culture through public spectacle and public argument. The
 question "can a machine conduct Beethoven?" fills seats. The controversy is
-the coverage.
+the coverage. As of 2026 that question is uncontested territory: the
+production-tool industry converged on stems, chat control, and mixing
+assistants — score-aware AI interpretation ships nowhere (PRIOR_ART_REVIEW
+appendix, 2026-08-25).
 
 This changes the quality bar: the deterministic baseline only needs to be
 correct; the LLM player's render must be **worth a concert hall** — sample

@@ -2,7 +2,10 @@
 
 Pre-drafting evidence for the W-series tools and S-series specs. Complements
 [prior-art-spike.md](prior-art-spike.md) (renderer/mockup component intel) and
-[PRIOR_ART_REVIEW.md](../PRIOR_ART_REVIEW.md) (superseded schema-era landscape).
+[PRIOR_ART_REVIEW.md](../PRIOR_ART_REVIEW.md) (schema-era landscape + the
+2026-08-25 appendix: DAW-native AI re-survey — the conductor role remains
+unclaimed; trained renderers do score→expressive MIDI, no LLM-with-sanctions
+prior art).
 Conclusions here inform [design/w1-event-ir.md](design/w1-event-ir.md) and the
 downstream scaffolds it gates.
 
