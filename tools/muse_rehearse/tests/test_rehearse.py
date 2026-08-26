@@ -64,6 +64,15 @@ def test_unknown_part_rejected(base_seed, work):
         parse_directive("rebalance: P99 louder at ticks 0-10", seed=base_seed, work=work)
 
 
+def test_direction_last_word_wins(base_seed):
+    """Regression: 'bring P4 down' parsed as up because 'bring' (sign +1)
+    was checked before 'down' (sign -1) in dict order. The operative
+    direction word is the LAST one."""
+    assert parse_directive("rebalance: bring P4 down", seed=base_seed).direction == -1.0
+    assert parse_directive("rebalance: bring P4 up", seed=base_seed).direction == 1.0
+    assert parse_directive("rebalance: P4 quieter", seed=base_seed).direction == -1.0
+
+
 # --- 2. region resolution: bar / tick / label ---
 
 def test_bar_reference_resolves_via_meter_map(base_seed, work):
