@@ -24,8 +24,8 @@ Command conventions: all run from `tools/`.
 
 ## Findings (filed)
 
-- muse_provider missing README → #282 (documentation)
-- muse_generate missing README → #283 (documentation)
+- muse_provider missing README → #285 (documentation)
+- muse_generate missing README → #286 (documentation)
 - referenced design doc `docs/design/a1-system-audit.md` absent on dev (audit design lives in the filing session's context; AGENTS.md links-checked clean otherwise)
 
 ## Unit tests (gate)
