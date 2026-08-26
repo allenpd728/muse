@@ -40,14 +40,16 @@ def _goto(server, session):
 # --- Work index groups (DoD: file ids rendered; seeded state asserted) ---
 
 def test_seeded_work_renders_heading_and_passing_tag(server, session):
-    """Each committed seed gets a work group headed by its work_id, with a
-    'passing' tag driven by the probe artifact's ok flag."""
+    """Each committed seed revision gets a work group headed by its work_id,
+    with a 'passing' tag driven by the probe artifact's ok flag. The
+    bwv227.1 lineage chain (base/v1/v2) renders one group per revision."""
     page = _goto(server, session)
-    heading = page.locator(".work h2", has_text="bwv227.1")
-    assert heading.count() == 1, "seeded work bwv227.1 missing from the index"
-    tag = heading.locator(".tag")
-    assert tag.inner_text() == "passing"
-    assert "ok" in (tag.get_attribute("class") or "")
+    headings = page.locator(".work h2", has_text="bwv227.1")
+    assert headings.count() >= 1, "seeded work bwv227.1 missing from the index"
+    for i in range(headings.count()):
+        tag = headings.nth(i).locator(".tag")
+        assert tag.inner_text() == "passing"
+        assert "ok" in (tag.get_attribute("class") or "")
 
 
 def test_seeded_work_shows_all_four_panels(server, session):
@@ -103,7 +105,7 @@ def test_era_filter_preserves_work_index(server, session):
     for era in ("baroque", "classical", "romantic"):
         page.select_option("#era-select", era)
         page.wait_for_timeout(300)
-        assert page.locator(".work h2", has_text="bwv227.1").count() == 1, (
+        assert page.locator(".work h2", has_text="bwv227.1").count() >= 1, (
             f"bwv227.1 disappeared under era={era}"
         )
 

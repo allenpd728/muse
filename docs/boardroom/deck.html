@@ -6,28 +6,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { color-scheme: dark; }
-  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#0d1117; color:#c9d1d9; margin:0; padding:2rem; }
+  body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#0d1117; color:#c9d1d9; margin:0; padding:0; }
   h1 { font-size:1.4rem; color:#f0f6fc; }
-  h2 { font-size:1.05rem; color:#8b949e; border-bottom:1px solid #30363d; padding-bottom:.3rem; margin-top:2rem; }
   a { color:#58a6ff; text-decoration:none; }
   a:hover { text-decoration:underline; }
   .tag { font-size:.68rem; padding:.1rem .4rem; border-radius:6px; background:#21262d; color:#8b949e; }
-  .card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1rem; margin:.8rem 0; }
-  .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
-  nav p { line-height:1.8; }
+  .slide { display:none; min-height:100vh; box-sizing:border-box; padding:8vh 10vw; }
+  .slide.active { display:flex; flex-direction:column; justify-content:center; }
+  .slide h2 { font-size:1.8rem; color:#f0f6fc; margin:0 0 1.2rem; }
+  .slide p, .slide li { font-size:1.05rem; line-height:1.7; color:#c9d1d9; }
+  .slide ul { padding-left:1.2rem; }
+  .slide .big { font-size:1.5rem; color:#58a6ff; line-height:1.5; }
+  .slide .mono { font-size:.85rem; background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1rem; white-space:pre; overflow-x:auto; color:#a5d6ff; }
+  #nav-hint { position:fixed; bottom:1rem; right:1.2rem; color:#8b949e; font-size:.72rem; }
+  #counter { position:fixed; bottom:1rem; left:1.2rem; color:#8b949e; font-size:.72rem; }
+  header.plain { padding:1rem 2rem 0; }
 </style>
 </head>
 <body>
-<header><h1>The deck <span class="tag">boardroom</span></h1>
-<p class="note">Board presentation. Content lands with B2 (#264). Read-only surface; sources are the repo docs and the issue queue.</p></header>
-<nav><p>
+<header class="plain"><p class="note">
   <a href="../index.html">/ corpus tree</a> ·
-  <a href="../explorer/">/explorer/</a> ·
-  <a href="../workbench/detail.html">/workbench/</a> ·
-  <a href="../workbench/terminal/">/workbench/terminal/</a> ·
-  <strong>/boardroom/</strong>
-</p></nav>
-<div class="card"><p class="note">Content pending — see the linked issue.</p></div>
+  <a href="index.html">/boardroom/</a> — the deck · arrow keys / space to advance · read-only
+</p></header>
+
+<section class="slide" data-slide="title">
+  <h2>Muse</h2>
+  <p class="big">An executable music format — the score is fixed, the interpretation is the work, and a performance is an event, not a render.</p>
+  <p class="note">Board briefing — 2026-08. Sources: FORMAT_SPEC.md, docs/vision.md, docs/pipeline.md.</p>
+</section>
+
+<section class="slide" data-slide="thesis">
+  <h2>Thesis</h2>
+  <p class="big">Interpretation is the product, not generation.</p>
+  <ul>
+    <li>A .mu file carries three things: the <strong>score</strong> (the fixed work), the <strong>prompt</strong> (the sanctioned interpretive space), and a plaintext <strong>rights manifest</strong>.</li>
+    <li>The deterministic player is the free baseline — the score plays identically everywhere, forever.</li>
+    <li>The LLM player is the musician — it reads score + prompt and brings the work to life, slowly, deliberately.</li>
+    <li>A performance is an <strong>event, not a render</strong>.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="event">
+  <h2>The event framing</h2>
+  <p class="big">Precedent is the pitch.</p>
+  <ul>
+    <li><strong>Illiac Suite, 1957</strong> — a computer composed string quartets; the argument filled the room.</li>
+    <li><strong>Gould/Bernstein, 1962</strong> — the conductor disowned the interpretation on stage; the controversy was the coverage.</li>
+    <li>Our evening: the deterministic player, then the LLM conductor — same score, same sanctions, a reading. The hall is where the argument happens.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="five-second-wav">
+  <h2>The five-second test</h2>
+  <p class="big">Play five seconds of a WAV and the room knows which is which.</p>
+  <ul>
+    <li>The deterministic baseline is metronomic — correct, and instantly recognizable as mechanical.</li>
+    <li>The LLM-conducted render breathes — phrasing, rubato, dynamic intent from the seed.</li>
+    <li>That gap, audible in five seconds, is the entire product claim.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="architecture">
+  <h2>Architecture</h2>
+  <div class="mono">score (fixed) ┐
+seed (prompt) ├─ .mu container ─→ LLM conductor ─→ mockup ─→ render ─→ audio
+manifest ─────┘                      ▲
+ deterministic baseline (P2) — the root system, free, identical everywhere</div>
+  <ul>
+    <li>The score is math; the prompt is where the intelligence lives.</li>
+    <li>The mockup is confidential pipeline state (D20) — the public surfaces are the .mu and the rendered audio.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="business-model">
+  <h2>Business model</h2>
+  <p class="big">Open the format, keep the instruments.</p>
+  <ul>
+    <li><strong>Open:</strong> the spec, the encoding, the deterministic player — the PDF move.</li>
+    <li><strong>Proprietary:</strong> the seed workbench and the LLM player — the Acrobat.</li>
+    <li><strong>Licensed content:</strong> sanctioned prompt philosophies per work; provenance is mandatory and plaintext.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="demo">
+  <h2>Live demo</h2>
+  <p class="big">The workbench is running.</p>
+  <ul>
+    <li><a href="../workbench/detail.html">/workbench/ — the seed-iteration panel</a>: seed params, probe results, growth trajectory per revision.</li>
+    <li>First live render: <a href="../audio/bwv227.1.llm-v2.wav">bwv227.1.llm-v2.wav</a> — the LLM-conducted chorale (48.7s, vs the 45.9s stand-in; the seed diff is audible).</li>
+    <li>Provenance end-to-end: the render's lineage chain (seed v3 → mockup → seed v2) verifies against committed hashes.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="competitive">
+  <h2>Competitive landscape</h2>
+  <p class="big">The conductor role is unclaimed.</p>
+  <ul>
+    <li>Generators (Suno/Udio-class) produce finished audio — no score, no interpretation layer, no rights manifest.</li>
+    <li>Notation/DAW tools render scores mechanically — the baseline, not the musician.</li>
+    <li>Nobody ships the interpretive space as a first-class, licensed, verifiable artifact. That is the moat.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="roadmap">
+  <h2>Roadmap</h2>
+  <p class="big">The corpus is the ratchet: Bach → Byrd → Schubert → Beethoven 5 → Beethoven 9.</p>
+  <ul>
+    <li>Each rung gates the next; the Ninth is the v1.0 target (239k notes, vocal text, the full ensemble).</li>
+    <li>The event — one corpus work, performed by the LLM player, judged by ear as worth a hall — is the terminus.</li>
+    <li>Every phase is evidence-gated: a construct without corpus evidence doesn't ship.</li>
+  </ul>
+</section>
+
+<section class="slide" data-slide="asks">
+  <h2>Decision asks</h2>
+  <p class="big">What this meeting is for.</p>
+  <ul>
+    <li>Approve the event plan (venue class, staging, recording rights) — E2's recommendation is in the appendix.</li>
+    <li>Ratify the open/proprietary split at pre-launch (spec + reference player public; workbench + LLM player stay in).</li>
+    <li>Fund the sample-tier render path if L2's ear test demands it (the waiver ladder is pre-agreed).</li>
+  </ul>
+  <p class="note"><a href="status.html">status.html</a> for live counts · <a href="appendix.html">appendix.html</a> for the technical detail</p>
+</section>
+
+<div id="counter"></div>
+<div id="nav-hint">← → space</div>
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, j) => s.classList.toggle('active', j === cur));
+  document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+  history.replaceState(null, '', '#' + (cur + 1));
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') show(cur + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(cur - 1);
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length - 1);
+});
+const start = parseInt((location.hash || '').slice(1), 10);
+show(Number.isFinite(start) && start >= 1 ? start - 1 : 0);
+</script>
 </body>
 </html>
