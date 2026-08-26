@@ -20,6 +20,15 @@ Iterator-safe getattr checks (sibling IR's None-pitch/sentinel field
 handling); title-fidelity stays in naming (the L-series mocks are dense
 DNA, not sketches, per the spike lesson).
 
+Schema v1 (`schema/v1.json`, validated by `schema.py`) carries an optional
+`provenance` object (L1.10, #250): `seed_hash` — the bare 64-hex SHA-256
+of the seed the mockup realizes, i.e. the same value the next distilled
+seed revision puts in `provenance.extends` (S3.7 convention; same
+`is_sha256_hex` check, imported from `muse_seed`). Run-metadata fields
+(`run_id`, `provider`, `model_version`, `status`) are reserved for the
+typed-provider series. The earlier embedded full-`seed` property was
+removed — nothing produced or consumed it.
+
 ## Tests
 
 Test spec: [tests/open_20260823-235000_l1-mockup.md](../../tests/open_20260823-235000_l1-mockup.md).

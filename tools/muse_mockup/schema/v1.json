@@ -70,7 +70,14 @@
         }
       }
     },
-    "seed": {"type": "object", "description": "the seed this mockup realizes (embedded for provenance)"},
+    "provenance": {
+      "type": "object",
+      "description": "Generation lineage (L1.10, #250). seed_hash: the bare 64-hex SHA-256 of the seed this mockup realizes — the same value the next distilled seed revision carries as provenance.extends (S3.7/#248 convention; the seed file's committed bytes are the hash input). Run-metadata fields (run_id, provider, model_version, status) are reserved for the typed-provider series and arrive additively.",
+      "properties": {
+        "seed_hash": {"type": "string", "minLength": 64, "maxLength": 64,
+                      "pattern": "^[0-9a-fA-F]{64}$"}
+      }
+    },
     "stand_in": {"type": "boolean", "default": false}
   }
 }
