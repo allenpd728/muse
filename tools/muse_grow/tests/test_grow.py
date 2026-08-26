@@ -140,6 +140,31 @@ def test_cli_delta_and_report(tmp_path):
     assert json.loads(proc.stdout)["provenance"]["note_count"] == 279
     assert set(json.loads(proc.stderr)["traits"])
 
+def test_cli_persists_expansion_entry(tmp_path):
+    """Spec gap 1: the written delta file carries the expansion entry."""
+    out = tmp_path / "d.json"
+    subprocess.run([sys.executable, CLI, os.path.relpath(WORK, REPO), "--out", str(out)],
+                   capture_output=True, check=True)
+    exp = json.loads(out.read_text())["expansion"]
+    assert exp["operation"] == "muse_grow@1"
+    assert exp["expansion_time_ms"] >= 0
+    assert exp["note_count"] == 279
+
+
+def test_expansion_entry_excluded_from_trait_compare(work):
+    """Spec gap 2 (as the behavior stands): compare_deltas ignores the
+    expansion entry — it is measurement, not a growth trait."""
+    delta, _ = grow_one(work, None)
+    prior = {"params": {"dynamics": {"velocity_pstdev": 0.0}},
+             "articulation": {"rubato_pstdev_ms": 0.0},
+             "tempo": {"default_bpm": 60.0},
+             "interpretation": {"tempo_curve_shape": "flat"},
+             "provenance": {"note_count": 0}}
+    report = compare_deltas(delta, prior, "x")
+    assert "expansion" not in report.traits
+    assert "expansion" not in json.loads(report.to_json())
+
+
 
 def test_stand_in_mockup_carries_work_ppq():
     """Stand-in mockup carries the works tick domain — bwv227.1 is ppq=2;
