@@ -39,3 +39,21 @@ Extend `tools/muse_mockup/test_mockup_schema.py`, run with
 - Nothing *writes* `seed_hash` yet — the L1 generate loop (real) and
   S3.8b (#254, mockup persistence) are the producers. Tests here cover
   the schema/validator contract, not generation.
+
+## Closed 2026-08-26 (#257, run=20260825-1033-cae1)
+
+Extended `tools/muse_mockup/test_mockup_schema.py` (+5 tests, suite 22 →
+27):
+
+1. **Round-trip seam (item 1, reported as instructed):** the `Mockup`
+   dataclass does NOT carry provenance — dump/load silently drops it.
+   Pinned as a flip-test (`test_round_trip_seam_reports_dataclass_gap`):
+   when Mockup grows provenance serialization, the test fails and must be
+   inverted. The schema field serves the session file on disk.
+2. **Rejection matrix:** short/long/non-hex/non-string/list +
+   `sha256:`-prefixed (regression pin) all rejected; both hex cases
+   accepted (parity with the manifest convention).
+3. **Additivity pin:** extra provenance keys (run_id, provider) validate
+   alongside seed_hash — the typed-provider series is not blocked.
+4. **Schema/validator parity:** v1.json's regex pattern and
+   `is_sha256_hex` agree on a shared 8-input matrix.
