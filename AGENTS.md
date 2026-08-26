@@ -85,7 +85,7 @@ One command runs the whole repo (issue #167):
 
 ```bash
 pip install -r tools/requirements.test.txt
-./tools/run_tests.sh          # fast tier (26 suites, 630 tests; ~1.8 min parallel on 4 cores, ~3.5 min --serial)
+./tools/run_tests.sh          # fast tier (live counts: --list for suites, gate output for tests)
 ./tools/run_tests.sh --full   # + slow suites muse_analyze/muse_chain/qa_frontend and @pytest.mark.slow tests
 ./tools/run_tests.sh --list   # suite inventory
 ./tools/run_tests.sh --jobs N # cap suite parallelism (default nproc, ≤8); --serial = -j1
@@ -114,10 +114,13 @@ walkthrough; the loop is the way seed work happens):
    must pass.
 3. **Generate the mockup** with L1: `python3 tools/muse_mockup/cli.py
    corpus/<work>.xml` — full DNA density; the mockup is dense, not a sketch.
-4. **Probe** with W-B1 (probe engine, when it lands): reads artifacts the
-   loop already produces — param diff, budget fit, assertion pass/fail,
+4. **Probe** with W-B1 (`tools/muse_probes`): reads artifacts the loop
+   already produces — param diff, budget fit, assertion pass/fail,
    coverage, determinism, fidelity guard.
-5. **Iterate.** The workbench page (W-B3) shows probe history per seed
+5. **Listen** with the render bridge (`tools/muse_audio`): per-revision
+   WAVs play side by side on the workbench page; `--live` for the LLM
+   reading. See docs/seed-iteration.md step 5.
+6. **Iterate.** The workbench page (W-B3) shows probe history per seed
    revision. Quality checks (W-B2) catch regressions the ear might miss.
 
 Per-tool suites live next to their code (`tools/<tool>/test_*.py` or
@@ -136,7 +139,7 @@ README.md             # vision + component map
 TASK_WORKFLOW.md      # multi-agent claim/work/block protocol
 docs/pipeline.md      # build plan + live status (W/S/P/C/L/E series)
 docs/vision.md        # product thesis (2026-08-23 revision)
-docs/design/          # design-doc scaffolds + dependency index (30 tasks)
+docs/design/          # design docs + dependency index (grows with the task series; ls for the live count)
 docs/decision-log.md  # ADR-style index: locked + open decision points
 docs/tech-stack.md    # borrow/build index: software, protocols, specs
 docs/literature-review-w1.md  # pre-W1 lit review (IR, compression, patterns)
@@ -166,6 +169,12 @@ tools/muse_ci/        # P3 conformance suite (.mu golden vectors + decoder gate)
 tools/muse_audio/     # workbench render bridge (seed revision → WAV + audio manifest)
 tools/muse_probes/    # W-B1 seed-iteration probe engine
 tools/muse_mockup/    # L1 mockup harness
+tools/muse_provider/  # L1.2 pluggable LLM generate interface (Gemini + recorded fixtures)
+tools/muse_generate/  # L1.3 generate → validate → fix loop
+tools/muse_grow/      # G1 seed growth harness (iteration deltas + trajectory)
+tools/muse_chain/     # E2E chain harness (parse → pack → container → decode → verify → render)
+tools/muse_explorer/  # corpus explorer (QA static surface)
+tools/muse_workbench_runner/  # workbench data regeneration (probes/growth artifacts)
 tools/qa_frontend/    # T2 headless DOM QA (Playwright)
 tools/run_tests.sh    # unified test runner (fast/--full/--list)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)

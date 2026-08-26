@@ -113,7 +113,7 @@ per iteration.
 python3 tools/muse_seed_cli/cli.py validate seeds/bwv227.1.seed.yaml corpus/bach/bwv227.1.mxl
 # 3. mockup
 python3 tools/muse_mockup/cli.py corpus/bach/bwv227.1.mxl
-# 4. probes (W-B1, when it lands)
+# 4. probes (W-B1, tools/muse_probes)
 # 5. listen (muse_audio; --live for the LLM reading)
 # 6. commit, iterate
 ```
