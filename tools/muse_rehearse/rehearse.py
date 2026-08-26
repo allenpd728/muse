@@ -161,10 +161,14 @@ def _parse_direction(rest, verb):
     m = re.search(r"(\d+(?:\.\d+)?)\s*%", rest)
     if m:
         degree = min(1.0, float(m.group(1)) / 100.0)
+    # match the LAST direction word — "bring P4 down" is down, not bring.
+    # Dict iteration order must not pick the sign.
+    best_pos, best_sign = -1, 0.0
     for word, sign in _DIRECTIONS.items():
-        if re.search(rf"\b{re.escape(word)}\b", rest, re.IGNORECASE):
-            return sign, degree
-    return 0.0, degree  # neutral (hold, tempo_arch settle)
+        for match in re.finditer(rf"\b{re.escape(word)}\b", rest, re.IGNORECASE):
+            if match.start() > best_pos:
+                best_pos, best_sign = match.start(), sign
+    return best_sign, degree
 
 
 def _parse_shape(rest):
