@@ -1,6 +1,17 @@
-# Test spec — S3.8a lineage chain-walk/verify helper (task #251)
+# Test spec — S3.8a lineage chain-walk/verify helper (task #251) — CLOSED
 
 Written 2026-08-26 by the completing agent, per TASK_WORKFLOW §6.
+
+
+**Resolution (Tests: #260, 2026-08-26):** all items landed in
+`tools/muse_lineage/test_lineage.py` (12 tests): 3-revision verified
+chain, missing/mismatch/root, the YAML int-0 coercion regression pin,
+mockup-hop continuation (S3.8b seam), the committed bwv227.1
+known-answer chain pin, cycle-guard termination (rigged `find_by_hash`
+— the spec's justified mock), CLI exit codes + JSON shape, empty-store
+and unparseable-child edges. Suite registered in `tools/run_tests.sh`
+(fast tier: `muse_lineage:muse_lineage`). Run:
+`cd tools && python -m pytest muse_lineage -q` → 12 passed.
 
 ## What landed (behavior under test)
 
