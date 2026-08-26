@@ -30,3 +30,16 @@ Run: `cd tools && python3 -m pytest muse_grow/tests -q` (<1 s).
 - **Real-loop keying** — when MOCKUP_FN swaps to the real L1 generate
   loop, the operation tag should distinguish stand-in from real expansion
   times (today both would read `muse_grow@1`).
+
+## Closed 2026-08-26 (#259, run=20260825-1033-cae1)
+
+- **CLI-level persistence:** pinned — `test_cli_persists_expansion_entry`
+  (the written delta carries operation/time/counts).
+- **Report-surface passthrough:** pinned as the current contract —
+  `test_expansion_entry_excluded_from_trait_compare` (compare_deltas
+  ignores the entry; it is measurement, not a growth trait). Flip when
+  the report learns to carry expansion entries.
+- **Real-loop keying:** remains open — depends on the MOCKUP_FN swap
+  (real L1), out of this suite's reach today.
+
+Suite: `cd tools && python3 -m pytest muse_grow/tests -q` → 16 passed.
