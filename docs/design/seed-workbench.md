@@ -37,6 +37,7 @@ trained, nothing is generated beyond the existing mockup path.
 | **Delta curves** | How does the mockup's tempo/IOI shape compare to the source's and to the era norm? | W3 delta-analysis vocabulary |
 | **Determinism probe** | Same seed twice → same mockup? (the LLM-free path must be byte-stable) | L1 generate ×2 |
 | **Score fidelity guard** | The mockup never contradicts the score: every score note present at the right onset (W4 diff at tolerance 0 for fixed notes) | muse_diff |
+| **Lineage check** | Does this seed revision's `extends` resolve to a real, hash-matching parent artifact? | `provenance.extends`, via muse_lineage (S3.8a) |
 
 ## Quality checks (the "did I break something" tier)
 
@@ -54,7 +55,10 @@ trained, nothing is generated beyond the existing mockup path.
   current seed's probe panel (the table above, pass/fail + numbers),
   mockup player (when P2 lands; structure view today).
 - **Iteration history:** each committed seed revision gets a row; probes
-  recompute deterministically; diffs are between revisions.
+  recompute deterministically; diffs are between revisions. The lineage
+  check adds a third, orthogonal signal to each row — integrity
+  (verified / missing / broken / root), distinct from assertions
+  (validity) and regression/growth.
 - **No write path from the browser** — editing happens in the repo; the
   workbench is the read surface for what you committed. (A future C2
   authoring UI is a separate, proprietary task — this is QA, not authoring.)

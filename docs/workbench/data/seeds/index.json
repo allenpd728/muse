@@ -4,6 +4,16 @@
    "work_id": "bwv227.1",
    "file": "bwv227.1.seed.yaml",
    "probes": "bwv227.1.probes.json"
+  },
+  {
+   "work_id": "bwv227.1",
+   "file": "bwv227.1.v1.seed.yaml",
+   "probes": "bwv227.1.v1.probes.json"
+  },
+  {
+   "work_id": "bwv227.1",
+   "file": "bwv227.1.v2.seed.yaml",
+   "probes": "bwv227.1.v2.probes.json"
   }
  ]
 }

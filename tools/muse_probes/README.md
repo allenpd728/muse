@@ -1,6 +1,6 @@
 # muse_probes — W-B1 seed-iteration probe engine
 
-Per seed revision, compute the seven probes from
+Per seed revision, compute the eight probes from
 [docs/design/seed-workbench.md](../../docs/design/seed-workbench.md) and emit
 a deterministic JSON artifact the workbench page renders. Read-only over the
 S3/C1/C3/L1 toolchain; nothing new is generated.

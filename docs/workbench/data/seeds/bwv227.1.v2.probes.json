@@ -26,10 +26,10 @@
      "inside": false,
      "param": "tempo",
      "range": [
-      62,
-      129
+      80,
+      120
      ],
-     "span_fraction": 2.094
+     "span_fraction": 1.25
     }
    ],
    "era": "baroque",
@@ -80,13 +80,19 @@
   "lineage": {
    "hops": [
     {
+     "child": "/workspace/project/muse/seeds/bwv227.1.v2.seed.yaml",
+     "parent": "/workspace/project/muse/seeds/bwv227.1.seed.yaml",
+     "pointer": "d9f3ab3b47b98d5cd2809e2b0943be220b79eaeadd7d2c2ab063a9941cdfad79",
+     "status": "verified"
+    },
+    {
      "child": "/workspace/project/muse/seeds/bwv227.1.seed.yaml",
      "parent": "",
      "pointer": "",
      "status": "root"
     }
    ],
-   "status": "root"
+   "status": "verified"
   },
   "param_diff": {
    "changes": {},

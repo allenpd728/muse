@@ -125,7 +125,8 @@ def generate_workbench(workbench_dir=None):
         if not work_rel:
             continue
         work = muse_corpus.load_file(os.path.join(muse_corpus.CORPUS_ROOT, work_rel.replace("corpus/", "")))
-        report = compute_probes(seed, work)
+        report = compute_probes(seed, work,
+                                seed_path=os.path.join(seeds_dir, fname))
         probes_name = fname.replace(".seed.yaml", ".probes.json").replace(".yml", ".probes.json")
         with open(os.path.join(seeds_out, probes_name), "w") as fh:
             fh.write(report.to_json())

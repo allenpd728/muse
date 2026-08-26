@@ -1,6 +1,6 @@
 """Probe computation: seed + work → deterministic probe report.
 
-Seven probes per docs/design/seed-workbench.md:
+Eight probes per docs/design/seed-workbench.md:
 
 1. param_diff        — seed params vs a prior revision (when supplied)
 2. budget_fit        — seed ranges vs era budgets (C3); center/edge position
@@ -9,6 +9,9 @@ Seven probes per docs/design/seed-workbench.md:
 5. delta_curves      — mockup IOI shape vs source vs era norm
 6. determinism       — same generation path twice → identical artifact
 7. fidelity_guard    — mockup never contradicts the score (W4, tolerance 0)
+8. lineage           — extends resolves to a real, hash-matching parent
+                       (muse_lineage, S3.8a); integrity, not validity —
+                       deliberately outside the ok gate
 
 The mockup path here is the deterministic L1 stand-in (work → flat-velocity
 notes, same as tools/muse_mockup/cli.py): it exists so the probes run
@@ -19,7 +22,10 @@ contract as the P1 DECODER pin.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
+
+REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 class ProbeError(ValueError):
@@ -197,7 +203,32 @@ def probe_fidelity_guard(work, mockup_notes):
             "fidelity": missing == 0 and extra == 0}
 
 
-def compute_probes(seed, work, prior_seed=None, era="baroque") -> ProbeReport:
+def probe_lineage(seed_path, store_dirs=None):
+    """Lineage check (W-B9, #253): does this seed revision's `extends`
+    resolve to a real, hash-matching parent artifact? Walks the chain via
+    muse_lineage (S3.8a, #251). Orthogonal to assertions (validity) and
+    regression/growth — this is integrity."""
+    from muse_lineage.lineage import walk
+
+    if not seed_path:
+        return {"status": "unknown", "hops": [],
+                "note": "no seed path given; chain not walked"}
+    dirs = store_dirs or [os.path.join(REPO, "seeds")]
+    hops = walk(seed_path, dirs)
+    statuses = [h.status for h in hops]
+    if statuses == ["root"]:
+        status = "root"  # no pointer — nothing to verify, not "verified"
+    elif all(s in ("verified", "root") for s in statuses):
+        status = "verified"
+    elif "missing" in statuses:
+        status = "missing"
+    else:
+        status = "broken"
+    return {"status": status, "hops": [h.to_dict() for h in hops]}
+
+
+def compute_probes(seed, work, prior_seed=None, era="baroque",
+                   seed_path=None) -> ProbeReport:
     """Compute the full probe set. Deterministic for fixed inputs."""
     mockup = MOCKUP_FN(work)
     report = ProbeReport(
@@ -212,6 +243,7 @@ def compute_probes(seed, work, prior_seed=None, era="baroque") -> ProbeReport:
         "delta_curves": probe_delta_curves(work, mockup),
         "determinism": probe_determinism(work),
         "fidelity_guard": probe_fidelity_guard(work, mockup),
+        "lineage": probe_lineage(seed_path),
     }
     report.ok = (
         report.probes["fidelity_guard"]["fidelity"]
