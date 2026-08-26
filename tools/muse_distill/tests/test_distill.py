@@ -1,7 +1,9 @@
 """L4 distiller tests: interpretation extraction, revision shape, curve-shape classification."""
 
+import hashlib
+
 from muse_distill import dump_delta, extract_interpretation, seed_revision
-from muse_mockup import Mockup, Note
+from muse_mockup import Mockup, Note, dump_mockup
 
 
 def make_mockup(notes, tempo_map=None):
@@ -90,3 +92,25 @@ def test_cli_end_to_end(tmp_path):
     text = out_path.read_text()
     assert "tempo_curve_shape: arch" in text
     assert "min_bpm: 60.0" in text
+
+# --- S3.8b stamping (issue #262; spec
+# tests/open_20260826-004500_s3-8b-mockup-persistence.md) ---
+
+
+def test_stamping_omitted_without_mockup_path():
+    """Backward compat: no mockup_path → operation stamped, extends absent."""
+    m = make_mockup([Note(60, 0, 480, 60)])
+    delta = seed_revision(m)
+    assert delta["provenance"]["operation"] == "muse_distill@1"
+    assert "extends" not in delta["provenance"]
+
+
+def test_stamping_extends_matches_persisted_bytes(tmp_path):
+    """With mockup_path: extends == SHA-256 of the file's committed bytes."""
+    m = make_mockup([Note(60, 0, 480, 60)])
+    p = tmp_path / "m.mockup.json"
+    p.write_text(dump_mockup(m, fmt="json"))
+    delta = seed_revision(m, mockup_path=str(p))
+    expect = hashlib.sha256(p.read_bytes()).hexdigest()
+    assert delta["provenance"]["extends"] == expect
+    assert delta["provenance"]["operation"] == "muse_distill@1"

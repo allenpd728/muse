@@ -46,3 +46,20 @@ Extend `tools/muse_distill/tests/` and `tools/muse_grow/tests/`, run with
   makes mockup bytes non-deterministic — the commit-per-iteration
   discipline becomes load-bearing then, and is a human/loop concern, not
   a testable one here.
+
+## Closed 2026-08-26 (#262, run=20260825-1033-cae1)
+
+Distill (test_distill.py, +2): stamping omitted without mockup_path
+(backward compat: operation stamped, extends absent); extends == SHA-256
+of the persisted file's bytes.
+
+Grow (test_grow.py, +5): persist shape (seed_hash of the driving seed's
+bytes; dataclass-dump shape pinned — the L1.10 session-file schema does
+NOT apply here, spec item 2 corrected with a flip-test); seed_hash
+omitted without --seed; the committed 3-hop chain known-answer pin
+(v3 → v2.mockup → v2 → root, [verified, verified, verified, root]);
+CLI seam (--seed/--mockup-out end-to-end, extends matches persisted
+bytes; omitting --mockup-out preserves the old no-extends behavior);
+G4 operation-precedence pin (seed's own provenance.operation wins).
+
+Suites: muse_distill + muse_grow → 30 passed, 0 skipped.
