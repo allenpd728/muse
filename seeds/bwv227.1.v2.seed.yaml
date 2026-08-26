@@ -35,3 +35,4 @@ provenance:
   source: corpus/bach/bwv227.1.mxl
   author: openhands-agent
   ai_assisted: true
+  extends: d9f3ab3b47b98d5cd2809e2b0943be220b79eaeadd7d2c2ab063a9941cdfad79  # seeds/bwv227.1.v1.seed.yaml (S3.7)
