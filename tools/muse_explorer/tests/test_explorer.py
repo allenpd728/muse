@@ -136,3 +136,39 @@ def test_pattern_counts_ignores_malformed_blocks(tmp_path, monkeypatch):
         "bach/bwv227.1.mxl": {"exact repeats": 889},
         "byrd/1-Kyrie.mid": {"imitative entries": 12},
     }
+
+
+# --- #273: workbench seed index dedup + repo-relative lineage hops ---
+
+import hashlib  # noqa: E402
+
+WB_SEEDS = os.path.join(REPO, "docs", "workbench", "data", "seeds")
+
+
+def test_workbench_index_no_byte_identical_duplicates():
+    """Regression pin (#273): the seed index never lists two entries whose
+    files are byte-identical; the duplicate is recorded as an alias."""
+    index = json.load(open(os.path.join(WB_SEEDS, "index.json")))
+    digests = []
+    for entry in index["seeds"]:
+        raw = open(os.path.join(WB_SEEDS, entry["file"]), "rb").read()
+        digests.append(hashlib.sha256(raw).hexdigest())
+    assert len(digests) == len(set(digests)), (
+        "index lists byte-identical seed files as separate entries")
+    base = next(e for e in index["seeds"] if e["file"] == "bwv227.1.seed.yaml")
+    assert "bwv227.1.v1.seed.yaml" in base.get("aliases", [])
+
+
+def test_workbench_artifacts_carry_no_machine_local_paths():
+    """Lineage hops (and the artifacts generally) must be repo-relative —
+    the same leak class s1_stream pins for golden vectors (#273)."""
+    for fname in os.listdir(WB_SEEDS):
+        if not fname.endswith(".json"):
+            continue
+        text = open(os.path.join(WB_SEEDS, fname)).read()
+        assert "/workspace" not in text and REPO not in text, (
+            f"{fname} embeds machine-local paths")
+    v2 = json.load(open(os.path.join(WB_SEEDS, "bwv227.1.v2.probes.json")))
+    hop = v2["probes"]["lineage"]["hops"][0]
+    assert hop["child"] == "seeds/bwv227.1.v2.seed.yaml"
+    assert hop["status"] == "verified"

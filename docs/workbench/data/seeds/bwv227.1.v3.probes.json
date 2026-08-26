@@ -22,14 +22,14 @@
       88,
       120
      ],
-     "default_position": "center",
-     "inside": false,
+     "default_position": "edge",
+     "inside": true,
      "param": "tempo",
      "range": [
-      62,
-      129
+      120.0,
+      120.0
      ],
-     "span_fraction": 2.094
+     "span_fraction": 0.0
     }
    ],
    "era": "baroque",
@@ -80,13 +80,31 @@
   "lineage": {
    "hops": [
     {
-     "child": "/workspace/project/muse/seeds/bwv227.1.v1.seed.yaml",
+     "child": "seeds/bwv227.1.v3.seed.yaml",
+     "parent": "seeds/bwv227.1.v2.mockup.json",
+     "pointer": "d983d9b1e822bade5106ed682e57150bdee396681777066de6e562ef426cab23",
+     "status": "verified"
+    },
+    {
+     "child": "seeds/bwv227.1.v2.mockup.json",
+     "parent": "seeds/bwv227.1.v2.seed.yaml",
+     "pointer": "d5d2d7175cc991d12431a21d941e346ba140a32e486cc555ac0424b6cdaf76e3",
+     "status": "verified"
+    },
+    {
+     "child": "seeds/bwv227.1.v2.seed.yaml",
+     "parent": "seeds/bwv227.1.seed.yaml",
+     "pointer": "d9f3ab3b47b98d5cd2809e2b0943be220b79eaeadd7d2c2ab063a9941cdfad79",
+     "status": "verified"
+    },
+    {
+     "child": "seeds/bwv227.1.seed.yaml",
      "parent": "",
      "pointer": "",
      "status": "root"
     }
    ],
-   "status": "root"
+   "status": "verified"
   },
   "param_diff": {
    "changes": {},

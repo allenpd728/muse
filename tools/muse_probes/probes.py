@@ -224,7 +224,17 @@ def probe_lineage(seed_path, store_dirs=None):
         status = "missing"
     else:
         status = "broken"
-    return {"status": status, "hops": [h.to_dict() for h in hops]}
+    return {"status": status, "hops": [_relativized(h) for h in hops]}
+
+
+def _relativized(hop):
+    """Committed artifacts carry repo-relative paths — never machine-local
+    absolute ones (the leak class s1_stream pins for golden vectors; #273)."""
+    d = hop.to_dict()
+    for key in ("child", "parent"):
+        if os.path.isabs(d[key]):
+            d[key] = os.path.relpath(d[key], REPO)
+    return d
 
 
 def compute_probes(seed, work, prior_seed=None, era="baroque",
