@@ -86,6 +86,26 @@ muse_grow, muse_probes, muse_lineage — the freshest surface, most
 likely to have drift). Waves 2–4 (W, S, P+C series) file after Wave 1's
 report, informed by what the first pass actually finds.
 
+### Wave 1 split (2026-08-26)
+
+A 12-module single issue (#277) was over the one-agent-run sizing rule —
+suites run fast (197 tests, 64s) but the audit's value is per-module
+depth: reading each doc claim, running each known-answer gate, verifying
+each seam, writing evidence-backed rows. Wave 1 is filed as four
+cohesion-grouped tasks:
+
+| Task | Modules | Cohesion |
+|---|---|---|
+| **A1.1 — Generate loop** | muse_mockup, muse_provider, muse_generate | one functional unit: schema + provider + generate/validate/fix; their docs claim about each other |
+| **A1.2 — Render/compare/distill/audio** | muse_render, muse_compare, muse_distill, muse_audio | the post-mockup chain; seams between them are the audit surface |
+| **A1.3 — Growth + probes + lineage** | muse_grow, muse_probes, muse_lineage | this batch's core; shared seed/mockup store + the walker |
+| **A1.4 — Surfaces** | muse_explorer, muse_event | the read surfaces |
+
+The missing-README findings (muse_explorer, muse_generate, muse_grow,
+muse_provider — AGENTS.md's doc-deliverable rule) are findings of
+whichever task covers the module, not a separate task: A1.1 picks up
+provider/generate, A1.3 grow, A1.4 explorer.
+
 ## Explicitly out of scope
 
 - The qa_frontend/docs-coherence suite's own beat (it audits docs vs.
