@@ -57,6 +57,40 @@ def test_compare_reports_all_traits(work):
         assert trait in report.traits
 
 
+def test_grow_one_logs_expansion_entry(work):
+    """G4 (#252): the delta carries wall-clock expansion time keyed by
+    operation, with variation-point and note counts."""
+    delta, _ = grow_one(work, None)
+    exp = delta["expansion"]
+    assert exp["expansion_time_ms"] >= 0
+    assert exp["operation"] == "muse_grow@1"  # default when no seed
+    assert exp["variation_point_count"] == 0
+    assert exp["note_count"] == 279  # bwv227.1 pitched notes (W2 pin)
+
+
+def test_expansion_entry_uses_seed_operation_tag(work):
+    """A seed carrying provenance.operation (S3.7) keys the entry by it."""
+    from muse_seed import Seed
+    seed = Seed(format_version="0.1", work_id="bwv227.1",
+                params={"tempo": {"min_bpm": 60, "max_bpm": 120}},
+                assertions={"tempo_bounds": {"min_bpm": 60, "max_bpm": 120}},
+                provenance={"operation": "muse_distill@2"},
+                variation_points=[{"region": [0, 48], "kind": "ornament"}])
+    delta, _ = grow_one(work, seed)
+    assert delta["expansion"]["operation"] == "muse_distill@2"
+    assert delta["expansion"]["variation_point_count"] == 1
+
+
+def test_expansion_entry_survives_error_paths(work, monkeypatch):
+    """A failed mockup build returns the error delta without an expansion
+    entry — no phantom timing data on failures."""
+    import muse_grow.grow as g
+    monkeypatch.setattr(g, "MOCKUP_FN", lambda w: 1 / 0)
+    delta, stand_in = g.grow_one(work, None)
+    assert "error" in delta
+    assert "expansion" not in delta
+
+
 def test_growing_verdict_on_increased_trait(work):
     delta, _ = grow_one(work, None)
     prior = {"params": {"dynamics": {"velocity_pstdev": delta["params"]["dynamics"]["velocity_pstdev"] - 0.5}},

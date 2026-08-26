@@ -12,6 +12,7 @@ swaps to it here, same contract as the probe engine's pin.
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass, field
 
 from muse_distill import seed_revision
@@ -44,15 +45,37 @@ MOCKUP_FN = _mockup_from_work  # real L1 generate loop swaps this when it lands
 
 def grow_one(work, seed):
     """One iteration: build a mockup from the work via MOCKUP_FN, distill it,
-    return (delta_dict, stand_in_flag)."""
+    return (delta_dict, stand_in_flag).
+
+    G4 (#252): the delta carries an `expansion` entry — wall-clock
+    expansion_time_ms for the MOCKUP_FN build, keyed by operation tag
+    (the seed's provenance.operation, or the harness default), with the
+    seed's variation-point count and the work's note count. Measurement
+    riding on the harness, per docs/design/proposal-lineage-chain.md §2.4.
+    """
+    operation = "muse_grow@1"
+    if seed is not None:
+        operation = getattr(seed, "provenance", {}).get("operation") or operation
+    variation_points = len(getattr(seed, "variation_points", []) or [])
+
+    t0 = time.perf_counter_ns()
     try:
         mockup = MOCKUP_FN(work)
     except Exception as e:
         return {"error": f"mockup generation failed: {e}"}, True
+    expansion_ms = (time.perf_counter_ns() - t0) / 1e6
+
     try:
         delta = seed_revision(mockup)
     except Exception as e:
         return {"error": f"distill failed: {e}"}, True
+
+    delta["expansion"] = {
+        "operation": operation,
+        "expansion_time_ms": round(expansion_ms, 2),
+        "variation_point_count": variation_points,
+        "note_count": len(mockup.notes),
+    }
     return delta, True
 
 
