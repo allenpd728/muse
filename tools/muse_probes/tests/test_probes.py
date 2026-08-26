@@ -225,3 +225,99 @@ def test_mockup_fn_contract(seed_work):
         assert pitch is not None
         assert isinstance(onset, int)
         assert duration > 0
+
+
+# --- W-B9 lineage probe (issue #261; spec
+# tests/open_20260826-003500_wb9-lineage-probe.md) ---
+
+from muse_probes.probes import probe_lineage  # noqa: E402
+
+
+def _write_seed(tmp_path, name, extends=None):
+    """Minimal valid seed file, optionally with a lineage pointer."""
+    import hashlib
+    text = (
+        "format_version: '0.1'\n"
+        "work_id: bwv227.1\n"
+        "params: {tempo: {min_bpm: 60, max_bpm: 120}}\n"
+        "assertions: {tempo_bounds: {min_bpm: 60, max_bpm: 120}}\n"
+        f"provenance: {{author: t, ai_assisted: false{', extends: ' + extends if extends else ''}}}\n"
+    )
+    p = tmp_path / name
+    p.write_text(text)
+    return str(p), hashlib.sha256(text.encode()).hexdigest()
+
+
+def test_lineage_root_is_root_not_verified(tmp_path):
+    """Regression pin: a bare seed (no extends) reports 'root' — never
+    'verified' (nothing was verified)."""
+    path, _ = _write_seed(tmp_path, "a.seed.yaml")
+    res = probe_lineage(path, store_dirs=[str(tmp_path)])
+    assert res["status"] == "root"
+    assert res["hops"][-1]["status"] == "root"
+
+
+def test_lineage_verified_chain(tmp_path):
+    """parent ← child: both hops resolve, child verifies."""
+    parent_path, parent_hash = _write_seed(tmp_path, "parent.seed.yaml")
+    child_path, _ = _write_seed(tmp_path, "child.seed.yaml", extends=parent_hash)
+    res = probe_lineage(child_path, store_dirs=[str(tmp_path)])
+    assert res["status"] == "verified"
+    assert [h["status"] for h in res["hops"]] == ["verified", "root"]
+
+
+def test_lineage_missing_pointer(tmp_path):
+    path, _ = _write_seed(tmp_path, "orphan.seed.yaml", extends="f" * 64)
+    res = probe_lineage(path, store_dirs=[str(tmp_path)])
+    assert res["status"] == "missing"
+    assert res["hops"][0]["status"] == "missing"
+
+
+def test_lineage_unknown_without_seed_path():
+    res = probe_lineage(None)
+    assert res["status"] == "unknown"
+    assert res["hops"] == []
+    assert "no seed path" in res["note"]
+
+
+def test_lineage_orthogonal_to_gate(seed_work, tmp_path):
+    """Gate orthogonality pin: a seed whose lineage is 'missing' but whose
+    fidelity/determinism/assertions pass still yields ok=True — integrity
+    is a separate signal, not part of the gate."""
+    seed, work = seed_work
+    path, _ = _write_seed(tmp_path, "orphan.seed.yaml", extends="f" * 64)
+    orphan = load_seed(open(path).read(), fmt="yaml")
+    # give the orphan the reference seed's passing assertions so the gate
+    # inputs are all green except lineage
+    orphan.assertions = seed.assertions
+    report = compute_probes(orphan, work, seed_path=path)
+    assert report.probes["lineage"]["status"] == "missing"
+    assert report.ok is True
+
+
+def test_cli_writes_lineage_block(tmp_path):
+    out = tmp_path / "probes.json"
+    r = subprocess.run(
+        [sys.executable, CLI, SEED_V2, "--work", WORK, "--out", str(out)],
+        capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    probes = json.loads(out.read_text())["probes"]
+    assert probes["lineage"]["status"] in ("root", "verified", "missing", "broken")
+
+
+def test_explorer_workbench_carries_lineage(tmp_path):
+    """Explorer seam: generate_workbench output carries a lineage block per
+    seed; the committed bwv227.1 chain's statuses are pinned."""
+    from muse_explorer.generate import generate_workbench
+    out = generate_workbench(str(tmp_path))
+    seeds_dir = os.path.join(str(tmp_path), "data", "seeds")
+    files = [f for f in os.listdir(seeds_dir) if f.endswith(".probes.json")]
+    assert files, "no probe artifacts generated"
+    statuses = []
+    for f in sorted(files):
+        probes = json.loads(open(os.path.join(seeds_dir, f)).read())["probes"]
+        assert "lineage" in probes, f"{f} missing lineage block"
+        statuses.append(probes["lineage"]["status"])
+    # the committed chain: v1 root → v2 verified; base seed root
+    assert set(statuses) <= {"root", "verified"}, statuses
+    assert "verified" in statuses and "root" in statuses
