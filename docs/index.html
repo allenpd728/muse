@@ -31,18 +31,21 @@
   .pipeline a:hover { text-decoration:underline; }
   .status-done { color:#3fb950; font-weight:bold; }
   .status-missing { color:#f85149; font-weight:bold; }
+  .surfaces { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:.8rem; margin:1.2rem 0 .4rem; }
+  .surfaces a { display:block; background:#161b22; border:1px solid #30363d; border-radius:8px; padding:.9rem 1rem; color:#c9d1d9; text-decoration:none; }
+  .surfaces a:hover { border-color:#58a6ff; }
+  .surfaces .name { color:#58a6ff; font-size:.95rem; }
+  .surfaces .what { color:#8b949e; font-size:.72rem; margin-top:.3rem; line-height:1.4; }
 </style>
 </head>
 <body>
-<header><h1>Muse corpus tree <span class="tag">QA static</span><span class="logo">/` route index</span></h1></header>
-<nav>
-  <p>
-    <a href="explorer/">/explorer/ — corpus browser</a> ·
-    <a href="workbench/detail.html">/workbench/ (spans) → detail page</a> ·
-    <a href="workbench/files.html">/workbench/files/ — readonly file viewer</a> ·
-    <a href="workbench/terminal/">/workbench/terminal/ (W-B8)</a> ·
-    <a href="boardroom/">/boardroom/ — presentation package</a>
-  </p>
+<header><h1>Muse <span class="tag">QA static</span><span class="logo">/` — the five surfaces</span></h1></header>
+<nav class="surfaces">
+  <a href="explorer/"><span class="name">Corpus explorer</span><div class="what">the five reference works, parsed and inspectable</div></a>
+  <a href="workbench/detail.html"><span class="name">Seed workbench</span><div class="what">seed iterations: params, probes, growth, per-revision audio</div></a>
+  <a href="workbench/files.html"><span class="name">Files</span><div class="what">readonly source viewer</div></a>
+  <a href="workbench/terminal/"><span class="name">Terminal</span><div class="what">command surface (W-B8)</div></a>
+  <a href="boardroom/"><span class="name">Boardroom</span><div class="what">the presentation package: deck, status, competitive, appendix, asks</div></a>
 </nav>
 
 <section class="pipeline">
