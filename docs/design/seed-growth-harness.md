@@ -44,6 +44,9 @@ per iteration so the founder sees trajectory, not snapshots.
 ```
 tools/muse_grow/
   grow.py        — one iteration: seed → mockup (L1) → distill (L4) → delta
+                   (delta carries an `expansion` entry: wall-clock
+                   expansion_time_ms keyed by operation tag, with
+                   variation_point_count + note_count — G4/#252)
   compare.py     — delta vs prior iteration's delta → growth report
   cli.py         — muse-grow <seed.yaml> [--prior <delta.json>]
 ```
@@ -63,7 +66,7 @@ tools/muse_grow/
 | **G1 — Growth harness** ([#203](https://github.com/allenpd728/muse/issues/203)) | `tools/muse_grow/`: L1→L4→delta→compare pipeline + growth report JSON | L1 generate loop (real); stand-in marked until then |
 | **G2 — Workbench growth view** ([#204](https://github.com/allenpd728/muse/issues/204)) | growth report rendered per seed (trait trajectories across iterations) | G1 |
 | **G3 — Iteration fixtures** ([#205](https://github.com/allenpd728/muse/issues/205)) | two committed seed revisions + their deltas so G1's compare has known-answer tests | G1 |
-| **G4 — Expansion-time logging** ([#252](https://github.com/allenpd728/muse/issues/252)) | log `expansion_time_ms` per `operation` tag against `(variation_point_count, note_count)` per `grow_one` call — measurement toward a future expansion-cost estimate (proposal: [lineage chain](proposal-lineage-chain.md) §2.4) | S3.7 ([#248](https://github.com/allenpd728/muse/issues/248)) |
+| **G4 — Expansion-time logging** ([#252](https://github.com/allenpd728/muse/issues/252)) | log `expansion_time_ms` per `operation` tag against `(variation_point_count, note_count)` per `grow_one` call — measurement toward a future expansion-cost estimate (proposal: [lineage chain](proposal-lineage-chain.md) §2.4) | S3.7 ([#248](https://github.com/allenpd728/muse/issues/248)) | **done** (#252, 2026-08-26: the delta carries an `expansion` entry — wall-clock build time keyed by the seed's `provenance.operation` (default `muse_grow@1`), with variation-point and note counts; error paths carry no phantom timing) |
 
 G1 is the foundation; G2/G3 decompose from it. G4 is instrumentation
 riding the harness, not a new subsystem.
