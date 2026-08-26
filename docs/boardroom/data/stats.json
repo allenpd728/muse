@@ -1,0 +1,7 @@
+{
+ "corpus_works": 13,
+ "format": "boardroom-stats-v1",
+ "generated_by": "tools/boardroom_stats.py",
+ "suites": 36,
+ "tests_fast_tier": 998
+}

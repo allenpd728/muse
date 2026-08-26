@@ -20,7 +20,7 @@
 </head>
 <body>
 <header><h1>Status dashboard <span class="tag">boardroom</span></h1>
-<p class="note">Phases, live counts, blockers, the frontier. Content lands with B3 (#265). Read-only surface; sources are the repo docs and the issue queue.</p></header>
+<p class="note">Phases, live counts, blockers, the frontier. Counts are generated (tools/boardroom_stats.py → data/stats.json); regenerate after suite/corpus changes. Read-only surface.</p></header>
 <nav><p>
   <a href="../index.html">/ corpus tree</a> ·
   <a href="../explorer/">/explorer/</a> ·
@@ -28,6 +28,58 @@
   <a href="../workbench/terminal/">/workbench/terminal/</a> ·
   <strong>/boardroom/</strong>
 </p></nav>
-<div class="card"><p class="note">Content pending — see the linked issue.</p></div>
+
+<section class="card" id="frontier">
+  <h3>The frontier</h3>
+  <p>Phase 4 gate: <strong>one corpus work, performed by the LLM player, passes
+  the founder's by-ear evaluation as a musical performance</strong> — a reading
+  worth a hall. Everything else is done or decomposed; this is the judgment call.</p>
+</section>
+
+<section class="card">
+  <h3>Phases</h3>
+  <table id="phases">
+    <tr><th>Phase</th><th>Gate</th><th>Status</th></tr>
+    <tr><td>0 — Analysis workbench</td><td>analyzer ran across all five works</td><td>done</td></tr>
+    <tr><td>1 — Format spec v1.0 (from evidence)</td><td>every construct justified by Phase 0 evidence</td><td>done</td></tr>
+    <tr><td>2 — Deterministic player</td><td>every corpus .mu round-trips; diff confirms lossless</td><td>done</td></tr>
+    <tr><td>3 — Seed authoring</td><td>seeds validate against S3; founder's ear gates quality</td><td>done</td></tr>
+    <tr><td>4 — Mockup harness + renderer</td><td>one corpus work passes the founder's ear</td><td>in progress — the frontier</td></tr>
+    <tr><td>5 — The event</td><td>deferred until Phase 4 produces a concert-worthy work</td><td>deferred</td></tr>
+  </table>
+</section>
+
+<section class="card">
+  <h3>Live counts</h3>
+  <div id="stats">loading…</div>
+  <p class="note">Regenerate: <code>python3 tools/boardroom_stats.py</code></p>
+</section>
+
+<section class="card">
+  <h3>Blocked</h3>
+  <ul>
+    <li><strong>E3 — The recording (#211)</strong> — no staged event exists to document; the publication surface is a founder call.</li>
+    <li><strong>Tests: Frontend QA Tier 3 (#224)</strong> — the Netlify QA deploy is paused by the founder; live-smoke work resumes when it does.</li>
+  </ul>
+</section>
+
+<script>
+async function main() {
+  const el = document.getElementById('stats');
+  try {
+    const r = await fetch('data/stats.json');
+    if (!r.ok) throw new Error('stats.json absent');
+    const s = await r.json();
+    el.innerHTML = `<ul>
+      <li><strong>${s.suites}</strong> test suites registered in the runner</li>
+      <li><strong>${s.tests_fast_tier}</strong> tests in the fast tier (collect-only count at generation time)</li>
+      <li><strong>${s.corpus_works}</strong> corpus works (Bach, Byrd, Schubert, Beethoven 5 + 9)</li>
+    </ul>`;
+  } catch (e) {
+    el.innerHTML = '<p class="note">stats.json absent — regenerate stats: python3 tools/boardroom_stats.py</p>';
+  }
+}
+main();
+</script>
 </body>
 </html>
