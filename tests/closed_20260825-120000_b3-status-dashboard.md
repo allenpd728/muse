@@ -11,3 +11,21 @@
 ## Invocation
 
 `cd tools && python -m pytest qa_frontend/tests/test_boardroom_status.py -q`
+
+## Closed 2026-08-26 (#265, run=20260825-1033-cae1)
+
+Page landed: phase table 0–5 consistent with pipeline.md, live counts
+fetched from generated stats.json (never hardcoded — the HTML-vs-data
+disagreement test enforces it), blockers #211/#224 with reasons, the
+frontier call-out (Phase 4 ear gate), graceful degradation when the
+stats file is absent (regenerate note, no crash).
+
+Generator: tools/boardroom_stats.py (runner --list for suite count,
+pytest --collect-only per fast-tier suite for test count, explorer
+works.json for corpus count). Documented on the page and in this spec.
+
+Tests: tools/qa_frontend/tests/test_boardroom_status.py (6). Lessons:
+shared PageSession console_errors are cross-test state — per-test
+listeners on the shared session's own pages keep the zero-errors bar
+honest (the degradation test's aborted fetch must not poison the
+happy-path test).
