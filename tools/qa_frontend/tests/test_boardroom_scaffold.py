@@ -36,19 +36,22 @@ class TestPagesExist:
             assert f'href="{name}"' in landing, f"landing page missing link to {name}"
 
     def test_pages_share_site_chrome(self):
-        # the dark QA design language + cross-nav to the other surfaces
+        # the dark QA design language; content pages (B2+) may swap the
+        # placeholder cross-nav for their own chrome (the deck is a
+        # full-screen slide deck), so nav is pinned on the landing only
+        text = _read("index.html")
+        assert 'href="../index.html"' in text, "landing lost the master-index link"
+        assert 'href="../workbench/detail.html"' in text, "landing lost the workbench link"
         for name in PAGES:
-            text = _read(name)
-            assert "#0d1117" in text, f"{name} lost the site background"
-            assert 'href="../index.html"' in text, f"{name} lost the master-index link"
-            assert 'href="../workbench/detail.html"' in text, f"{name} lost the workbench link"
+            assert "#0d1117" in _read(name), f"{name} lost the site background"
 
 
 class TestMasterIndexLink:
     def test_boardroom_linked(self):
         index = open(os.path.join(DOCS, "index.html")).read()
+        # the five-surface tile nav: boardroom/ as an href, named as a surface
         assert 'href="boardroom/"' in index
-        assert "/boardroom/" in index
+        assert "Boardroom" in index
 
 
 class TestReadOnly:
