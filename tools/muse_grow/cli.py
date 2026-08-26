@@ -33,10 +33,23 @@ def main(argv=None):
     ap.add_argument("work", help="corpus file (IR-loadable)")
     ap.add_argument("--prior", help="prior delta JSON for the growth report")
     ap.add_argument("--out", help="write delta JSON here")
+    ap.add_argument("--seed", help="seed YAML driving this iteration "
+                                   "(stamped as the mockup's seed_hash)")
+    ap.add_argument("--mockup-out", help="persist the producing mockup here "
+                                         "(S3.8b: alongside the seed revision)")
     args = ap.parse_args(argv)
 
+    seed = None
+    seed_path = None
+    if args.seed:
+        from muse_seed import load_seed
+        seed_path = _resolve(args.seed)
+        seed = load_seed(open(seed_path).read(), fmt="yaml")
+
     work = load(_resolve(args.work))
-    delta, stand_in = grow_one(work, None)
+    mockup_out = _resolve(args.mockup_out) if args.mockup_out else None
+    delta, stand_in = grow_one(work, seed, mockup_out=mockup_out,
+                               seed_path=seed_path)
     if "error" in delta:
         print(delta["error"], file=sys.stderr)
         return 1
