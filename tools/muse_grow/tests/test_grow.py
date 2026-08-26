@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "ir"))
 
 from muse_ir import load  # noqa: E402
 
-from muse_grow.grow import GrowthReport, compare_deltas, grow_one  # noqa: E402
+from muse_grow.grow import GrowthReport, compare_deltas, grow_one, _mockup_from_work  # noqa: E402
+
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 WORK = os.path.join(REPO, "corpus", "bach", "bwv227.1.mxl")
@@ -104,3 +105,10 @@ def test_cli_delta_and_report(tmp_path):
     assert proc.returncode == 0
     assert json.loads(proc.stdout)["provenance"]["note_count"] == 279
     assert set(json.loads(proc.stderr)["traits"])
+
+
+def test_stand_in_mockup_carries_work_ppq():
+    """Stand-in mockup carries the works tick domain — bwv227.1 is ppq=2;
+    the 480 default renders 240x too fast (#246 constructor sweep)."""
+    m = _mockup_from_work(load(WORK))
+    assert m.ppq == 2

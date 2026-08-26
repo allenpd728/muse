@@ -29,6 +29,7 @@ def main():
 
     work = load(args.work)
     mockup = Mockup(work_id=getattr(work, "title", None) or "unknown")
+    mockup.ppq = getattr(getattr(work, "meta", None), "ppq", 480)  # the tick domain (#246)
 
     for p in work.parts:
         for n in p.notes:

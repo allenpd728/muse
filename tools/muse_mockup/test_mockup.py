@@ -95,6 +95,16 @@ class TestCorpusAndCLI:
         assert rc == 0
         assert out.exists()
 
+    def test_cli_mockup_carries_work_ppq(self, tmp_path, monkeypatch):
+        """The L1 mockup CLI's output must carry the work's tick domain —
+        the seed-iteration loop's mockups render wrong at the 480 default
+        (#246 constructor sweep)."""
+        out = tmp_path / "t.json"
+        monkeypatch.setattr(sys, "argv", ["cli.py", f"{CORPUS}/bach/bwv227.1.mxl", "--out", str(out)])
+        from muse_mockup.cli import main
+        assert main() == 0
+        assert load_mockup(out.read_text()).ppq == 2
+
 
 class TestValidationWithAssertions:
     def test_register_bounds(self):

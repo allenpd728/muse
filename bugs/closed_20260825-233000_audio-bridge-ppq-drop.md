@@ -20,16 +20,23 @@ correctly — only the schema-v1 dict path missed it.
 ## Fix
 
 `mockup.ppq = getattr(getattr(work, "meta", None), "ppq", 480)` in
-`_schema_dict_to_mockup`.
+`_schema_dict_to_mockup` — and the same line in the two other Mockup
+constructors the sweep found: `muse_grow.grow._mockup_from_work` (growth
+harness stand-in) and `muse_mockup/cli.py` (L1 mockup CLI, the
+seed-iteration loop's generator). All four Mockup constructors now carry
+the work's tick domain.
 
 ## Verification
 
-`tools/muse_audio/tests/test_audio.py::TestSchemaDictToMockup::
-test_ppq_carried_from_work` — bridge output ppq equals the work's
-`meta.ppq` (2 for bwv227.1).
+- `muse_audio/tests/test_audio.py::test_ppq_carried_from_work` — bridge
+  output ppq equals the work's `meta.ppq` (2 for bwv227.1).
+- `muse_grow/tests/test_grow.py::test_stand_in_mockup_carries_work_ppq`
+- `muse_mockup/test_mockup.py::test_cli_mockup_carries_work_ppq`
+  (CLI output round-trips through load_mockup with ppq=2)
 
 ## Lesson
 
 #246 fixed the consumer (renderer); the producers each needed the field
-set. A constructor-level sweep (`Mockup(` call sites) is the right
-follow-through whenever a new domain-carrying field lands.
+set. The constructor sweep (`Mockup(` call sites, 4 total) is now pinned
+by per-site regression tests — a new domain-carrying field gets this
+treatment by default.
