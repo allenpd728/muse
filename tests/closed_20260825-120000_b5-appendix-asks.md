@@ -1,4 +1,14 @@
-# Test spec — B5 technical appendix + decision asks (docs/boardroom/appendix.html, asks.html)
+# Test spec — B5 technical appendix + decision asks (docs/boardroom/appendix.html, asks.html) — CLOSED
+
+**Resolution (Tests: #272, verified 2026-08-26, run=20260825-2247-qogi):**
+the B5 commit (9a66072) shipped
+`tools/qa_frontend/tests/test_boardroom_appendix_asks.py` — 5 source-scan
+tests covering all spec items: the four topics with correct substance
+(P3 conformance/golden vectors, D20 "never leaves the pipeline", D7
+"No model training", D11 "ear gates quality"), decision anchors
+(D20/D7/D11), the meta-D20 no-leak test, the three asks with anchors,
+and read-only (no forms). Verified: `cd tools && python -m pytest
+qa_frontend/tests/test_boardroom_appendix_asks.py -q` → 5 passed.
 
 ## Behaviors to verify
 
