@@ -54,10 +54,11 @@ PROBE_KEYS = (
     "delta_curves",
     "determinism",
     "fidelity_guard",
+    "lineage",  # W-B9 (#253) — eighth probe per seed-workbench.md probe table
 )
 
 
-def test_all_seven_probes_present(seed_work):
+def test_all_probes_present(seed_work):
     seed, work = seed_work
     report = compute_probes(seed, work)
     for key in PROBE_KEYS:

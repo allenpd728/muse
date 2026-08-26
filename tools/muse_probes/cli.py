@@ -47,7 +47,8 @@ def main(argv=None):
     work = load_work(_resolve(work_path))
     prior = load_seed(open(_resolve(args.prior)).read(), fmt="yaml") if args.prior else None
 
-    report = compute_probes(seed, work, prior_seed=prior, era=args.era)
+    report = compute_probes(seed, work, prior_seed=prior, era=args.era,
+                            seed_path=_resolve(args.seed))
     out = report.to_json()
     if args.out:
         with open(args.out, "w") as fh:
