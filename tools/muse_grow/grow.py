@@ -12,6 +12,7 @@ swaps to it here, same contract as the probe engine's pin.
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass, field
 
@@ -40,7 +41,29 @@ def _mockup_from_work(work):
     return mockup
 
 
-MOCKUP_FN = _mockup_from_work  # real L1 generate loop swaps this when it lands
+def real_mockup(work, seed):
+    """The real L1 generate loop (L1.11 #276): generate → validate → fix
+    via the founder-chosen ManualProvider conversation path. Returns the
+    session-shape mockup converted to the Mockup dataclass."""
+    from muse_generate import generate_mockup
+    from muse_provider import default_provider
+    from muse_mockup import Mockup, Note
+    mockup, _ = generate_mockup(seed, work, default_provider(live=False))
+    m = Mockup(work_id=mockup["work_id"])
+    for part_id, notes in mockup["parts"].items():
+        for nd in notes:
+            m.notes.append(Note(
+                pitch=0, onset=nd["i"], duration=0, velocity=nd["velocity"],
+                attack_ms=nd.get("attack_sec", 0.0) * 1000,
+                release_ms=nd.get("release_sec", 0.0) * 1000,
+                onset_offset_ms=nd.get("onset_offset_ms", 0.0),
+                part=part_id))
+    m.tempo_map = [(t["tick"], int(t["bpm"] * 1000))
+                   for t in mockup.get("tempo_map", [])]
+    return m
+
+
+MOCKUP_FN = _mockup_from_work  # offline stand-in; real_mockup is the L1.11 live path
 
 
 def persist_mockup(mockup, out_path, seed_path=None):
@@ -78,7 +101,12 @@ def grow_one(work, seed, mockup_out=None, seed_path=None):
 
     t0 = time.perf_counter_ns()
     try:
-        mockup = MOCKUP_FN(work)
+        # L1.11 (#276): with a seed + the live gate, use the real generate
+        # loop (stand_in=False); otherwise the deterministic stand-in.
+        if seed is not None and os.environ.get("MUSE_L1_LIVE"):
+            mockup, live = real_mockup(work, seed), False
+        else:
+            mockup, live = MOCKUP_FN(work), True
     except Exception as e:
         return {"error": f"mockup generation failed: {e}"}, True
     expansion_ms = (time.perf_counter_ns() - t0) / 1e6
@@ -97,7 +125,7 @@ def grow_one(work, seed, mockup_out=None, seed_path=None):
         "variation_point_count": variation_points,
         "note_count": len(mockup.notes),
     }
-    return delta, True
+    return delta, live
 
 
 def _trait_delta(new_val, prior_val):
