@@ -56,12 +56,20 @@ masking; the manual rule is about *your* time, not automation's.
 ## Design notes
 
 - The workflow cannot edit `.github/` (workflow-content writes need a
-  `workflow`-scoped token); it only *re-runs existing jobs*, which the
+  `workflow`-scoped token);it only *re-runs existing jobs*, which the
   default `GITHUB_TOKEN` grants (`actions: write`, per-job).
+- **Placement:**the `workflow_run` trigger only registers from the
+  repository's **default branch** (`main` here), so a byte-identical copy
+  of `retry-flaky.yml` is **required on `main`**, not just `dev`.
+  The copy on `main` is intentionally identical to `dev` (an infra
+  exception to the branch convention — workflow wiring cannot live
+  dev-onlyand still fire). If `main` falls out of sync, re-copy it from
+  dev (one file, no logic drift)..
 - It intentionally does **not** rerun on `pull_request` events yet — PRs
-  from forks lack the Actions permission context that pushes get, and
+  from forks lack the Actions permission context that pushes get,and
   the trigger workflow's own run is what grants the permission to act.
   Extending to PRs is a follow-up once the push path is proven.
 
-- Manual reruns of runs that were auto-retried already are fine; they are
-  human-initiated and the audit trail is the Actions run history itself.
+- Manual reruns of runs that were auto-retried already are fine;they are
+  human-initiatedand the audit trail is the Actions run history itself.
+
