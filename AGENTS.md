@@ -128,8 +128,10 @@ Per-tool suites live next to their code (`tools/<tool>/test_*.py` or
 <suite-dir> -q`. Known-answer pins (corpus counts, golden vectors, W4 diff)
 must not drift silently — changing a pin requires amending the source doc
 (`corpus/README.md`, FORMAT_SPEC, or the tool's design doc) in the same
-commit. CI returns with #163; update this section as tooling lands — do not
-leave it stale.
+commit. CI = the conformance workflow (`.github/workflows/conformance.yml`,#163)
+with an auto-retry for flaky failures (`.github/workflows/retry-flaky.yml`,
+#293: one bounded re-run of failed jobs per run; docs: docs/ci-retry.md。
+Update this section as tooling lands — do not leave it stale.
 
 ## Repository layout
 
