@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -19,6 +20,8 @@ COMMANDS = {
     "muse_analyze.run": ["python3", "tools/muse_analyze/cli.py"],
     "muse_diff.run": ["python3", "tools/muse_diff/cli.py"],
     "muse_tests.fast": ["bash", "tools/run_tests.sh"],
+    "muse_generate.prompt": ["python3", "tools/muse_generate/cli.py", "prompt"],
+    "muse_generate.mockup": ["python3", "tools/muse_grow/cli.py"],
 }
 
 
@@ -56,7 +59,7 @@ class Runner:
     def available(self):
         return sorted(self.allowed) if not self.error else []
 
-    def run(self, name, args=(), timeout=120):
+    def run(self, name, args=(), timeout=120, env_prefix="", stdin_data=None):
         if self.error:
             return {
                 "ok": False,
@@ -68,11 +71,18 @@ class Runner:
             return {"ok": False, "name": name, "error": "unknown command", "rc": 405}
         if name not in self.allowed:
             return {"ok": False, "name": name, "error": "not in allow-list", "rc": 405}
-        argv = COMMANDS[name] + list(args)
+        # env_prefix is a shell-style "KEY=V ... " string the pane sends for
+        # founder-gated flags (e.g. MUSE_L1_LIVE=1); bash resolves it — the
+        # command list itself stays shell=False targets it never execs bash.
+        if env_prefix and name.startswith("muse_"):
+            argv = ["bash", "-c", env_prefix + " ".join(
+                shlex.quote(a) for a in COMMANDS[name] + list(args))]
+        else:
+            argv = COMMANDS[name] + list(args)
         try:
             proc = subprocess.run(
                 argv, cwd=REPO_ROOT, capture_output=True, text=True,
-                timeout=timeout, shell=False,
+                timeout=timeout, shell=False, input=stdin_data,
             )
             return {
                 "ok": proc.returncode == 0,

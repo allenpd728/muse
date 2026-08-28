@@ -13,6 +13,10 @@
   .prompt { display:flex; gap:.4rem; margin:1rem 0; }
   .prompt input { flex:1; background:#161b22; color:#c9d1d9; border:1px solid #30363d; padding:.4rem; font:inherit; }
   .prompt button { background:#21262d; color:#c9d1d9; border:1px solid #30363d; padding:.4rem 1rem; cursor:pointer; }
+  .generate { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin:1rem 0; padding:.6rem; border:1px solid #30363d; border-radius:8px; background:#161b22; }
+  .generate .head { color:#58a6ff; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; }
+  .generate select { background:#0d1117; color:#c9d1d9; border:1px solid #30363d; }
+  .generate button { background:#21262d; color:#c9d1d9; border:1px solid #30363d; padding:.4rem 1rem; cursor:pointer; }
   #out { background:#161b22; border:1px solid #30363d; border-radius:6px; padding:1rem; font-size:.78rem; white-space:pre; overflow:auto; max-height:60vh; }
   .ok { border-left:4px solid #238636; }
   .fail { border-left:4px solid #f85149; }
@@ -31,6 +35,15 @@
   <input id="cmd" placeholder="muse_probes.run --help" />
   <button id="run">run</button>
   <button id="help">--help</button>
+</div>
+
+<div class="generate">
+  <span class="head">mockup generate (W-B10):</span>
+  <select id="seed-path"></select>
+  <button id="gen-prompt">1. assemble prompt</button>
+  <button id="gen-run">2. generate</button>
+  <textarea id="gen-paste" placeholder="(chat transport) paste the conversation's mockup JSON here — it's piped as stdin"></textarea>
+  <span id="gen-note" class="low">ManualProvider path — prompt shows here for the chat transport, generate runs the L1 loop and persists the validated mockup.</span>
 </div>
 
 <div id="out" class="low">no command yet — click a drawer button or use the prompt</div>
@@ -52,12 +65,16 @@ const DRAWER = [
   { name:'seedValidate', cmd:'muse_seed.validate', args:['seeds/bwv227.1.seed.yaml','corpus/bwv227.1.mxl'] },
 ];
 
-async function runCmd(cmd, args=[]) {
+async function runCmd(cmd, args=[], env=[], stdin=null) {
   const out = document.getElementById('out');
   try {
+    // env: optional list of "KEY=VALUE" (founder-gated flags per command);
+    // stdin: optional text piped to the command (the chat-transport paste)
+    const envAssign = env.length ? env.join(' ') + ' ' : '';
+    const body = { name: cmd, args, env: envAssign, stdin };
     const r = await fetch(RUNNER_URL + '/api/run', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: cmd, args })
+      body: JSON.stringify(body)
     });
     const j = await r.json();
     out.className = j.ok ? 'ok' : 'fail';
@@ -81,6 +98,42 @@ document.getElementById('run').onclick = () => {
   const [name, ...args] = v.split(/\s+/);
   if (name) runCmd(name, args);
 };
+// W-B10 mockup generate flow (ManualProvider): populate the seed selector,
+// wire assemble-prompt + generate, founder-gate the live flag per command.
+async function initGenerate() {
+  const sel = document.getElementById('seed-path');
+  try {
+    const idx = await (await fetch('data/seeds/index.json')).json();
+    for (const entry of idx.seeds || []) {
+      const opt = document.createElement('option');
+      opt.value = `seeds/${entry.file}`;
+      opt.textContent = entry.file;
+      sel.appendChild(opt);
+    }
+  } catch (e) {
+    const opt = document.createElement('option');
+    opt.value = 'seeds/bwv227.1.seed.yaml';
+    opt.textContent = 'seeds/bwv227.1.seed.yaml';
+    sel.appendChild(opt);
+  }
+  document.getElementById('gen-prompt').onclick = () =>
+    runCmd('muse_generate.prompt', [sel.value, '--era', 'baroque']);
+  document.getElementById('gen-run').onclick = async () => {
+    // chat transport: paste the conversation's JSON into the paste box
+    // (below); it's piped as stdin so ManualProvider validates + persists.
+    const seedText = await (await fetch('data/seeds/' + sel.value.split('/').pop())).text();
+    const m = /source:\s*(\S+)/.exec(seedText);
+    const work = m ? m[1] : 'corpus/bach/bwv227.1.mxl';
+    const mockupOut = sel.value.replace(/seed\.yaml$/, 'mockup.json');
+    const paste = document.getElementById('gen-paste')?.value || null;
+    const env = 'MUSE_L1_LIVE=1';
+    const args = [work, '--seed', sel.value, '--mockup-out', mockupOut];
+    runCmd('muse_generate.mockup', args, [env], paste);
+    document.getElementById('gen-note').textContent =
+      'generated — refresh the workbench data (run explorer) to see it.';
+  };
+}
+initGenerate();
 document.getElementById('help').onclick = () => {
   const v = document.getElementById('cmd').value.trim();
   const [name] = v.split(/\s+/);
