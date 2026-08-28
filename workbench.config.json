@@ -9,7 +9,9 @@
     "muse_play.render",
     "muse_analyze.run",
     "muse_diff.run",
-    "muse_tests.fast"
+    "muse_tests.fast",
+    "muse_generate.prompt",
+    "muse_generate.mockup"
   ],
   "prompt_enabled": true,
   "reach": "sandbox-only",

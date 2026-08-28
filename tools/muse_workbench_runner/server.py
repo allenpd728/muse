@@ -40,13 +40,18 @@ def make_handler(runner: Runner):
                 payload = json.loads(self.rfile.read(n))
                 name = payload.get("name", "")
                 args = payload.get("args", [])
+                env = payload.get("env", "")
+                stdin_data = payload.get("stdin", None)
                 if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
                     self._json({"error": "args must be list[str]"}, 400)
+                    return
+                if not isinstance(env, str):
+                    self._json({"error": "env must be a string"}, 400)
                     return
             except (ValueError, json.JSONDecodeError):
                 self._json({"error": "bad request"}, 400)
                 return
-            result = runner.run(name, args)
+            result = runner.run(name, args, env_prefix=env, stdin_data=stdin_data)
             code = 200 if result.get("ok") else (405 if result.get("rc") == 405 else 500)
             self._json(result, code)
 
