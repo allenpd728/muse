@@ -41,6 +41,17 @@ class TestRendering:
         assert res.parts_rendered == [p.id for p in work.parts]
         assert res.events == 279
 
+    def test_form_track_renders_colored_strip(self, tmp_path):
+        """F2: strip renders one letter-bar per window, colored by A/B/C,
+        tick-aligned, with non-empty window lists."""
+        from muse_form.form import form_curve
+        from muse_viz.form_track import LETTER_COLORS, render_form_track
+        fc = form_curve(load(BACH1))
+        assert fc.windows, "curve must have windows"
+        out = tmp_path / "form.png"
+        render_form_track(fc, str(out))
+        assert_png(str(out))
+
     def test_byrd_kyrie_midi_path_renders(self, tmp_path):
         work = load(KYRIE)
         out = str(tmp_path / "byrd.png")
