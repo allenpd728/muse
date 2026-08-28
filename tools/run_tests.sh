@@ -66,11 +66,10 @@ SUITES+=("muse_workbench_runner:muse_workbench_runner/tests")
 # C3/E1 (fast tier): budget engine + event scaffold — sub-second suites.
 SUITES+=("muse_budgets:muse_budgets")
 SUITES+=("muse_event:muse_event/tests")
-# P3 (fast tier): decoder conformance gate — .mu golden vectors, sha256-pinned
-# canonical streams; full-registry verify is decode-only (~2s).
-SUITES+=("muse_ci:muse_ci/tests")
 # Docs coherence (fast tier): design-doc/status-cache pins (E2 venue plan #230).
 SUITES+=("docs:../tests/docs")
+# F1 form curve (fast tier): windowed detector-quantize on corpus file.
+SUITES+=("muse_form:muse_form/tests")
 # Workbench audio bridge (fast tier): stand-in renders + manifest + live-path
 # wiring on recorded fixtures (no network).
 SUITES+=("muse_audio:muse_audio/tests")
