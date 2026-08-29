@@ -70,17 +70,17 @@ def test_no_workflow_run_guard_remains():
 
 def test_doc_covers_manual_trigger_and_why_not_auto():
     doc = _read(DOC)
-    assert "workflow_dispatch" in doc, "doc lostthe dispatch-only trigger"
+    assert "workflow_dispatch" in doc, "doc lost the dispatch-only trigger"
     assert "gh run rerun" in doc
     assert "--failed" in doc
-    assert "24" in doc, "when-not-to-retry matrix droppedthe >24h rule"
+    assert "24" in doc, "when-not-to-retry matrix dropped the >24h rule"
     assert re.search(r"fix the code, not the rerun", doc.lower()), "retry matrix lost its guidance"
-    assert "self-trigger" in doc.lower(), "doc lostthe self-trigger-loop lesson"
+    assert "self-trigger" in doc.lower(), "doc lost the self-trigger-loop lesson"
     assert re.search(r"workflow_run", doc), "why-not section lost the topology explanation"
     assert "run_attempt == 1" not in doc
 
 
 def test_pipeline_tracks_retry_row():
     text = _read(PIPELINE)
-    assert re.search(r"\| CI flaky retry \|.*#293", text), "pipeline lostthe retry row (#293)"
+    assert re.search(r"\| CI flaky retry \|.*#293", text), "pipeline lost the retry row (#293)"
     assert "#300" in text, "pipeline retry row not updated for the redesign"
