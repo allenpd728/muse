@@ -42,8 +42,31 @@ def validate_assertions(work, assertions: dict):
             _check_form(work, val)
         elif kind == "tempo_bounds":
             _check_tempo_bounds(work, val)
+        elif kind == "form_curve_correlation":
+            _check_form_curve_correlation(work, val)
         else:
             raise AssertionError("unknown-assertion-kind", kind)
+
+
+def _check_form_curve_correlation(work, spec):
+    """Declared form-letter run appears as a contiguous subsequence of the
+    work's derived form curve (via muse_form.form_curve, A/B/C letters)..
+    Empty letters -> no-op. Raises AssertionError on mismatch."""
+    letters = spec.get("letters", [])
+    if not letters:
+        return
+    from muse_form.form import form_curve  # lazy: assertion path stays light unless used
+
+    window_beats = spec.get("window_beats")
+    kw = {} if window_beats is None else {"window_beats": window_beats}
+    fc = form_curve(work, **kw)
+    derived = " ".join(w.letter for w in fc.windows)
+    declared = " ".join(str(s) for s in letters)
+    if declared not in derived:
+        raise AssertionError(
+            "form_curve_correlation",
+            f"declared run [{declared}] not found in derived curve [{derived}]",
+        )
 
 
 def _check_must_contain(work, themes):

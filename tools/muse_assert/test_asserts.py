@@ -128,3 +128,36 @@ class TestFailLoud:
             pytest.fail("expected AssertionError")
         except AssertionError as e:
             assert e.kind == "register"
+
+
+class TestFormCurveCorrelation:
+
+    def _curve_work(self):
+        """Deterministic AAAAAAAA curve: isochronous repeated monophonic C4."""
+        notes = [Note(pitch=60, onset=i * 480, duration=480) for i in range(16)]
+        return make_work(notes)
+
+    def test_run_present_passes(self):
+        w = self._curve_work()
+        validate_assertions(w, {"form_curve_correlation": {"letters": ["A", "A"]}})
+        validate_assertions(w, {"form_curve_correlation": {"letters": ["A"] * 8}})
+
+    def test_run_absent_fails(self):
+        w = self._curve_work()
+        with pytest.raises(AssertionError, match="form_curve_correlation"):
+            validate_assertions(w, {"form_curve_correlation": {"letters": ["B", "B"]}})
+
+    def test_failure_names_derived_curve(self):
+        w = self._curve_work()
+        try:
+            validate_assertions(w, {"form_curve_correlation": {"letters": ["Z"]}})
+            pytest.fail("expected AssertionError")
+        except AssertionError as e:
+            assert e.kind == "form_curve_correlation"
+
+    def test_empty_letters_noop(self):
+        validate_assertions(self._curve_work(), {"form_curve_correlation": {"letters": []}})
+
+    def test_window_beats_override_accepted(self):
+        w = self._curve_work()
+        validate_assertions(w, {"form_curve_correlation": {"letters": ["A"], "window_beats": 1}})
