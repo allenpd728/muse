@@ -42,4 +42,24 @@ explicitly deferred (scope-trim note on #298; would be its own task).
 Live form-curve behavior across the corpus (e.g. Beethoven 5 letter-sequence eyeball) is
 human-evaluation terrain (per F1 design; not a CI pin).
 
+## Closed 2026-08-29 (#302, run=20260829-0246-439d)
+
+Confirmed green on current dev state (HEAD cb135e0, 2026-08-29):
+
+1. **Spec note**: FORMAT_SPEC 5.1 lists `form_curve_correlation`and links
+   the muse_assert README (grep-confirmed, FORMAT_SPEC.md line 259)。
+2. **README row**: kind shape `{letters: [...], window_beats?: int}` present with
+   derived-curve semantics(tools/muse_assert/README.md line 24)。
+3. **Wiring**: `TestFormCurveCorrelation` covers dispatch/fail-loud/no-op/lazy-import
+   path — 5 deterministic tests in `tools/muse_assert/test_asserts.py` (landed
+   with #298)。
+4. **Gate**: `./tools/run_tests.sh --jobs 1` -> all suites green (muse_assert 23
+   passed, docs 12 passed, muse_form 5 — matching the completing agent's
+   evidence)。
+
+The follow-up's scope was confirm-the-suite-stays-green on current dev state; the
+optional distill/compare correlation metric and live corpus form-curve eyeball remain
+deliberately deferred(per the spec's not-covered section; human-evaluation terrain)。
+ No new test code needed。
+
 _This spec was filed by an AI agent(OpenHands) on behalf of the repository owner._
