@@ -255,7 +255,13 @@ program: [
   surrounding seed (S3.5) gate the final event stream; S4's validator does
   not (and must not) evaluate them.
 
-Reference validator: `tools/muse_ops/`. Semantics are P1's decoder, not S4.
+Assertion vocabulary (S3.5) may also include
+  `form_curve_correlation`: a declared form-letter run must appear
+  recognizably as a contiguous subsequence of the work's derived form
+  curve — see [tools/muse_assert](tools/muse_assert/README.md) for the
+  kind's shape and semantics.
+
+ Reference validator: `tools/muse_ops/`. Semantics are P1's decoder, not S4.
 
 ## 6. Execution model
 

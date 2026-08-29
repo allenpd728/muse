@@ -21,6 +21,7 @@ Supported assertion kinds:
 | `register` | `{part, min, max}` | Part's pitch stays within note-name bounds (e.g. C2..C4) |
 | `form` | `{sections: [...]}` | Section markers present |
 | `tempo_bounds` | `{min_bpm, max_bpm}` | Tempo map within range |
+| `form_curve_correlation` | `{letters: [...], window_beats?: int}` | Declared form-letter run appears as a contiguous subsequence of the work's derived form curve (via `muse_form`, window quantize A/B/C) |
 
 Any violation raises `AssertionError(kind, detail)` with the failing part /
 note / theme. Unknown assertion kinds raise
