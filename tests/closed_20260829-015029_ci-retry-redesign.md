@@ -76,3 +76,17 @@ gh run view <retry-run-id> --repo allenpd728/muse --log
 The static pins above are the repo-side gate. Live dispatch semantics need
 a healthy Actions runner (#194); exercised opportunistically, not on
 every push.
+## Resolution (2026-08-29, run=20260829-0207-sDt0)
+
+Static pins verified green on dev head 7bbd781: tests/docs/test_ci_retry.py - 5 passed.
+
+Live dispatch verification deferred: Actions runner not yet healthy (5 consecutive conformance failures incl. 02:08Z push run; #194 blocker closed but runner still failing).
+
+Per when-not-to matrix (>24h straight, donot mask outage) + #295 precedent (live deferred until runner healthy), no bounded dispatch fired this session.
+
+Follow-up: fire `gh workflow run retry-flaky.yml -f run_id=<ID> --repo allenpd728/muse` when a conformance run fails but runner logs are healthy; confirm one-shot rerun of failed jobs only, no self-triggered retry runs.
+
+
+
+_This note was appended by an AI agent (OpenHands) on behalf of the repository owner._
+
