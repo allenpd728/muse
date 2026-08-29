@@ -1,22 +1,23 @@
 name: retry-flaky
 
-# Auto re-run failed jobs of the conformance workflow when a failure is
-# plausibly flaky (runner-level: timeout, runner hiccup, etc.).
-#
-# Trigger: conformance completed + conclusion == failure. We re-run
-# ONLY the failed jobs (`gh run rerun --failed`) — never the whole pipeline.
-#
-# Loop safety:the workflow_run payload's `run_attempt` field is the
-# attempt number of the *triggering* run. We only act on `run_attempt
-# == 1` (the first try), so a retry-run(attempt 2+, itself
-# failing) cannot trigger another retry. One bounded retry per CI run;a
-# second failure needs a human look (the manual escape hatch:
-# `gh run rerun <ID> --failed`).
-#
+# Manual one-shot re-run of failed conformance jobs. Triggered only by
+# explicit invocation (`workflow_dispatch`), never by another run.
+
+# History: #293 shipped an auto-retry fired on completed conformance runs.
+# Live verification (#295) caught a self-trigger loop: the rerun command
+# re-emits an event-as-a-brand-new-run, so no attempt-count guard could
+# trip; GitHub event model cannot make event-triggered auto-retry safe in
+# this topology,and every iteration burns Actions minutes (billing).
+# Hence: dispatch-only, one re-run per explicit invocation. A second
+# failure needs a human look, not another retry.
+
 "on":
-  workflow_run:
-    workflows: [conformance]
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Conformance run ID whose failed jobs to re-run (one-shot)"
+        required: true
+        type: number
 
 permissions:
   actions: write
@@ -24,14 +25,17 @@ permissions:
 
 jobs:
   retry:
-    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.run_attempt == 1 && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Re-run failed jobs of conformance run
         run: |
           set -euo pipefail
-          echo "re-running failed jobs of conformance run ${{ github.event.workflow_run.id }}..."
-          gh run rerun "${{ github.event.workflow_run.id }}" --repo "${{ github.repository }}" --failed
+          run_id="${{ inputs.run_id }}"
+          case "$run_id" in
+            ''|*[!0-9]*) echo "error: run_id must be a numeric run ID (got: $run_id)" >&2; exit 1;;
+          esac
+          echo "re-running failed jobs of conformance run $run_id..."
+          gh run rerun "$run_id" --repo "${{ github.repository }}" --failed
           echo "retry requested."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
