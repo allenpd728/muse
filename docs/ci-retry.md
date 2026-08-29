@@ -1,75 +1,89 @@
-# CI retry — auto re-run of failed jobs (#293)
+# CI retry - manual one-shot re-run of failed jobs (#293, #300)
 
 Occasionally the conformance workflow fails for transient/flaky reasons
 (network timeouts, runner provisioning hiccups, etc.) rather than a real
-regression. The suite itself is the gate: the fast tier passes locally
-(`./tools/run_tests.sh`), so a red run that cannot reproduce locally is the
+regression. The suite itself is the gate:the fast tier passes locally
+(`./tools/run_tests.sh`), so a red runthat cannot reproduce locally is the
 class of failure that deserves a retry before a human looks.
 
-## Automatic retry
 
-`.github/workflows/retry-flaky.yml` watches the conformance workflow via
-the `workflow_run` trigger and re-runs **only the failed jobs**
-(`gh run rerun <ID> --failed`) when all of these hold:
+## Manual trigger: a human decides a failure is flaky
 
-- the triggering run concluded `failure`
-- it was the run's **first attempt** (`run_attempt == 1`)
-- it was a `push` event
+```bash
+gh workflow run retry-flaky.yml -f run_id=<RUN_ID> --repo allenpd728/muse
+```
 
-The attempt guard is the loop brake: a retried run (attempt 2+, itself
-failing) cannot trigger the retry workflow again, so each CI run gets at
-most **one automatic retry** — bounded by construction, no infinite loops.
-
-
-If the retry also fails, the run is left concluded-failure for a human; what
-follows is the manual path below.
-
-
-
-## Manual trigger (when a human decides a failure is flaky)
+or, equivalently, rerun directly:
 
 ```bash
 gh run rerun <RUN_ID> --repo allenpd728/muse --failed
 ```
 
-Re-runs only the jobs that concluded `failure` in that run — never the
-whole pipeline. The command needs a token with `repo` scope (the agent
-token works). If the whole run needs a fresh start instead (e.g. the retry
-workflow itself glitched), `gh run rerun <RUN_ID>` without `--failed`, then
-the retry workflow caveats apply (its `attempt == 1` guard means it
-will not mid-flight re-re-run a retried run; that is intentional,)
+The workflow's single job validates that `run_id` is a numeric run ID,
+then re-runs **only the jobs that concluded `failure`** in that run -- never
+the whole pipeline (`gh run rerun <RUN_ID> --failed`). One invocation;
+retrying again takes another explicit invocation.
 
-## When to retry — and when not to
+
+
+## Why not automatic retry: GitHub's event model cannot make it safe
+
+The original design (#293) retried automatically: `.github/workflows/
+retry-flaky.yml` fired on `workflow_run` (conformance completed=failure,
+first attempt, push events)and called `gh run rerun --failed`. Live
+verification (#295) caught a **self-trigger loop**:our rerun command re-emits
+the `workflow_run` event as a **brand-new run** - a fresh run id, with
+the attempt counter reset to - so an attempt-count loop brake never
+trips. 7 retry runs fired in ~45 minutes, each a failure, with no halt,
+an Actions-minute burn loop (emergency-disabled on main. Any
+such an event-triggered rerun topology on the same workflow is self-re-triggering by
+GitHub's event model -- no guard can distinguish "this run is a retry"
+from "this run deserves a retry". Auto-retry is therefore structurally
+unsafe in this topology,and every loop iteration burns billing minutes. Hence
+retry-flaky.yml is **workflow_dispatch-only**:an explicit human/agent
+invocation is the only way it fires, one re-run per call.
+
+
+
+## When to retry - and when not to
 
 | Situation | Action |
 |---|---|
-| Run failed, fast tier passes locally (`./tools/run_tests.sh`,) | Retry — flaky/runner-level cause |
-| Run failed, local run also fails | Do not retry — real regression;fix the code, not the rerun |
-| Retry also failed (same job twice) | Do not retry again — escalate: post the failing log in the issue |
-| Conformance job failed for > 24 h straight | Do not retry — the runner is unlikely to recover; check repo/hosting settings |
+| Run failed, fast tier passes locally (`./tools/run_tests.sh`)| Retry - flaky/runner-level cause |
+| Run failed, local run also fails | Do not retry - real regression;fix the code, not the rerun |
+| Retry also failed (same job twice)| Do not retry again - escalate: post the failing log in the issue |
+| Conformance job failed for > 24 h straight | Do not retry - the runner is unlikely to recover; check repo/hosting settings |
 
-The 24 h rule exists because automatic retries are cheap but not free:
-they consume Actions minutes (billing) and can mask a systematic runner
-outage. The auto-retry upper bound (one per run) already prevents
-masking; the manual rule is about *your* time, not automation's.
+The 24 h rule exists because retries are cheap but not free: they consume
+Actions minutes (billing)and can mask a systematic runner outage. The
+manual dispatch model already prevents automation loops;the rule is about
+*your* time, not a loop constraint.
+
+
 
 ## Design notes
 
 - The workflow cannot edit `.github/` (workflow-content writes need a
   `workflow`-scoped token);it only *re-runs existing jobs*, which the
   default `GITHUB_TOKEN` grants (`actions: write`, per-job).
-- **Placement:**the `workflow_run` trigger only registers from the
-  repository's **default branch** (`main` here), so a byte-identical copy
-  of `retry-flaky.yml` is **required on `main`**, not just `dev`.
-  The copy on `main` is intentionally identical to `dev` (an infra
-  exception to the branch convention — workflow wiring cannot live
-  dev-onlyand still fire). If `main` falls out of sync, re-copy it from
-  dev (one file, no logic drift)..
-- It intentionally does **not** rerun on `pull_request` events yet — PRs
-  from forks lack the Actions permission context that pushes get,and
-  the trigger workflow's own run is what grants the permission to act.
-  Extending to PRs is a follow-up once the push path is proven.
+- **Placement:**`workflow_dispatch` needs no default-branch registration, but
+  a byte-identical copy of `retry-flaky.yml` is **maintained on `main`**
+  per the infra parity convention (workflow wiring is the one infra exception
+  to the dev-only convention; keep the branches in sync -- one file, no
+  logic drift).
+- The workflow targets failed jobs of the named run only -- it may be used
+  for any failing run ID (push-or-PR), as long as the invoker has
+  `actions: write` and repo-scope.
 
-- Manual reruns of runs that were auto-retried already are fine;they are
-  human-initiatedand the audit trail is the Actions run history itself.
 
+
+- **Usage from a workflow/agent:**`gh workflow run retry-flaky.yml -f
+  run_id=<ID> --repo allenpd728/muse` needs a token with `repo` scope
+  (the agent token works. The dispatch input guard only accepts
+  numeric run IDs;anything else fails before any rerun is issued.
+
+
+
+- A rerun of a run that a previous invocation already retried is fine;each
+  invocation is an explicit, auditable one-shot retry,and the Actions run
+  history itself is the audit trail.

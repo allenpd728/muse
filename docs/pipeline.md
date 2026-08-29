@@ -131,7 +131,7 @@ Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),
 |---|---|---|
 | E2E chain harness | corpus source → IR → pack → container → decode → render, determinism-checked; the compose-proof for the landed parts. | **done** ([#162](https://github.com/allenpd728/muse/issues/162), tools/muse_chain/ + docs/chain-report.md) |
 | CI conformance gate | W2/S1/S2/S5/chain gates run on every push; nothing guards merges today. | **done** ([#163](https://github.com/allenpd728/muse/issues/163), .github/workflows/) |
-| CI flaky retry | auto re-runs failed jobs of the conformance workflow once per run (attempt-guarded, bounded); manual escape hatch documented | **done** ([#293](https://github.com/allenpd728/muse/issues/293), .github/workflows/retry-flaky.yml + [docs/ci-retry.md](ci-retry.md)) |
+| CI flaky retry | manual one-shot re-run of failed conformance jobs; workflow_dispatch-only (auto retry unsafe: `workflow_run` self-triggers, burn loop observed live; see #300)| **done** ([#293](https://github.com/allenpd728/muse/issues/293), [#300](https://github.com/allenpd728/muse/issues/300), .github/workflows/retry-flaky.yml + [docs/ci-retry.md](ci-retry.md)) |
 | Frontend explorer | QA-only static site: corpus browser + patterns + piano-rolls + pack stats (+audio when P2 lands). | **done** ([#164](https://github.com/allenpd728/muse/issues/164), docs/explorer/ + tools/muse_explorer/) |
 | Integration testing scope | seam map + task breakdown; T1–T3 unblocked, T4–T5 wait on P1. | [docs/integration-testing-scope.md](integration-testing-scope.md) |
 | T1 — Seam S2↔S5 | pack → container member → unpack round-trip, W4-diffed | **done** ([#165](https://github.com/allenpd728/muse/issues/165), tools/muse_roll/tests/) |
