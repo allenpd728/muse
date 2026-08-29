@@ -39,6 +39,9 @@
   .rev-head { display:flex; gap:.6rem; align-items:baseline; margin-bottom:.2rem; }
   .rev-label { color:#f0f6fc; font-size:.85rem; }
   .rev-meta { color:#8b949e; font-size:.72rem; margin-left:auto; }
+  .wb-rev { margin-bottom:1rem; }
+  .wb-rev summary { cursor:pointer; color:#58a6ff; font-size:.85rem; padding:.3rem 0; }
+  .wb-rev[open] summary { color:#f0f6fc; }
 </style>
 </head>
 <body>
@@ -195,9 +198,16 @@ async function main() {
       'probes are deterministic from the committed seed — re-run tools/muse_explorer/generate.py after editing a seed, then reload';
   });
 
+function revisionLabel(file) {
+  const m1 = file.match(/\.v(\d+)\.seed\.yaml$/);
+  const m2 = file.match(/\.v(\d+)\.yml$/);
+  if (m1) return "v" + m1[1];
+  if (m2) return "v" + m2[1];
+  return "base";
+}
   async function renderAll(idx) {
     container.innerHTML = '';
-    for (const entry of idx.seeds) {
+    for (let i =  0; i < idx.seeds.length; i++) { const entry = idx.seeds[i]; const label = revisionLabel(entry.file); const open = (i === 0 ? " open" : "");
       const seedText = await loadText(`data/seeds/${entry.file}`);
       const seed = seedText ? parseSeedYaml(seedText) : null;
       const probes = await loadJSON(`data/seeds/${entry.probes}`);
@@ -205,9 +215,9 @@ async function main() {
       const directives = await loadJSON(`data/seeds/${entry.work_id}.directives.json`);
       const div = document.createElement('div');
       div.className = 'work';
-      div.innerHTML = `<h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
+      div.innerHTML = `<details class="wb-rev"${open}><summary>${label}</summary><h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
         <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id, audio)}</div>
-        ${rehearsalPanel(entry.work_id, directives)}`;
+        ${rehearsalPanel(entry.work_id, directives)}</details>`;
       container.appendChild(div);
     }
     if (!idx.seeds.length) {
