@@ -12,6 +12,14 @@ deliberately. A performance is an event, not a render.
 > Tooling lands per [`docs/pipeline.md`](docs/pipeline.md). Nothing here is
 > public-ready; the format spec will be published at launch, not before.
 
+## At a glance
+
+- **An executable music format**: a `.mu` file packages score + interpretive prompt + plaintext rights, so a work is portable and provably renderable — not just a static file.
+- **AI-native playback coaching**: an LLM player reads score + prompt and *performs* the work, sculpting tempo, balance, and articulation inside the authored interpretive space — a performance is an event, not a render.
+- **Reference corpus acquired**: five public-domain masterworks (Bach chorales through complete Beethoven 9) already corpus'd as the v1.0 conformance target.
+
+> Full background below, or jump to [the product model](#the-product-model).
+
 ## The product model
 
 MusicXML is the existing roll — the full score, uncompressed. Muse compresses
