@@ -19,6 +19,8 @@ deliberately. A performance is an event, not a render.
 - **Reference corpus acquired**: five public-domain masterworks (Bach chorales through complete Beethoven 9) already corpus'd as the v1.0 conformance target.
 
 > Full background below, or jump to [the product model](#the-product-model).
+>> **Built with agentic AI tooling.** The author designed the format spec and directed AI-assisted tooling development; agent-based coding workflows implemented and tested the reference components.
+
 
 ## The product model
 
