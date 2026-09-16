@@ -42,11 +42,35 @@
   .wb-rev { margin-bottom:1rem; }
   .wb-rev summary { cursor:pointer; color:#58a6ff; font-size:.85rem; padding:.3rem 0; }
   .wb-rev[open] summary { color:#f0f6fc; }
+  .rev-jump { display:flex; flex-wrap:wrap; gap:.35rem .6rem; align-items:baseline; margin:0 0 1rem; font-size:.75rem; }
+  .rev-jump .lbl { color:#8b949e; }
+  .rev-jump a { color:#58a6ff; text-decoration:none; background:#161b22; border:1px solid #30363d; border-radius:6px; padding:.12rem .5rem; }
+  .rev-jump a:hover { border-color:#58a6ff; text-decoration:none; }
+  /* Offset the scroll target so a jumped-to row is not flush to the top. */
+  .wb-rev { scroll-margin-top:1rem; }
+
+  /* site-nav - shared QA surface nav (issue #304). The markup and CSS are
+     identical on every page; test_workbench_nav pins the drift. */
+  .site-nav { display:flex; flex-wrap:wrap; gap:.35rem .9rem; align-items:baseline;
+    padding:.5rem .8rem; margin:0 0 1.25rem; background:#161b22;
+    border:1px solid #30363d; border-radius:8px; font-size:.78rem; }
+  .site-nav a { color:#58a6ff; text-decoration:none; }
+  .site-nav a:hover { text-decoration:underline; }
+  .site-nav .sn-root { color:#f0f6fc; font-weight:bold; margin-right:auto; }
 </style>
 </head>
 <body>
 <h1>Muse seed workbench</h1>
 <p class="tag">QA-only, static. Read surface for seed iterations. Editing happens in the repo.</p>
+<nav class="site-nav" aria-label="Muse QA surfaces">
+  <a class="sn-root" href="/index.html">Muse QA</a>
+  <a href="/explorer/">Corpus explorer</a>
+  <a href="/workbench/detail.html">Seed workbench</a>
+  <a href="/workbench/files.html">Files</a>
+  <a href="/workbench/terminal.html">Terminal</a>
+  <a href="/boardroom/">Boardroom</a>
+</nav>
+<div id="jump" class="rev-jump" aria-label="Jump to seed revision"></div>
 <div id="works"></div>
 <script>
 async function loadJSON(p) { const r = await fetch(p); return r.ok ? r.json() : null; }
@@ -205,9 +229,18 @@ function revisionLabel(file) {
   if (m2) return "v" + m2[1];
   return "base";
 }
+// id-safe slug: dots are legal in an id but unaddressable by a plain CSS
+// selector, so every non-alphanumeric run collapses to a dash.
+function slug(s) { return String(s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
   async function renderAll(idx) {
     container.innerHTML = '';
+    const jumps = [];
     for (let i =  0; i < idx.seeds.length; i++) { const entry = idx.seeds[i]; const label = revisionLabel(entry.file); const open = (i === 0 ? " open" : "");
+      // Per-revision anchor id (issue #304); the jump links target these.
+      // Sanitized: a work_id carries a dot (bwv227.1), and a dot in an id
+      // cannot be reached by a plain CSS selector without escaping.
+      const anchorId = `rev-${slug(entry.work_id)}-${label}`;
+      jumps.push({ id: anchorId, label: `${entry.work_id} ${label}` });
       const seedText = await loadText(`data/seeds/${entry.file}`);
       const seed = seedText ? parseSeedYaml(seedText) : null;
       const probes = await loadJSON(`data/seeds/${entry.probes}`);
@@ -215,14 +248,29 @@ function revisionLabel(file) {
       const directives = await loadJSON(`data/seeds/${entry.work_id}.directives.json`);
       const div = document.createElement('div');
       div.className = 'work';
-      div.innerHTML = `<details class="wb-rev"${open}><summary>${label}</summary><h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
+      div.innerHTML = `<details class="wb-rev" id="${anchorId}"${open}><summary>${label}</summary><h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
         <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id, audio)}</div>
         ${rehearsalPanel(entry.work_id, directives)}</details>`;
       container.appendChild(div);
     }
+    renderJumps(jumps);
     if (!idx.seeds.length) {
       container.innerHTML += '<p>No seeds committed yet. The loop: edit → validate → mockup → probe (docs/seed-iteration.md).</p>';
     }
+  }
+  // Jump links open the target revision before scrolling to it, so a click
+  // on a collapsed row lands on its panels rather than a one-line summary.
+  function renderJumps(jumps) {
+    const el = document.getElementById('jump');
+    if (!jumps.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<span class="lbl">jump to revision:</span>' +
+      jumps.map(j => `<a href="#${j.id}" data-rev="${j.id}">${j.label}</a>`).join('');
+    el.querySelectorAll('a[data-rev]').forEach(a => {
+      a.addEventListener('click', () => {
+        const target = document.getElementById(a.dataset.rev);
+        if (target && !target.open) target.open = true;
+      });
+    });
   }
   await renderAll(seedIndex);
 }

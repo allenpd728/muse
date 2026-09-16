@@ -24,7 +24,7 @@ individually for deep links. As routes:
 - `/` → corpus tree
 - `/explorer/` → old explorer page (read-only)
 - `/workbench/detail/<file-id>` → workbench panels for one file
-- `/workbench/terminal/` → the terminal mode (drawer+prompt+chat panes)
+- `/workbench/terminal.html` → the terminal mode (drawer+prompt+chat panes)
 
 ### File explorer + text viewer (new, ~2KB)
 
