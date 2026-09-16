@@ -2,7 +2,7 @@
 
 **Found by:** run=20260916-1525-8d06 (TASK_WORKFLOW §1c in-flight defect log)
 at 2026-09-16 ~16:02Z, while working #304 (workbench site navigation).
-**Issue:** [#309](https://github.com/allenpd728/muse/issues/309) `status:available`.
+**Issue:** [#309](https://github.com/allenpd728/muse/issues/309) `status:done`.
 
 ## Symptom
 
@@ -65,3 +65,22 @@ the fix should add the equivalent pin.
   are the existing pins for the sibling pages.
 
 _This bug report was created by an AI agent (OpenHands) on behalf of the repository owner._
+
+## Closed 2026-09-16 (#309, run=20260916-1525-8d06)
+
+Fixed by constraining the flex/grid items so children can shrink:
+
+- `detail.html`: `.panel > * { min-width: 0 }`, `.work { min-width: 0 }`,
+  `.card { min-width: 0 }`, `pre { max-width: 100% }` — the `<pre>` seed/probe
+  dumps now scroll inside their card instead of setting the page width.
+- `terminal.html`: `.prompt { flex-wrap: wrap }` plus
+  `input { flex: 1 1 12rem; min-width: 0 }` — the `--help` button no longer
+  overruns by 5px.
+
+Verified across all six surfaces at 375px and 1280px: overflow is 0
+everywhere. Pins added in `qa_frontend/tests/test_workbench_dod.py`
+(3 parametrized width checks + a readability check), mirroring the
+sibling-page pins on `/index.html` and `/explorer/`.
+
+Confirmed non-vacuous: reverting the CSS fails two of the new tests.
+`qa_frontend` 145 passed / 5 skipped; fast tier all 35 suites green.

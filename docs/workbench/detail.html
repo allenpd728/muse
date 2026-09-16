@@ -12,9 +12,14 @@
   .work { margin-bottom:3rem; }
   .panel { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; }
   @media (max-width: 900px) { .panel { grid-template-columns: 1fr; } }
-  .card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1rem; }
+  /* Grid/flex items default to min-width:auto, so a wide child (the <pre>
+     seed/probe dumps) sets the column width and the page overflows at
+     narrow viewports instead of the <pre> scrolling (issue #309). */
+  .panel > * { min-width: 0; }
+  .work { min-width: 0; }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1rem; min-width:0; }
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
-  pre { overflow-x:auto; font-size:.75rem; line-height:1.35; color:#a5d6ff; }
+  pre { overflow-x:auto; max-width:100%; font-size:.75rem; line-height:1.35; color:#a5d6ff; }
   .probe { display:flex; justify-content:space-between; padding:.25rem 0; font-size:.8rem; border-bottom:1px dashed #21262d; }
   .probe:last-child { border-bottom:none; }
   .pass { color:#3fb950; }

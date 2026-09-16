@@ -191,6 +191,6 @@ The surfaces were reachable only by hand-editing the URL. Added:
 Also corrected: six pages linked the removed trailing-slash route
 `workbench/terminal/` (a 404); the real route is `terminal.html`.
 
-Still open (filed #309): the workbench pages overflow horizontally at
-375px. Pre-existing and unrelated to the nav (the nav wraps and adds 0px);
-logged in `bugs/open_20260916-160200_workbench-mobile-overflow.md`.
+Fixed in #309: the workbench pages overflowed horizontally at 375px. Pre-existing
+and unrelated to the nav (the nav wraps and adds 0px);
+logged in `bugs/closed_20260916-160200_workbench-mobile-overflow.md`.
