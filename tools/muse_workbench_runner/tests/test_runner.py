@@ -1,6 +1,7 @@
 """W-B5 runner tests: allow-list enforcement, fail-closed config, exec."""
 
 import json
+import os
 import sys
 import urllib.request
 import urllib.error
@@ -185,9 +186,20 @@ class TestSameOriginStaticServing:
         finally:
             srv.shutdown()
 
-    def test_json_content_type_on_api(self, docs_server):
-        with urllib.request.urlopen(docs_server + "/api/commands") as r:
-            assert r.headers["Content-Type"] == "application/json"
+    def test_no_cors_header_by_default(self, docs_server):
+        """Security posture, pinned. With no --allow-origin the runner sends
+        no CORS header, so a page on another origin cannot read responses.
+        This server executes commands; any-origin access would let a visited
+        website drive the local runner."""
+        req = urllib.request.Request(docs_server + "/api/commands")
+        with urllib.request.urlopen(req) as r:
+            acao = r.headers.get("Access-Control-Allow-Origin")
+            vary = r.headers.get("Vary")
+        assert acao is None, (
+            f"runner sent Access-Control-Allow-Origin: {acao!r} by default — "
+            f"must require an explicit --allow-origin"
+        )
+        assert vary == "Origin", "Vary: Origin must always be present"
 
     # --- content types (issue #312) ---
     # A wrong type on .json breaks fetch().json() in the workbench pages, so
@@ -254,6 +266,167 @@ class TestSameOriginStaticServing:
             results = [f.result() for f in [pool.submit(call), pool.submit(call)]]
         assert all(results), f"one of the concurrent calls did not complete: {results}"
         assert results[0] == results[1], "concurrent calls diverged"
+
+
+class TestOriginScopedCORS:
+    """Issue #316: an explicit, origin-scoped opt-in for cross-origin use.
+
+    Options (a) drop the overrides and (b) origin-scoped CORS were offered;
+    (b) was chosen so the documented feature actually works, without ever
+    emitting a wildcard from a command-executing server.
+    """
+
+    @pytest.fixture
+    def cors_server(self, tmp_path):
+        """A server allowing exactly one origin."""
+        srv, url = serve(0, cfg(tmp_path), ROOT / "docs",
+                         ["http://allowed.example"])
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        yield url
+        srv.shutdown()
+
+    def _get(self, url, origin=None):
+        req = urllib.request.Request(url)
+        if origin:
+            req.add_header("Origin", origin)
+        with urllib.request.urlopen(req) as r:
+            return r.status, dict(r.headers)
+
+    def test_allowed_origin_echoed_exactly(self, cors_server):
+        status, headers = self._get(cors_server + "/api/commands",
+                                    "http://allowed.example")
+        assert status == 200
+        assert headers.get("Access-Control-Allow-Origin") == "http://allowed.example"
+        assert headers.get("Vary") == "Origin"
+
+    def test_disallowed_origin_gets_no_cors_header(self, cors_server):
+        """A different origin must not be granted access — and must not be
+        told the endpoint exists beyond an ordinary response."""
+        _, headers = self._get(cors_server + "/api/commands", "http://evil.example")
+        assert headers.get("Access-Control-Allow-Origin") is None
+        assert headers.get("Vary") == "Origin"
+
+    def test_never_emits_a_wildcard(self, cors_server):
+        for origin in ("http://allowed.example", "http://evil.example", None):
+            _, headers = self._get(cors_server + "/api/commands", origin)
+            assert headers.get("Access-Control-Allow-Origin") != "*", (
+                "wildcard CORS must never be emitted by a command-executing server"
+            )
+
+    def test_preflight_allowed_origin(self, cors_server):
+        req = urllib.request.Request(cors_server + "/api/run", method="OPTIONS")
+        req.add_header("Origin", "http://allowed.example")
+        req.add_header("Access-Control-Request-Method", "POST")
+        with urllib.request.urlopen(req) as r:
+            assert r.status == 204
+            assert r.headers.get("Access-Control-Allow-Origin") == "http://allowed.example"
+            assert "POST" in (r.headers.get("Access-Control-Allow-Methods") or "")
+
+    def test_preflight_disallowed_origin_refused(self, cors_server):
+        req = urllib.request.Request(cors_server + "/api/run", method="OPTIONS")
+        req.add_header("Origin", "http://evil.example")
+        with pytest.raises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(req)
+        assert e.value.code == 403, f"expected 403, got {e.value.code}"
+
+    def test_origin_matching_is_exact(self, cors_server):
+        """No prefix/suffix or subdomain matching: a lookalike origin must not
+        be accepted (e.g. allowed.example.evil.com)."""
+        for lookalike in ("http://allowed.example.evil.com",
+                          "http://allowed.exampl",
+                          "http://allowed.example:1234"):
+            _, headers = self._get(cors_server + "/api/commands", lookalike)
+            assert headers.get("Access-Control-Allow-Origin") is None, lookalike
+
+    def test_trailing_slash_normalised(self, cors_server):
+        """An Origin header never carries a trailing slash, but a user typing
+        the flag might; normalise rather than silently never matching."""
+        _, headers = self._get(cors_server + "/api/commands", "http://allowed.example")
+        assert headers.get("Access-Control-Allow-Origin") == "http://allowed.example"
+
+    def test_wildcard_flag_rejected_by_cli(self):
+        """`--allow-origin '*'` must be refused outright, not honoured."""
+        import subprocess
+
+        proc = subprocess.run(
+            [sys.executable, os.path.join(ROOT, "tools", "muse_workbench_runner",
+                                          "server.py"),
+             "--allow-origin", "*"],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert proc.returncode != 0, "wildcard origin was accepted"
+        assert "wildcard" in (proc.stderr + proc.stdout).lower()
+
+    def test_documented_script_invocation_starts(self):
+        """The invocation the README documents must actually run.
+
+        Found by this test suite: `python3 tools/muse_workbench_runner/
+        server.py` died with a relative-import error, so #305's README and its
+        done comment both described a command that could never work. Neither
+        the module tests nor the qa_frontend tests exercised the CLI path."""
+        import socket
+        import subprocess
+        import time
+
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+
+        proc = subprocess.Popen(
+            [sys.executable, os.path.join(ROOT, "tools", "muse_workbench_runner",
+                                          "server.py"),
+             "--docs", "--port", str(port)],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            cwd=str(ROOT),
+        )
+        try:
+            deadline = time.time() + 15
+            body = None
+            while time.time() < deadline:
+                if proc.poll() is not None:
+                    break  # died: fall through to the assertion below
+                try:
+                    with urllib.request.urlopen(
+                        f"http://127.0.0.1:{port}/api/commands", timeout=1
+                    ) as r:
+                        body = json.loads(r.read())
+                        break
+                except Exception:
+                    time.sleep(0.2)
+            if proc.poll() is not None:
+                out = proc.stdout.read() if proc.stdout else ""
+                raise AssertionError(
+                    "the documented script invocation exited immediately:\n" + out
+                )
+            assert body and "commands" in body, "CLI server did not answer /api/commands"
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:  # pragma: no cover
+                proc.kill()
+
+    def test_cross_origin_run_actually_works(self, cors_server, tmp_path):
+        """The point of the change: the cross-origin request is not just
+        attempted, it is answered."""
+        body = json.dumps({"name": "muse_probes.run", "args": ["--help"]}).encode()
+        req = urllib.request.Request(
+            cors_server + "/api/run", data=body,
+            headers={"Content-Type": "application/json",
+                     "Origin": "http://allowed.example"},
+            method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                payload = json.loads(r.read())
+                assert r.headers.get("Access-Control-Allow-Origin") == "http://allowed.example"
+        except urllib.error.HTTPError as e:
+            payload = json.loads(e.read())
+        assert payload.get("argv"), f"cross-origin run did not execute: {payload}"
+
+    def test_json_content_type_on_api(self, cors_server):
+        with urllib.request.urlopen(cors_server + "/api/commands") as r:
+            assert r.headers["Content-Type"] == "application/json"
 
 
 class TestRunnerTimeout:

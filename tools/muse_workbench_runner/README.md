@@ -55,14 +55,28 @@ Overrides, if the runner must live elsewhere (all optional, no file edit):
 
 Precedence: `?runner=` > `window.MUSE_RUNNER_URL` > meta > same-origin.
 
-**Cross-origin caveat (read this before relying on an override).** The
-overrides re-point the page correctly, but the browser will refuse the
-response: this server sends no CORS header. That is deliberate — it executes
-allow-listed commands, so a permissive `Access-Control-Allow-Origin` would
-let any website the user visits POST to their local runner and run commands
-on their machine. **Run the page from the runner's own origin** (`--docs`,
-above); that path works and is what the tests exercise. Making cross-origin
-work needs an explicit origin-scoped opt-in — see the follow-up issue.
+### Cross-origin (issue #316)
+
+An override pointing at a **different origin** needs that origin allowed on
+the runner, or the browser refuses the response:
+
+```bash
+python3 tools/muse_workbench_runner/server.py --docs --port 9145 \
+    --allow-origin https://work-1.example.dev
+```
+
+`--allow-origin` is repeatable, matched **exactly** (no wildcard, no
+subdomain or prefix matching), and **off by default**. When set, the server
+warns at startup. This is deliberately not the default: the runner executes
+allow-listed commands, so any origin granted access can drive them from a
+page the user merely visits -- binding to `127.0.0.1` does not prevent that,
+because the browser is the confused deputy. Responses always carry
+`Vary: Origin`; preflight (`OPTIONS`) is answered only for an allowed origin
+and refused with 403 otherwise.
+
+For most use the simplest path is **no override at all**: run the page from
+the runner's own origin (`--docs` above), which needs no CORS and is what the
+tests exercise by default.
 
 The server still binds `127.0.0.1` only; exposing it beyond the machine is a
 deliberate, separate step. Static serving carries a path-traversal guard,

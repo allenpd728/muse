@@ -1,14 +1,29 @@
-# Netlify — QA/preview only, never production.
+# Netlify -- QA/preview only, never production.
 # Publishes docs/ (spike listener + corpus explorer) as static pages.
-# No build step. The site (muse-qa-58fd708e) builds the dev branch per
-# repo convention. Explorer: /explorer/ · Spike listener: /spike/
+# No build step. Explorer: /explorer/ . Spike listener: /spike/
 #
-# [DEFERRED 2026-08-24] The founder has paused the Netlify QA site for now;
-# resume later. Tier 3 live smoke (QA_LIVE=1) and the workflow's Netlify
-# build gate are intentionally on hold — Tier 1 (static contract) and
-# Tier 2 (headless DOM on 127.0.0.1:0) remain the live frontend QA path.
-# This file is kept so re-enabling is one comment out, and so agents do
-# not accidentally re-trigger the deploy while looking at frontend QA.
+# [STOPPED 2026-09-16] Builds are disabled at the Netlify API level
+# (site muse-qa-58fd708e, build_settings.stop_builds = true).
+#
+# Why: the [DEFERRED 2026-08-24] note below said the site was "paused", but
+# it was not -- it was still wired to auto-deploy the *dev* branch, so every
+# push to dev started a build and burned build credits. Measured on the
+# deploy list: each of the 2026-09-16 pushes (c3849fa, 694e7ea, c78cfb9,
+# a11c4e2, 45c10f2, 79eecd1, 6c2f902, 996b499, 07b9527, 55ef31b) produced a
+# deploy, running with context=production. The stale "paused" claim is what
+# let that go unnoticed -- a doc asserting a state the system was not in.
+#
+# Consequence: pushes to dev no longer trigger deploys. Nothing else changes;
+# Tier 1 (static contract) and Tier 2 (headless DOM on 127.0.0.1:0) remain the
+# live frontend QA path and do not need Netlify at all.
+#
+# To re-enable deliberately:
+#   curl -X PATCH -H "Authorization: Bearer $NETLIFY_PAT" \
+#     -H "Content-Type: application/json" \
+#     -d '{"build_settings":{"stop_builds":false}}' \
+#     https://api.netlify.com/api/v1/sites/84c6f54c-1f65-40bb-99dc-4e4f73730ff3
+# Consider switching the deploy branch to a dedicated QA branch first, so
+# ordinary dev pushes do not each cost a build.
 
 [build]
   base = "docs"

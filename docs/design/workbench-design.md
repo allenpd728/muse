@@ -139,6 +139,14 @@ silent.
   404'd or 501'd. Binding stays `127.0.0.1`; exposing it is a separate,
   deliberate step. Static serving carries a path-traversal guard and never
   shadows `/api/*`.
+- **Cross-origin opt-in (landed #316, 2026-09-16).** A runner override that
+  points at a different origin needs `--allow-origin <exact-origin>`
+  (repeatable) on the runner, or the browser refuses the response. No
+  wildcard is ever emitted, matching is exact, and the default is no CORS at
+  all: this server executes allow-listed commands, so any origin granted
+  access can drive them from a page the user merely visits. Responses carry
+  `Vary: Origin`; preflight is answered only for an allowed origin (403
+  otherwise). Same-origin use — the `--docs` path above — needs none of it.
 
 ## Module split (proposal for W-B3 refactor)
 
