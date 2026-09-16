@@ -42,13 +42,19 @@ def _goto(server, session):
 def test_seeded_work_renders_heading_and_passing_tag(server, session):
     """Each committed seed revision gets a work group headed by its work_id,
     with a 'passing' tag driven by the probe artifact's ok flag. The
-    bwv227.1 lineage chain (base/v1/v2) renders one group per revision."""
+    bwv227.1 lineage chain (base/v1/v2) renders one group per revision.
+
+    Asserts on text_content(), not inner_text(): since #303 each revision is
+    a details.wb-rev row and only the first is open, and Playwright's
+    inner_text() reads *rendered* text — so collapsed rows would report ''.
+    The tag is present in the DOM for every row regardless of open state
+    (issue #306)."""
     page = _goto(server, session)
     headings = page.locator(".work h2", has_text="bwv227.1")
     assert headings.count() >= 1, "seeded work bwv227.1 missing from the index"
     for i in range(headings.count()):
         tag = headings.nth(i).locator(".tag")
-        assert tag.inner_text() == "passing"
+        assert tag.text_content().strip() == "passing"
         assert "ok" in (tag.get_attribute("class") or "")
 
 
