@@ -16,6 +16,14 @@
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
   nav p { line-height:1.8; }
+  /* Tables must not set the page width at narrow viewports: wrap them in a
+     scroll container rather than letting them push the body wider (the
+     pattern docs/index.html already uses for .pipeline). Issue #314. */
+  .table-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
+  .card { min-width: 0; }
+  /* Long unbreakable tokens (URLs, identifiers, em-dash-joined phrases) must
+     wrap rather than widen the page at narrow viewports. Issue #314. */
+  li, p, td, th, .note, h1, h2, h3 { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -41,6 +49,7 @@
 
 <section class="card">
   <h3>The tool table</h3>
+  <div class="table-scroll">
   <table id="tools">
     <tr><th>Tool</th><th>What it is</th><th>Why it can't occupy the axis</th></tr>
     <tr><td>Ableton Live 12</td><td>DAW; Max for Live generative devices</td><td>Real-time performance surface, no score semantics, no rights manifest</td></tr>
@@ -52,6 +61,7 @@
     <tr><td>Suno Studio</td><td>Browser DAW with generation (ex-WavTool)</td><td>Prompt → finished track; the score never exists as an object</td></tr>
     <tr><td>Research line — Basis Mixer, VirtuosoNet, S2A, Midi-LLM</td><td>Academic expressive-performance models</td><td>Papers and checkpoints, not a format; nothing a rights holder can license</td></tr>
   </table>
+</div>
 </section>
 
 <section class="card">

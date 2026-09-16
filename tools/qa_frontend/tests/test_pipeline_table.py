@@ -88,7 +88,12 @@ def test_pipeline_table_clean_console(server, page):
 def test_pipeline_table_no_mobile_overflow(server, page):
     """/index.html must fit 375px — the table wraps (io cells) and the
     section scrolls internally rather than overflowing the page (the
-    nowrap regression shipped with #241, caught by hand)."""
+    nowrap regression shipped with #241, caught by hand).
+
+    The general form of this check now lives in
+    test_mobile_widths.py::test_surface_fits_every_width, which sweeps every
+    surface across six widths (including 375px). This stays as the specific
+    named regression for #241, with its own narrower viewport setup."""
     _, ps = page  # reuse the module session — nesting sync_playwright is illegal
     p = ps.new_page()
     p.set_viewport_size({"width": 375, "height": 812})

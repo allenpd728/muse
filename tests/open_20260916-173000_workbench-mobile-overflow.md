@@ -61,3 +61,46 @@ is 0 everywhere (index, explorer, detail, files, terminal, boardroom).
 Bug log `bugs/open_20260916-160200_workbench-mobile-overflow.md` renamed
 `closed_`. `qa_frontend` 145 passed / 5 skipped (was 141/5); fast tier all 35
 suites green; `muse_docs` doc-prose lint 0 findings.
+## Follow-up coverage landed 2026-09-16 (#314, run=20260916-1525-8d06)
+
+### The sweep found three more overflowing pages
+The issue asked for a width sweep and the remaining surfaces. Doing it found
+breakage no existing pin covered — including one at 375px, the very width the
+sibling pins used:
+
+| Page | 320px | 375px | cause |
+|---|---|---|---|
+| /boardroom/competitive.html | 99px | 44px | width-constrained **and** an unbreakable token |
+| /boardroom/status.html | 32px | 0 | table with no scroll container |
+| /spike/index.html | 10px | 0 | verdict button row did not wrap |
+
+Fixes were CSS-only: `.table-scroll` wrappers (the pattern
+`docs/index.html` already used for `.pipeline`), `overflow-wrap: anywhere`
+on text containers, and `flex-wrap` on the spike button row. The 19px
+residual on competitive.html survived every table-specific fix — it was a
+single unbreakable token in a list item.
+
+### Consolidated (the fragmentation that let #309 happen)
+`tools/qa_frontend/overflow.py` now owns `PAGES`, `WIDTHS`, `measure()`
+and `assert_no_overflow()`. Adding a surface is one line, and
+`test_pages_registry_covers_every_served_page` fails when the site grows a
+page that is not listed — so a new surface cannot ship unpinned again. The
+three original per-page assertions remain as named regressions with pointers
+to the general form.
+
+`WIDTHS` is a six-point sweep (320/375/768/900/1024/1280). The workbench
+`.panel` breakpoint is 900px, so 376-899 was previously unswept and 320px
+was unasserted.
+
+### Self-diagnosing failures
+The helper names the offending element (tag, id, class, geometry), skipping
+anything clipped by a scroll container. That guard is not cosmetic: my own
+first diagnosis of competitive.html was misled by a table reported as an
+offender when it was safely clipped by `.table-scroll` — the same false lead
+the helper now prevents, pinned by `test_clipped_elements_are_not_blamed`.
+
+### Still open (deliberately)
+- **Zoom / text scaling** — a distinct failure mode from viewport width;
+  unchecked (recorded, not silently skipped).
+
+Suite: qa_frontend 176 passed / 5 skipped (was 157/5).

@@ -15,7 +15,9 @@
   .card h2 { font-size: 1.05rem; margin: 0 0 0.25rem; font-weight: normal; }
   .card .meta { color: var(--dim); font-size: 0.85rem; margin-bottom: 0.75rem; }
   audio { width: 100%; height: 40px; }
-  .ab { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  /* Wrap at narrow widths: the two verdict buttons sit side by side and the
+     second overran the viewport at 320px (issue #314). */
+  .ab { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
   button { background: transparent; color: var(--accent); border: 1px solid var(--accent);
            border-radius: 6px; padding: 0.35rem 0.9rem; font: inherit; cursor: pointer; }
   button:hover { background: var(--accent); color: var(--bg); }

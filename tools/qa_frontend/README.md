@@ -39,3 +39,23 @@ is a one-time environment cost; CI caches it). Live count:
 - shared site nav mounts on every surface, markup identical, every route
   resolves 200, and the detail-page revision jump links open their target
   (`test_workbench_nav.py`, slow tier — #304)
+- every same-origin link resolves, on disk and over HTTP, plus deep-link
+  behavior and boardroom content-page links (`test_site_links.py` — #310)
+- every `path#fragment` link finds its anchor on the target page, resolved
+  against **rendered** pages so JS-built anchors are covered
+  (`test_anchor_fragments.py` — #313)
+- every served page fits a six-width sweep (320/375/768/900/1024/1280) with
+  the offending element named on failure (`test_mobile_widths.py` — #314)
+
+## Mobile overflow: the shared helper
+
+`tools/qa_frontend/overflow.py` holds `PAGES`, `WIDTHS`, `measure()` and
+`assert_no_overflow()`. Three near-identical per-page assertions used to
+exist; that fragmentation is why #309 (workbench pages overflowing) shipped —
+the pages with pins were clean and nobody added a third.
+
+Adding a surface is now one line in `PAGES`; a registry test fails if the
+site grows a page that is not listed. The helper reports *which element*
+overflows (skipping elements clipped by a scroll container, which cannot
+widen the page), because diagnosing #309 and #314 meant enumerating offenders
+by hand.

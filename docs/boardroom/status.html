@@ -16,6 +16,14 @@
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
   nav p { line-height:1.8; }
+  /* Tables must not set the page width at narrow viewports: wrap them in a
+     scroll container rather than letting them push the body wider (the
+     pattern docs/index.html already uses for .pipeline). Issue #314. */
+  .table-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
+  .card { min-width: 0; }
+  /* Long unbreakable tokens (URLs, identifiers, em-dash-joined phrases) must
+     wrap rather than widen the page at narrow viewports. Issue #314. */
+  li, p, td, th, .note, h1, h2, h3 { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -38,6 +46,7 @@
 
 <section class="card">
   <h3>Phases</h3>
+  <div class="table-scroll">
   <table id="phases">
     <tr><th>Phase</th><th>Gate</th><th>Status</th></tr>
     <tr><td>0 — Analysis workbench</td><td>analyzer ran across all five works</td><td>done</td></tr>
@@ -47,6 +56,7 @@
     <tr><td>4 — Mockup harness + renderer</td><td>one corpus work passes the founder's ear</td><td>in progress — the frontier</td></tr>
     <tr><td>5 — The event</td><td>deferred until Phase 4 produces a concert-worthy work</td><td>deferred</td></tr>
   </table>
+</div>
 </section>
 
 <section class="card">
