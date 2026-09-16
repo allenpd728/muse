@@ -49,3 +49,47 @@ One of:
 committed — it never landed (silently gitignored at the time, the #213
 bug; only `conformance.yml` is tracked). When Tier 3 resumes, the
 workflow file itself still needs committing.
+
+
+## Update 2026-09-16 (run=20260916-1525-8d06): the premise was wrong
+
+**The pause was never in effect.** This blocker reasons from the
+`netlify.toml` note claiming the founder "paused the Netlify QA site". That
+note was written, but the site was not actually paused: `muse-qa-58fd708e`
+was still wired to auto-deploy the **dev** branch, and every push to dev
+started a build at `context=production`. Confirmed against the deploy list —
+each of `c3849fa`, `694e7ea`, `c78cfb9`, `a11c4e2`, `45c10f2`, `79eecd1`,
+`6c2f902`, `996b499`, `07b9527`, `55ef31b` produced a deploy.
+
+So for three weeks the repo carried a note saying "do not re-trigger the
+deploy" while the deploy was triggering on every push. A doc asserting a
+state the system was not in — the same failure mode as the #306 misdiagnosis
+(a hypothesis recorded as if it were a finding) and the `**done**` status
+claims the T7 lint now checks.
+
+**The pause is now real and enforced at the API level** (2026-09-16):
+`build_settings.stop_builds = true` on site
+`84c6f54c-1f65-40bb-99dc-4e4f73730ff3`, verified by a push to dev producing
+no new deploy. `netlify.toml` now states the actual configuration and the
+one-line re-enable command.
+
+## Effect on this blocker
+
+It stays **open**, and its question is now sharper rather than answered:
+
+- The founder's stated intent (2026-09-16: stop the builds, they were wasting
+  credits) resolves the *contradiction* in favour of the pause. #224 remains
+  correctly suspended, so no live-deploy tests should be written yet.
+- Whether to **retire** #224 or keep it **suspended** is still the human's
+  call — but it is now a clean choice, because the "resume the deploy" option
+  is explicitly off the table for cost reasons.
+- The **third option (narrow #224)** is unchanged and remains the cheapest
+  path: land the live-smoke workflow file dormant (workflow_dispatch only, no
+  schedule, no push trigger) so resuming is one edit and costs nothing while
+  disabled. That also closes the side note below — the workflow file still
+  needs committing.
+
+Recommendation: take the narrow option now (it is inert and makes the spec's
+work resume-able in one edit), and leave retire-vs-suspend for whenever the
+deploy question is revisited. Not taken unilaterally here because it is
+#224's own deliverable, not this blocker's, and #224 is `blocked-needs-input`.
