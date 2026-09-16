@@ -25,6 +25,9 @@
   .site-nav a { color:#58a6ff; text-decoration:none; }
   .site-nav a:hover { text-decoration:underline; }
   .site-nav .sn-root { color:#f0f6fc; font-weight:bold; margin-right:auto; }
+  /* Long unbreakable tokens (URLs, identifiers, em-dash-joined phrases) must
+     wrap rather than widen the page at narrow viewports. Issue #314. */
+  li, p, td, th, .note, h1, h2, h3 { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>

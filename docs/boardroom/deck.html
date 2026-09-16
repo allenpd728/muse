@@ -22,6 +22,9 @@
   #nav-hint { position:fixed; bottom:1rem; right:1.2rem; color:#8b949e; font-size:.72rem; }
   #counter { position:fixed; bottom:1rem; left:1.2rem; color:#8b949e; font-size:.72rem; }
   header.plain { padding:1rem 2rem 0; }
+  /* Long unbreakable tokens (URLs, identifiers, em-dash-joined phrases) must
+     wrap rather than widen the page at narrow viewports. Issue #314. */
+  li, p, td, th, .note, h1, h2, h3 { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
