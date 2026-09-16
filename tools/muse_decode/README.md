@@ -20,4 +20,4 @@ Work. No intelligence; the decoder is dumb (locked).
 
 ## Tests
 
-Test spec: [tests/open_20260824-020000_p1-decoder.md](../../tests/open_20260824-020000_p1-decoder.md).
+Test spec: [tests/closed_20260824-020000_p1-decoder.md](../../tests/closed_20260824-020000_p1-decoder.md).

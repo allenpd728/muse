@@ -30,7 +30,7 @@ Composes the S3 sub-task modules:
 ## Tests
 
 Test spec:
-[tests/open_20260823-220000_c1-seed-validator.md](../../tests/open_20260823-220000_c1-seed-validator.md).
+[tests/closed_20260823-220000_c1-seed-validator.md](../../tests/closed_20260823-220000_c1-seed-validator.md).
 
 ## What comes next
 

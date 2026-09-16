@@ -54,4 +54,4 @@ python3 -m pytest tools/muse_analyze/                    # full (32, ~30s)
 Corpus pins and B9 budget are marked `@slow`; CI runs full, local dev gates fast.
 
 Test spec:
-[tests/open_20260823-204500_w3-pattern-analyzer.md](../../tests/open_20260823-204500_w3-pattern-analyzer.md).
+[tests/closed_20260823-204500_w3-pattern-analyzer.md](../../tests/closed_20260823-204500_w3-pattern-analyzer.md).

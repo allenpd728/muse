@@ -82,7 +82,7 @@ entire format-first review, made concrete in the next section.
 
 > **`tempo_arch` compiles to tempo bounds, not the philosophy field.** The
 > tempo *shape* vocabulary ("arch", "terraced") lives in
-> `tempo_philosophy`, which is a philosophy field Ñ and philosophy edits
+> `tempo_philosophy`, which is a philosophy field â€” and philosophy edits
 > are authoring, not rehearsal (see the rejected list). A rehearsal
 > directive can only move the *parametric* knob: how wide the tempo may
 > swing. If a conductor wants to *change the philosophy itself*, that's a

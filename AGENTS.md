@@ -67,6 +67,24 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 - **Docs coherence sweep:** at session start, check that README, AGENTS,
   FORMAT_SPEC, pipeline, and corpus README agree. A stale doc is a process
   failure on par with a stale claim.
+- **Doc-prose checklist (authoring a design/proposal doc).** Mechanical
+  drift is caught by `tools/muse_docs` (fast-tier suite); the prose layer is
+  your own verification step before commit:
+  1. Run `python3 tools/muse_docs/cli.py lint` — it must be clean (it flags
+     broken relative links, unresolvable backticked paths, `open_*` refs
+     whose record closed, unfilled `[TODO]`s, and non-UTF-8 files).
+  2. Re-read every **command and output** you quoted and re-run it. A
+     pasted result that no longer reproduces is a hollow claim.
+  3. Re-check every **status word** (`done`, `filed`, `locked`, `passing`)
+     against the issue queue and `git log origin/dev` — the queue is the
+     system of record, the doc is a cache.
+  4. Flag anything you could not verify into
+     `docs/audit/<date>-doc-prose.md` and file a `documentation` issue
+     (the same verify-and-file pattern as the A1 audit). Findings are a
+     triaged, non-blocking queue — weekly, not per-commit.
+  5. Do not "fix" a stale path in a `closed_*`/`open_*` record or
+     `docs/audit/*`: those describe the world as it was. Add the doc to
+     [docs/superseded.txt](docs/superseded.txt) if historical by design.
 - **Spec edits:** changelog discipline — v0.x may break, v1+ additive only.
 
 ## Session lessons (2026-08-23, run=20260823-1945-c7d3)
@@ -178,6 +196,7 @@ tools/muse_chain/     # E2E chain harness (parse → pack → container → deco
 tools/muse_explorer/  # corpus explorer (QA static surface)
 tools/muse_workbench_runner/  # workbench data regeneration (probes/growth artifacts)
 tools/qa_frontend/    # T2 headless DOM QA (Playwright)
+tools/muse_docs/      # T7 doc-prose lint (offline mechanical doc checks)
 tools/run_tests.sh    # unified test runner (fast/--full/--list)
 tools/spike/          # renderer/audio spike scripts (pre-workflow)
 SCHEMA_SPEC.md        # SUPERSEDED (JSON-schema v0) — design history only

@@ -40,4 +40,4 @@ Robust to either IR layout (superseded `tools/muse_ir` and current
 
 15 tests: self-diff=1.0, deletion → recall, insertion → precision, drift
 classified within tolerance. Test spec:
-[tests/open_20260823-191500_w4-diff-tool.md](../../tests/open_20260823-191500_w4-diff-tool.md).
+[tests/closed_20260823-191500_w4-diff-tool.md](../../tests/closed_20260823-191500_w4-diff-tool.md).

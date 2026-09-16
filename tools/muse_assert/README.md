@@ -33,4 +33,4 @@ note / theme. Unknown assertion kinds raise
 
 ## Tests
 
-Test spec: [tests/open_20260823-213000_s3-assertions.md](../../tests/open_20260823-213000_s3-assertions.md).
+Test spec: [tests/closed_20260823-213000_s3-assertions.md](../../tests/closed_20260823-213000_s3-assertions.md).

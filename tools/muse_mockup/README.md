@@ -45,4 +45,4 @@ whether the dump should grow to schema-shape.
 
 ## Tests
 
-Test spec: [tests/open_20260823-235000_l1-mockup.md](../../tests/open_20260823-235000_l1-mockup.md).
+Test spec: [tests/closed_20260823-235000_l1-mockup.md](../../tests/closed_20260823-235000_l1-mockup.md).
