@@ -235,6 +235,7 @@ function slug(s) { return String(s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-
   async function renderAll(idx) {
     container.innerHTML = '';
     const jumps = [];
+    const seenWork = new Set();
     for (let i =  0; i < idx.seeds.length; i++) { const entry = idx.seeds[i]; const label = revisionLabel(entry.file); const open = (i === 0 ? " open" : "");
       // Per-revision anchor id (issue #304); the jump links target these.
       // Sanitized: a work_id carries a dot (bwv227.1), and a dot in an id
@@ -248,6 +249,13 @@ function slug(s) { return String(s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-
       const directives = await loadJSON(`data/seeds/${entry.work_id}.directives.json`);
       const div = document.createElement('div');
       div.className = 'work';
+      // Work-level anchor for the corpus tree's `#<file-id>` deep links
+      // (docs/index.html). One per work: the first rendered revision wraps
+      // the group, later revisions of the same work must not repeat the id.
+      if (!seenWork.has(entry.work_id)) {
+        seenWork.add(entry.work_id);
+        div.id = `work-${slug(entry.work_id)}`;
+      }
       div.innerHTML = `<details class="wb-rev" id="${anchorId}"${open}><summary>${label}</summary><h2>${entry.work_id} <span class="tag ok">${probes && probes.ok ? 'passing' : 'no probes'}</span></h2>
         <div class="panel">${seedPanel(seed)}${probePanel(probes, entry.work_id)}${growthPanel(entry.work_id, growth)}${audioPanel(entry.work_id, audio)}</div>
         ${rehearsalPanel(entry.work_id, directives)}</details>`;
@@ -271,7 +279,22 @@ function slug(s) { return String(s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-
         if (target && !target.open) target.open = true;
       });
     });
+    // A deep link (#rev-...) must land on its revision too. The rows are
+    // rendered asynchronously, so the browser's own anchor scroll fires
+    // before the target exists — and a collapsed <details> cannot be
+    // scrolled to. Open + scroll once the rows are in the DOM.
+    applyHashTarget();
   }
+
+  function applyHashTarget() {
+    const id = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'DETAILS' && !el.open) el.open = true;
+    el.scrollIntoView({ block: 'start' });
+  }
+  window.addEventListener('hashchange', applyHashTarget);
   await renderAll(seedIndex);
 }
 main().catch(e => { document.getElementById('works').innerHTML = `<p class="fail">load error: ${e}</p>`; });
