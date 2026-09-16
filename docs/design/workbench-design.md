@@ -130,6 +130,15 @@ silent.
   `127.0.0.1` behind the static page; it executes only the allow-list via
   `subprocess`; no shell=True; CWD is the repo root.
 - The page never proxies to a remote endpoint.
+- **One origin (landed #305, 2026-09-16).** The server takes `--docs` and
+  then serves the static `docs/` tree *and* `/api` from the same origin, and
+  the page resolves its runner URL origin-relatively (with `?runner=`,
+  a `muse-runner-url` meta tag, or `window.MUSE_RUNNER_URL` as overrides).
+  The old hardcoded `http://127.0.0.1:9145` resolved to the *visitor's*
+  machine when the site was proxied — nothing there listened, so every call
+  404'd or 501'd. Binding stays `127.0.0.1`; exposing it is a separate,
+  deliberate step. Static serving carries a path-traversal guard and never
+  shadows `/api/*`.
 
 ## Module split (proposal for W-B3 refactor)
 

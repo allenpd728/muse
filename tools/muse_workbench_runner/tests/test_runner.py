@@ -129,3 +129,62 @@ def test_all_commands_map_to_repo_tools():
         assert argv[0] in ("python3", "bash")
         tool = argv[1]
         assert (ROOT / tool).exists(), f"{name}: {tool} missing"
+
+
+class TestSameOriginStaticServing:
+    """Issue #305: the server can serve docs/ and /api from one origin."""
+
+    @pytest.fixture
+    def docs_server(self):
+        srv, url = serve(0, None, ROOT / "docs")
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        yield url
+        srv.shutdown()
+
+    def test_static_page_served(self, docs_server):
+        with urllib.request.urlopen(docs_server + "/workbench/terminal.html") as r:
+            assert r.status == 200
+            assert b"<html" in r.read().lower()
+
+    def test_api_and_static_share_the_origin(self, docs_server):
+        for path in ("/api/commands", "/workbench/terminal.html", "/index.html"):
+            with urllib.request.urlopen(docs_server + path) as r:
+                assert r.status == 200, path
+
+    def test_directory_path_serves_index(self, docs_server):
+        with urllib.request.urlopen(docs_server + "/explorer/") as r:
+            assert r.status == 200
+            assert b"html" in r.read().lower()
+
+    def test_api_paths_are_not_shadowed_by_static(self, docs_server):
+        """ /api/<unknown> must 404 as JSON machinery, never fall through to
+        the static tree."""
+        with pytest.raises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(docs_server + "/api/secret")
+        assert e.value.code == 404
+
+    def test_path_traversal_blocked(self, docs_server):
+        """Must not escape docs/ (AGENTS.md lives one level up)."""
+        for probe in ("/../AGENTS.md", "/../../etc/passwd", "/..%2fAGENTS.md"):
+            with pytest.raises(urllib.error.HTTPError) as e:
+                urllib.request.urlopen(docs_server + probe)
+            assert e.value.code == 404, probe
+
+    def test_static_serving_off_by_default(self, tmp_path):
+        """Without docs_dir the server is API-only — the previous behavior."""
+        srv, url = serve(0, None, None)
+        t = threading.Thread(target=srv.serve_forever, daemon=True)
+        t.start()
+        try:
+            with pytest.raises(urllib.error.HTTPError) as e:
+                urllib.request.urlopen(url + "/workbench/terminal.html")
+            assert e.value.code == 404
+            with urllib.request.urlopen(url + "/api/commands") as r:
+                assert r.status == 200
+        finally:
+            srv.shutdown()
+
+    def test_json_content_type_on_api(self, docs_server):
+        with urllib.request.urlopen(docs_server + "/api/commands") as r:
+            assert r.headers["Content-Type"] == "application/json"
