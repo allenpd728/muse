@@ -20,11 +20,12 @@ the browser).
 ## Tests
 
 ```bash
-cd tools/qa_frontend && python3 -m pytest   # 10 tests, ~7s
+cd tools/qa_frontend && python3 -m pytest   # full DOM suite, ~65s
 ```
 
 Registered in `tools/run_tests.sh` as a slow-tier suite (Chromium download
-is a one-time environment cost; CI caches it).
+is a one-time environment cost; CI caches it). Live count:
+`./tools/run_tests.sh --list`.
 
 ## Coverage
 
@@ -35,3 +36,6 @@ is a one-time environment cost; CI caches it).
 - fetch failure → visible error fallback (route-aborted JSON)
 - zero console errors on load
 - data endpoint serves valid JSON
+- shared site nav mounts on every surface, markup identical, every route
+  resolves 200, and the detail-page revision jump links open their target
+  (`test_workbench_nav.py`, slow tier — #304)

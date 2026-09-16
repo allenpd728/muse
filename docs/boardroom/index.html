@@ -16,16 +16,33 @@
   .card h3 { margin-top:0; font-size:.85rem; color:#58a6ff; text-transform:uppercase; letter-spacing:.05em; }
   .note { color:#8b949e; font-size:.78rem; }
   nav p { line-height:1.8; }
+
+  /* site-nav - shared QA surface nav (issue #304). The markup and CSS are
+     identical on every page; test_workbench_nav pins the drift. */
+  .site-nav { display:flex; flex-wrap:wrap; gap:.35rem .9rem; align-items:baseline;
+    padding:.5rem .8rem; margin:0 0 1.25rem; background:#161b22;
+    border:1px solid #30363d; border-radius:8px; font-size:.78rem; }
+  .site-nav a { color:#58a6ff; text-decoration:none; }
+  .site-nav a:hover { text-decoration:underline; }
+  .site-nav .sn-root { color:#f0f6fc; font-weight:bold; margin-right:auto; }
 </style>
 </head>
 <body>
+<nav class="site-nav" aria-label="Muse QA surfaces">
+  <a class="sn-root" href="/index.html">Muse QA</a>
+  <a href="/explorer/">Corpus explorer</a>
+  <a href="/workbench/detail.html">Seed workbench</a>
+  <a href="/workbench/files.html">Files</a>
+  <a href="/workbench/terminal.html">Terminal</a>
+  <a href="/boardroom/">Boardroom</a>
+</nav>
 <header><h1>Muse boardroom <span class="tag">boardroom</span></h1>
 <p class="note">Presentation package for the board/CEO — vision and current status, read-only. Read-only surface; sources are the repo docs and the issue queue.</p></header>
 <nav><p>
   <a href="../index.html">/ corpus tree</a> ·
   <a href="../explorer/">/explorer/</a> ·
   <a href="../workbench/detail.html">/workbench/</a> ·
-  <a href="../workbench/terminal/">/workbench/terminal/</a> ·
+  <a href="../workbench/terminal.html">/workbench/terminal.html</a> ·
   <strong>/boardroom/</strong>
 </p></nav>
 <div class="card"><h3><a href="deck.html">deck.html</a></h3><p class="note">The deck — thesis, event framing, live demo, roadmap, asks (~15 slides)</p></div>

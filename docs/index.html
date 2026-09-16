@@ -36,15 +36,32 @@
   .surfaces a:hover { border-color:#58a6ff; }
   .surfaces .name { color:#58a6ff; font-size:.95rem; }
   .surfaces .what { color:#8b949e; font-size:.72rem; margin-top:.3rem; line-height:1.4; }
+
+  /* site-nav - shared QA surface nav (issue #304). The markup and CSS are
+     identical on every page; test_workbench_nav pins the drift. */
+  .site-nav { display:flex; flex-wrap:wrap; gap:.35rem .9rem; align-items:baseline;
+    padding:.5rem .8rem; margin:0 0 1.25rem; background:#161b22;
+    border:1px solid #30363d; border-radius:8px; font-size:.78rem; }
+  .site-nav a { color:#58a6ff; text-decoration:none; }
+  .site-nav a:hover { text-decoration:underline; }
+  .site-nav .sn-root { color:#f0f6fc; font-weight:bold; margin-right:auto; }
 </style>
 </head>
 <body>
 <header><h1>Muse <span class="tag">QA static</span><span class="logo">/` — the five surfaces</span></h1></header>
+<nav class="site-nav" aria-label="Muse QA surfaces">
+  <a class="sn-root" href="/index.html">Muse QA</a>
+  <a href="/explorer/">Corpus explorer</a>
+  <a href="/workbench/detail.html">Seed workbench</a>
+  <a href="/workbench/files.html">Files</a>
+  <a href="/workbench/terminal.html">Terminal</a>
+  <a href="/boardroom/">Boardroom</a>
+</nav>
 <nav class="surfaces">
   <a href="explorer/"><span class="name">Corpus explorer</span><div class="what">the five reference works, parsed and inspectable</div></a>
   <a href="workbench/detail.html"><span class="name">Seed workbench</span><div class="what">seed iterations: params, probes, growth, per-revision audio</div></a>
   <a href="workbench/files.html"><span class="name">Files</span><div class="what">readonly source viewer</div></a>
-  <a href="workbench/terminal/"><span class="name">Terminal</span><div class="what">command surface (W-B8)</div></a>
+  <a href="workbench/terminal.html"><span class="name">Terminal</span><div class="what">command surface (W-B8)</div></a>
   <a href="boardroom/"><span class="name">Boardroom</span><div class="what">the presentation package: deck, status, competitive, appendix, asks</div></a>
 </nav>
 

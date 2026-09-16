@@ -158,3 +158,30 @@ Tests develop per #229 (blocked by this doc's labels).
 - Command runner + prompt present; allow-list enforced by
   `workbench.config.json`; page fails closed without config.
 - Zero console errors; run_tests fast tier still green.
+
+## Navigation (landed #304, 2026-09-16)
+
+The surfaces were reachable only by hand-editing the URL. Added:
+
+- **Shared site nav** (`nav.site-nav`) on all six QA surfaces: root,
+  explorer, workbench detail/files/terminal, boardroom. Markup is
+  byte-identical on every page and hrefs are root-relative (`/explorer/`,
+  `/workbench/detail.html`, and so on), so one string works at any depth.
+  There is no include mechanism and no build step, so
+  `tools/qa_frontend/tests/test_workbench_nav.py` hashes the nav block and
+  fails on drift. The nav must never carry an absolute URL or IP literal:
+  that is the #305 bug class (a hardcoded `127.0.0.1:9145`).
+- **Per-revision jump links** on `detail.html` (`#jump`): one link per
+  committed revision, each targeting a stable anchor on its
+  `details.wb-rev` block. Clicking a link opens a collapsed revision
+  before scrolling, so the reader lands on the panels rather than a
+  one-line summary. Anchor ids are slugged, because a work_id carries a
+  dot (`bwv227.1`) and a dot in an id cannot be reached by a plain CSS
+  selector without escaping.
+
+Also corrected: six pages linked the removed trailing-slash route
+`workbench/terminal/` (a 404); the real route is `terminal.html`.
+
+Still open (filed #309): the workbench pages overflow horizontally at
+375px. Pre-existing and unrelated to the nav (the nav wraps and adds 0px);
+logged in `bugs/open_20260916-160200_workbench-mobile-overflow.md`.

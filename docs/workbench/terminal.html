@@ -23,9 +23,26 @@
   .low { color:#8b949e; }
   #chatframe { border:1px solid #30363d; border-radius:6px; padding:.6rem; margin-top:1rem; font-size:.75rem; }
   #chatframe .head { color:#8b949e; }
+
+  /* site-nav - shared QA surface nav (issue #304). The markup and CSS are
+     identical on every page; test_workbench_nav pins the drift. */
+  .site-nav { display:flex; flex-wrap:wrap; gap:.35rem .9rem; align-items:baseline;
+    padding:.5rem .8rem; margin:0 0 1.25rem; background:#161b22;
+    border:1px solid #30363d; border-radius:8px; font-size:.78rem; }
+  .site-nav a { color:#58a6ff; text-decoration:none; }
+  .site-nav a:hover { text-decoration:underline; }
+  .site-nav .sn-root { color:#f0f6fc; font-weight:bold; margin-right:auto; }
 </style>
 </head>
 <body>
+<nav class="site-nav" aria-label="Muse QA surfaces">
+  <a class="sn-root" href="/index.html">Muse QA</a>
+  <a href="/explorer/">Corpus explorer</a>
+  <a href="/workbench/detail.html">Seed workbench</a>
+  <a href="/workbench/files.html">Files</a>
+  <a href="/workbench/terminal.html">Terminal</a>
+  <a href="/boardroom/">Boardroom</a>
+</nav>
 <h1>Muse — terminal mode <span class="low">(W-B8)</span></h1>
 <p class="low">The interactive surface over the W-B5 runner. Drawer buttons and the prompt both POST against the local runner; chat is a hint toward the chat API.</p>
 
