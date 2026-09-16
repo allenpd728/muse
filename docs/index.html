@@ -145,6 +145,10 @@ const WORKS = [
 ];
 
 async function loadJSON(p) { const r = await fetch(p); return r.ok ? r.json() : null; }
+// Anchor ids on workbench/detail.html are slugged (a dot in an id is
+// unreachable by a plain CSS selector); keep this in step with the page's
+// own slug() so the corpus-tree deep links land (issue #310).
+function slug(s) { return String(s).replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function classify(files, fid) { return files.includes(fid) ? 'seeded' : 'unseeded'; }
 function paint(work, seededIds) {
   const ul = document.createElement('ul');
@@ -152,7 +156,10 @@ function paint(work, seededIds) {
   for (const fid of work.files) {
     const li = document.createElement('li');
     const state = classify(seededIds, fid);
-    li.innerHTML = `<a href="workbench/detail.html#${fid}">${fid}<span class="fid">${work.title}</span><span class="seed-pill ${state}">${state}</span></a>`;
+    const anchor = seededIds.includes(fid)
+      ? `workbench/detail.html#work-${slug(fid)}`
+      : 'workbench/files.html';
+    li.innerHTML = `<a href="${anchor}">${fid}<span class="fid">${work.title}</span><span class="seed-pill ${state}">${state}</span></a>`;
     ul.appendChild(li);
   }
   return ul;

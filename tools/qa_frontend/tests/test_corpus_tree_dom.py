@@ -49,9 +49,46 @@ def test_seed_pill_states(site):
 
 
 def test_links_to_detail_route(site):
+    """Every file row links into the site: seeded files to their work anchor
+    on the workbench detail page, unseeded ones to the file viewer.
+
+    Pinned to *resolving* targets as of #310 — the old form was
+    `workbench/detail.html#<fid>` (e.g. `#bwv227.1`), which matched no
+    element on the page: 12 of the 13 rows were dead links.
+    """
     sess, pg = page(f"{site.url}/index.html")
     hrefs = pg.evaluate("""
       [...document.querySelectorAll('ul.files li a')].map(a => a.getAttribute('href'))
     """)
     sess.close()
-    assert all(h.startswith('workbench/detail.html#') for h in hrefs)
+    assert all(h.startswith('workbench/') for h in hrefs), hrefs
+    for h in hrefs:
+        if h.startswith('workbench/detail.html#'):
+            anchor = h.split('#', 1)[1]
+            # slugged work anchor — no dots, so a CSS selector can reach it
+            assert '.' not in anchor, f"unslugged anchor id: {anchor}"
+            assert anchor.startswith('work-'), anchor
+
+
+def test_every_row_anchor_exists_on_the_detail_page(site):
+    """The deep-link contract, executed: each seeded row's anchor must exist
+    on the rendered detail page (fetched live, JS included)."""
+    sess = PageSession()
+    pg = sess.new_page()
+    pg.goto(f"{site.url}/index.html")
+    hrefs = pg.evaluate("""
+      [...document.querySelectorAll('ul.files li a')].map(a => a.getAttribute('href'))
+    """)
+    sess.close()
+
+    anchors = {h.split('#', 1)[1] for h in hrefs if '#' in h}
+    assert anchors, "no deep links in the corpus tree"
+
+    sess = PageSession()
+    pg = sess.new_page()
+    pg.goto(f"{site.url}/workbench/detail.html", wait_until="networkidle")
+    present = set(pg.evaluate("[...document.querySelectorAll('[id]')].map(e => e.id)"))
+    sess.close()
+
+    missing = sorted(a for a in anchors if a not in present)
+    assert not missing, f"corpus-tree links point at missing anchors: {missing}"
