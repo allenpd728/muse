@@ -18,8 +18,9 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from muse_docs.lint import (  # noqa: E402
-    is_historical, lint_backtick_path, lint_link, lint_repo, lint_stale_open_ref,
-    repo_root, summarize, superseded_paths,
+    FINDING_BUDGET, check_budget, extract_link_targets, is_historical,
+    lint_backtick_path, lint_link, lint_repo, lint_stale_open_ref, repo_root,
+    summarize, superseded_paths,
 )
 
 REPO = repo_root()
@@ -198,6 +199,88 @@ def test_own_tool_docs_are_exempt(tmp_path):
         "tools/muse_docs/lint.py": "",
     })
     assert lint_repo(root) == []
+
+
+# --- link forms (issue #311) ---
+#
+# A naive `\[..\]\(([^)\s]+)\)` cannot match a titled or reference-style
+# link, so those forms were silently *skipped* — a broken link in that shape
+# linted clean. Each form now has a broken-target test proving it is checked.
+
+@pytest.mark.parametrize("body", [
+    '[x](nope.md)\n',                      # inline
+    '[x](nope.md "A Title")\n',            # inline + double-quoted title
+    "[x](nope.md 'A Title')\n",            # inline + single-quoted title
+    '[x](<nope.md>)\n',                    # angle-bracketed destination
+    '[x][r]\n\n[r]: nope.md\n',            # reference-style, definition present
+])
+def test_every_link_form_catches_a_broken_target(tmp_path, body):
+    root = make_repo(tmp_path, {"docs/d.md": body})
+    refs = [f["ref"] for f in lint_repo(root) if f["kind"] == "broken-link"]
+    assert any("nope.md" in r for r in refs), f"form not checked: {body!r} -> {refs}"
+
+
+def test_titled_link_with_real_target_is_clean(tmp_path):
+    """The stronger parser must not introduce false positives."""
+    root = make_repo(tmp_path, {
+        "docs/d.md": '[x](real.md "A Title")\n[y](<real.md>)\n[z][r]\n\n[r]: real.md\n',
+        "docs/real.md": "hi\n",
+    })
+    assert lint_repo(root) == []
+
+
+def test_reference_use_with_missing_definition_flagged(tmp_path):
+    """A `[text][label]` with no `[label]: dest` is a broken link that would
+    otherwise vanish with no trace."""
+    root = make_repo(tmp_path, {"docs/d.md": "[x][nosuch]\n"})
+    findings = lint_repo(root)
+    assert any(f["kind"] == "broken-link" and "nosuch" in f["ref"] for f in findings)
+
+
+def test_extract_link_targets_shapes():
+    dests, unresolved = extract_link_targets(
+        '[a](x.md)\n[b](y.md "T")\n[c](<z.md>)\n[d][r]\n\n[r]: w.md\n'
+    )
+    assert {"x.md", "y.md", "z.md", "w.md"} <= set(dests)
+    assert unresolved == []
+
+
+# --- encoding / symlink / case behavior (issue #311) ---
+
+def test_symlinked_target_resolves(tmp_path):
+    """os.path.exists follows symlinks, so a link through one is valid."""
+    root = make_repo(tmp_path, {"docs/real.md": "hi\n", "docs/use.md": "[x](link.md)\n"})
+    os.symlink("real.md", os.path.join(root, "docs", "link.md"))
+    assert lint_repo(root) == []
+
+
+def test_case_mismatch_is_flagged(tmp_path):
+    """Resolution is case-sensitive on the repo's filesystem; a wrong-case
+    link would 404 on a case-sensitive host, so it must be flagged."""
+    root = make_repo(tmp_path, {
+        "docs/real.md": "hi\n",
+        "docs/use.md": "[x](REAL.md)\n",
+    })
+    assert any("REAL.md" in f["ref"] for f in lint_repo(root))
+
+
+# --- finding budget (issue #311) ---
+
+def test_budget_passes_at_the_limit():
+    assert check_budget([{"kind": "x"}] * FINDING_BUDGET) is None
+
+
+def test_budget_fires_above_the_limit():
+    err = check_budget([{"kind": "x"}] * (FINDING_BUDGET + 1))
+    assert err and "budget" in err
+    assert str(FINDING_BUDGET) in err, "the message must name the budget"
+
+
+def test_repo_corpus_is_far_below_budget():
+    """The real tree must sit well under the ceiling — if it ever approaches
+    it, that is the signal the budget exists to give."""
+    findings = lint_repo(REPO)
+    assert len(findings) < FINDING_BUDGET
 
 
 # --- repo gate ---

@@ -57,7 +57,24 @@ HISTORICAL_MENTION_RE = re.compile(
     re.IGNORECASE,
 )
 
-MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+# Inline links may carry a title — `[x](dest "Title")`, `[x](<dest> 'T')` — and
+# the destination may be angle-bracketed. A naive `\[..\]\(([^)\s]+)\)` cannot
+# match either form, so a link written that way was silently *skipped* rather
+# than checked (found while closing #311: a broken titled link linted clean).
+MD_INLINE_LINK_RE = re.compile(
+    r"""\[[^\]]*\]\(\s*
+        (?P<dest><[^>]*>|[^)\s]+)      # destination, optionally <bracketed>
+        (?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?   # optional title
+        \s*\)""",
+    re.VERBOSE,
+)
+# Reference-style: a `[label]: dest` definition, used by `[text][label]`.
+MD_REF_DEF_RE = re.compile(
+    r"""^[ \t]{0,3}\[(?P<label>[^\]]+)\]:\s*
+        (?P<dest><[^>]*>|\S+)""",
+    re.VERBOSE | re.MULTILINE,
+)
+MD_REF_USE_RE = re.compile(r"\[[^\]]*\]\[(?P<label>[^\]]*)\]")
 BACKTICK_RE = re.compile(r"`([^`\n]+)`")
 OPEN_REF_RE = re.compile(r"((?:tests|bugs|blockers)/open_[0-9A-Za-z_-]+\.md)")
 
@@ -245,6 +262,49 @@ def lint_unfilled(relpath, text):
     return out
 
 
+def _strip_angle(dest):
+    """`<a b.md>` -> `a b.md` (a link destination may be angle-bracketed)."""
+    dest = dest.strip()
+    if dest.startswith("<") and dest.endswith(">"):
+        return dest[1:-1].strip()
+    return dest
+
+
+def extract_link_targets(text):
+    """Every relative link destination in a markdown document.
+
+    Covers the three forms the repo or a contributor might use, so no link
+    is silently exempt from checking:
+
+      * inline           `[x](dest)`
+      * inline + title   `[x](dest "Title")`
+      * reference-style  `[x][label]` resolved via `[label]: dest`
+
+    Returns (destinations, unresolved_ref_labels): the labels matter because
+    a reference *use* pointing at a missing *definition* is itself a broken
+    link (and would otherwise vanish with no trace).
+    """
+    dests = []
+
+    defs = {}
+    for m in MD_REF_DEF_RE.finditer(text):
+        defs[m.group("label").strip().lower()] = _strip_angle(m.group("dest"))
+        dests.append(_strip_angle(m.group("dest")))
+
+    unresolved = []
+    for m in MD_REF_USE_RE.finditer(text):
+        label = (m.group("label") or "").strip().lower()
+        if label and label not in defs:
+            unresolved.append(label)
+        elif not label and "implicit" not in defs:
+            unresolved.append("(implicit)")
+
+    for m in MD_INLINE_LINK_RE.finditer(text):
+        dests.append(_strip_angle(m.group("dest")))
+
+    return dests, unresolved
+
+
 def lint_file(relpath, root, superseded):
     """All findings for one markdown file.
 
@@ -270,10 +330,18 @@ def lint_file(relpath, root, superseded):
         seen.add(key)
         findings.append(finding)
 
-    for m in MD_LINK_RE.finditer(text):
-        f = lint_link(relpath, m.group(1), root)
+    dests, unresolved = extract_link_targets(text)
+    for dest in dests:
+        f = lint_link(relpath, dest, root)
         if f:
             add(f)
+    for label in unresolved:
+        add({
+            "kind": "broken-link",
+            "file": relpath,
+            "ref": f"[{label}]",
+            "detail": "reference-style link with no `[label]: dest` definition",
+        })
     for m in BACKTICK_RE.finditer(text):
         if _in_historical_context(text, m.start()):
             continue
@@ -317,6 +385,25 @@ def summarize(findings):
     for f in findings:
         counts[f["kind"]] = counts.get(f["kind"], 0) + 1
     return dict(sorted(counts.items()))
+
+
+# A ceiling on findings. If a regex or rule change starts flagging hundreds of
+# things, that is a bug in the linter, not hundreds of bugs in the docs — and
+# the failure mode is a flooded queue nobody triages (issue #311). Raise this
+# deliberately, with the offending change, never to make a red run go green.
+FINDING_BUDGET = 25
+
+
+def check_budget(findings, budget=FINDING_BUDGET):
+    """Return an error string when the finding count looks pathological."""
+    if len(findings) > budget:
+        return (
+            "doc-prose lint produced %d findings (budget %d) — this usually "
+            "means a rule change is mis-firing rather than %d real defects. "
+            "Inspect with `--json`, fix the rule or raise FINDING_BUDGET "
+            "deliberately." % (len(findings), budget, len(findings))
+        )
+    return None
 
 
 def format_findings(findings):
