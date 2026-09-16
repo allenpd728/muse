@@ -132,3 +132,47 @@ def test_terminal_page_mounts(server, session):
     page = session.new_page()
     page.goto(server.url + "/workbench/terminal.html", wait_until="networkidle")
     assert "terminal" in page.inner_text("body").lower()
+
+
+# --- Mobile width (issue #309) ---
+#
+# Every workbench page must fit a 375px viewport. The detail page overflowed
+# by 197px and the terminal page by 5px: grid/flex items default to
+# min-width:auto, so the wide <pre> seed/probe dumps set the column width
+# instead of scrolling inside it, and the terminal's prompt row did not wrap.
+#
+# These mirror the sibling-page pins that already existed
+# (test_pipeline_table.py::test_pipeline_table_no_mobile_overflow for
+# /index.html, test_explorer_viewport_a11y.py::test_mobile_no_horizontal_overflow
+# for /explorer/) — which is why those two pages were clean and these were not.
+
+@pytest.mark.parametrize("route", ["/workbench/detail.html",
+                                   "/workbench/terminal.html",
+                                   "/workbench/files.html"])
+def test_workbench_pages_fit_mobile_width(server, session, route):
+    """No horizontal overflow at 375px — the #309 regression pin."""
+    page = session.new_page()
+    page.set_viewport_size({"width": 375, "height": 812})
+    page.goto(server.url + route, wait_until="networkidle")
+    page.wait_for_timeout(300)
+    overflow = page.evaluate(
+        "document.documentElement.scrollWidth - document.documentElement.clientWidth"
+    )
+    page.close()
+    assert overflow <= 0, f"{route} overflows at 375px by {overflow}px"
+
+
+def test_detail_panels_remain_readable_at_mobile(server, session):
+    """Fixing overflow must not collapse the content: the probe panel still
+    renders real content at 375px (the <pre> blocks scroll inside their card
+    rather than setting the page width)."""
+    page = session.new_page()
+    page.set_viewport_size({"width": 375, "height": 812})
+    page.goto(server.url + "/workbench/detail.html", wait_until="networkidle")
+    page.wait_for_timeout(300)
+    card = page.locator(".card", has_text="Probes").first
+    assert card.count() == 1
+    box = card.bounding_box()
+    assert box["width"] <= 375, f"card wider than the viewport: {box['width']}"
+    assert "determinism" in card.inner_text().lower()
+    page.close()
