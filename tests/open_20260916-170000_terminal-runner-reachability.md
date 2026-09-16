@@ -78,3 +78,47 @@ traversal probes.
 Landed with 17 new/extended tests. `qa_frontend` 128 passed / 5 skipped
 (was 118/5); `muse_workbench_runner` 21 passed (was 14); fast tier all 35
 suites green.
+## Follow-up coverage landed 2026-09-16 (#312, run=20260916-1525-8d06)
+
+The deferred gaps were implemented. Two findings beyond test coverage.
+
+### Changed: static responses now stream
+The handler read each file whole. The spike listener ships multi-MB WAVs
+(largest ~11MB) and ThreadingHTTPServer serves concurrent requests, so
+buffering multiplied memory by live-request count. Now 64KB chunks, with
+BrokenPipeError/ConnectionResetError swallowed so a client navigating away
+mid-download cannot kill the handler. Verified byte-identical (sha256) on the
+11MB file and `Content-Length` still exact.
+
+### Found: cross-origin overrides cannot work (deliberately pinned)
+The resolver re-points correctly — the browser attempts the request at the
+override host — but the response is refused for lack of a CORS header:
+
+```
+attempted: http://127.0.0.1:45507/api/run  -> net::ERR_FAILED
+console:   blocked by CORS policy: No 'Access-Control-Allow-Origin' header
+```
+
+Enabling a wildcard would let any website the user visits POST to their local
+runner and execute allow-listed commands. Pinned the absence
+(`test_no_cors_header_by_default`) and corrected the README, which had
+offered the overrides as a working escape hatch. Filed as a decision.
+
+### Added
+- Content-type mapping (`.html`/`.json`/`.png`/`.md` + `octet-stream`
+  fallback) — a wrong type on `.json` breaks `fetch().json()`.
+- Large-file byte-identity + `Content-Length`; a guard that the chunk size
+  stays below 1MB (otherwise the streaming note in `server.py` is a lie).
+- Concurrency: two simultaneous `/api/run` calls both complete and agree.
+- Runner timeout branch: reported as `ok=False`, `rc=None`, not raised; a
+  generous timeout still succeeds.
+- Override precedence (`?runner=` > `window.MUSE_RUNNER_URL` > meta >
+  same-origin), the cross-origin attempt, the default-same-origin case, and
+  the no-CORS posture.
+
+### Still open (deliberately)
+- **Live/proxied path** — Tier 3 (#224) remains blocked on the Netlify pause.
+- **Cross-origin support** — needs the topology decision in the CORS issue.
+
+Suite: `muse_workbench_runner` 31 tests (was 21); the reachability file 15
+(was 10).

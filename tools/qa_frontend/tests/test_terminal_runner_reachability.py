@@ -175,3 +175,111 @@ def test_terminal_page_zero_console_errors(runner_server, session):
     page.wait_for_timeout(400)
     errors = [e for e in session.console_errors if "favicon" not in e]
     assert errors == [], errors[:2]
+
+
+# --- override precedence (issue #312) ---
+#
+# Precedence is `?runner=` > window.MUSE_RUNNER_URL > meta > same-origin.
+#
+# Note the cross-origin limitation these tests encode: the resolver re-points
+# correctly, and the browser *attempts* the request at the override host, but
+# a running server does not answer it because no CORS header is sent. That is
+# deliberate. This server executes allow-listed commands; a blanket
+# `Access-Control-Allow-Origin: *` would let any website the user visits POST
+# to their local runner and run commands on their machine. Cross-origin use
+# therefore needs an explicit, origin-scoped opt-in — filed as a follow-up
+# rather than enabled here.
+
+@pytest.fixture(scope="module")
+def second_runner():
+    """A second runner origin, to prove the overrides actually re-point."""
+    sys.path.insert(0, os.path.join(REPO, "tools"))
+    from muse_workbench_runner.server import DOCS_DIR, serve
+
+    srv, url = serve(0, None, DOCS_DIR)
+    t = threading.Thread(target=srv.serve_forever, daemon=True)
+    t.start()
+    yield url
+    srv.shutdown()
+
+
+def test_query_override_repoints_the_request(runner_server, second_runner, session):
+    """`?runner=` is the loudest override: the page served from origin A must
+    *attempt* its API call against origin B."""
+    page = session.new_page()
+    attempted = []
+    page.on("request", lambda r: attempted.append(r.url) if "/api/" in r.url else None)
+    page.goto(
+        f"{runner_server}/workbench/terminal.html?runner={second_runner}",
+        wait_until="networkidle",
+    )
+    page.locator(".drawer button", has_text="diff").first.click()
+    page.wait_for_timeout(1500)
+    hosts = {urllib.parse.urlparse(u).netloc for u in attempted}
+    assert urllib.parse.urlparse(second_runner).netloc in hosts, (
+        f"query override ignored — attempted hosts were {hosts}"
+    )
+    page.close()
+
+
+def test_no_cors_header_by_default(runner_server):
+    """Security posture, pinned. The runner must not ship a permissive CORS
+    header: it executes commands, so any-origin access would let a visited
+    website drive the local runner."""
+    req = urllib.request.Request(runner_server + "/api/commands")
+    with urllib.request.urlopen(req) as r:
+        acao = r.headers.get("Access-Control-Allow-Origin")
+    assert acao is None, (
+        f"runner now sends Access-Control-Allow-Origin: {acao!r} — if this was "
+        f"deliberate it must be origin-scoped, not a wildcard"
+    )
+
+
+def test_meta_override_takes_effect(runner_server, second_runner, session):
+    """A `muse-runner-url` meta tag is the in-page override, for a deployment
+    that cannot change the URL."""
+    page = session.new_page()
+    page.goto(runner_server + "/workbench/terminal.html", wait_until="networkidle")
+    page.evaluate(
+        """(url) => {
+             const m = document.createElement('meta');
+             m.name = 'muse-runner-url';
+             m.content = url;
+             document.head.appendChild(m);
+           }""",
+        second_runner,
+    )
+    page.evaluate("() => { window.MUSE_RUNNER_URL = undefined; }")
+    resolved = page.evaluate("() => resolveRunnerUrl()")
+    assert resolved == second_runner, f"meta override not read: {resolved}"
+    page.close()
+
+
+def test_default_is_same_origin(runner_server, session):
+    """With no override present the resolver returns '' — i.e. same origin,
+    which fetch() resolves against the page's own host. This is the path that
+    actually works end to end."""
+    page = session.new_page()
+    page.goto(runner_server + "/workbench/terminal.html", wait_until="networkidle")
+    assert page.evaluate("() => resolveRunnerUrl()") == ""
+    page.close()
+
+
+def test_query_beats_meta_and_global(runner_server, second_runner, session):
+    """Precedence, pinned: ?runner= > window.MUSE_RUNNER_URL > meta."""
+    page = session.new_page()
+    page.goto(
+        f"{runner_server}/workbench/terminal.html?runner={second_runner}",
+        wait_until="networkidle",
+    )
+    page.evaluate("(u) => { window.MUSE_RUNNER_URL = u; }", "http://global.invalid:1")
+    page.evaluate(
+        """() => {
+             const m = document.createElement('meta');
+             m.name = 'muse-runner-url';
+             m.content = 'http://meta.invalid:2';
+             document.head.appendChild(m);
+           }"""
+    )
+    assert page.evaluate("() => resolveRunnerUrl()") == second_runner
+    page.close()

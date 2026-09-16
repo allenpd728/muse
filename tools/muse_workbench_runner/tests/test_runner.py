@@ -188,3 +188,88 @@ class TestSameOriginStaticServing:
     def test_json_content_type_on_api(self, docs_server):
         with urllib.request.urlopen(docs_server + "/api/commands") as r:
             assert r.headers["Content-Type"] == "application/json"
+
+    # --- content types (issue #312) ---
+    # A wrong type on .json breaks fetch().json() in the workbench pages, so
+    # the mapping is pinned rather than left to review.
+
+    @pytest.mark.parametrize("path,expected", [
+        ("/workbench/detail.html", "text/html; charset=utf-8"),
+        ("/workbench/data/works.json", "application/json"),
+        ("/explorer/img/bach_bwv227.1.png", "image/png"),
+        ("/audio/README.md", "text/markdown; charset=utf-8"),
+    ])
+    def test_content_type_mapping(self, docs_server, path, expected):
+        with urllib.request.urlopen(docs_server + path) as r:
+            assert r.headers["Content-Type"] == expected, path
+
+    def test_unknown_extension_falls_back_to_octet_stream(self, docs_server):
+        with urllib.request.urlopen(docs_server + "/superseded.txt") as r:
+            assert r.headers["Content-Type"] == "application/octet-stream"
+
+    # --- large files (issue #312) ---
+
+    def test_large_binary_served_byte_identical(self, docs_server):
+        """The spike WAVs are multi-MB; responses stream in chunks, and the
+        bytes must still match the file exactly."""
+        import hashlib
+
+        big = ROOT / "docs" / "spike" / "byrd-mockup-v3.wav"
+        if not big.exists():
+            pytest.skip("spike WAV not present in this checkout")
+        with urllib.request.urlopen(docs_server + "/spike/byrd-mockup-v3.wav") as r:
+            served = r.read()
+            assert r.headers["Content-Length"] == str(big.stat().st_size)
+        assert hashlib.sha256(served).hexdigest() == hashlib.sha256(
+            big.read_bytes()).hexdigest()
+
+    def test_static_chunk_is_smaller_than_the_largest_file(self):
+        """Guard the streaming property: if the chunk size ever grows past a
+        real asset, responses are buffered whole again and the memory note in
+        server.py stops being true."""
+        from muse_workbench_runner.server import make_handler
+
+        handler = make_handler(Runner(), ROOT / "docs")
+        assert handler.CHUNK < 1_000_000, "chunk size defeats the point of streaming"
+
+    # --- concurrency (issue #312) ---
+
+    def test_concurrent_requests_both_complete(self, docs_server):
+        """ThreadingHTTPServer plus subprocess exec: two simultaneous /api/run
+        calls must both finish (a shared-state bug would strand one)."""
+        import concurrent.futures
+
+        def call():
+            body = json.dumps({"name": "muse_probes.run", "args": ["--help"]}).encode()
+            req = urllib.request.Request(
+                docs_server + "/api/run", data=body,
+                headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=60) as r:
+                    return json.loads(r.read()).get("argv")
+            except urllib.error.HTTPError as e:
+                return json.loads(e.read()).get("argv")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            results = [f.result() for f in [pool.submit(call), pool.submit(call)]]
+        assert all(results), f"one of the concurrent calls did not complete: {results}"
+        assert results[0] == results[1], "concurrent calls diverged"
+
+
+class TestRunnerTimeout:
+    """Issue #312: the timeout branch had no coverage."""
+
+    def test_timeout_is_reported_not_raised(self, tmp_path):
+        """A command exceeding its timeout returns ok=False with a timeout
+        error — the pane's realistic case is a long muse_analyze.run."""
+        r = Runner(cfg(tmp_path, allowlist=["muse_tests.fast"]))
+        res = r.run("muse_tests.fast", [], timeout=0)
+        assert res["ok"] is False
+        assert "timeout" in (res.get("error") or "").lower(), res
+        assert res["rc"] is None
+
+    def test_generous_timeout_succeeds(self, tmp_path):
+        r = Runner(cfg(tmp_path, allowlist=["muse_probes.run"]))
+        res = r.run("muse_probes.run", ["--help"], timeout=60)
+        assert res["rc"] in (0, 1, 2), res
+        assert "timeout" not in (res.get("error") or "").lower()

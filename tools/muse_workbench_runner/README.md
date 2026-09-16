@@ -53,9 +53,21 @@ Overrides, if the runner must live elsewhere (all optional, no file edit):
 | meta tag | `<meta name="muse-runner-url" content="http://host:9145">` |
 | window global | `window.MUSE_RUNNER_URL = 'http://host:9145'` |
 
+Precedence: `?runner=` > `window.MUSE_RUNNER_URL` > meta > same-origin.
+
+**Cross-origin caveat (read this before relying on an override).** The
+overrides re-point the page correctly, but the browser will refuse the
+response: this server sends no CORS header. That is deliberate — it executes
+allow-listed commands, so a permissive `Access-Control-Allow-Origin` would
+let any website the user visits POST to their local runner and run commands
+on their machine. **Run the page from the runner's own origin** (`--docs`,
+above); that path works and is what the tests exercise. Making cross-origin
+work needs an explicit origin-scoped opt-in — see the follow-up issue.
+
 The server still binds `127.0.0.1` only; exposing it beyond the machine is a
-deliberate, separate step. Static serving carries a path-traversal guard, and
-`/api/*` is never shadowed by the static tree.
+deliberate, separate step. Static serving carries a path-traversal guard,
+streams large files in chunks rather than buffering them, and never shadows
+`/api/*`.
 
 ## Dependencies
 
