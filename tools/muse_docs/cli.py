@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from muse_docs.lint import (  # noqa: E402
-    format_findings, lint_repo, summarize,
+    FINDING_BUDGET, check_budget, format_findings, lint_repo, summarize,
 )
 
 KIND_HELP = {
@@ -78,6 +78,10 @@ def main(argv=None):
     p.add_argument("--kind", default=None,
                    help="only findings of this kind (see README)")
     p.add_argument("--quiet", action="store_true", help="no output; exit code only")
+    p.add_argument("--max-findings", type=int, default=FINDING_BUDGET,
+                   help="fail loudly above this many findings (default %d); "
+                        "guards against a mis-firing rule flooding the queue "
+                        "rather than reporting real drift" % FINDING_BUDGET)
 
     args = ap.parse_args(argv)
 
@@ -85,11 +89,16 @@ def main(argv=None):
         ap.error("unknown command")
 
     findings = lint_repo(args.root)
+    budget_error = check_budget(findings, args.max_findings)
     if args.kind:
         findings = [f for f in findings if f["kind"] == args.kind]
 
     if args.quiet:
         return 1 if findings else 0
+
+    if budget_error:
+        # Printed before the findings: a flood is the headline, not the list.
+        print("ERROR: " + budget_error, file=sys.stderr)
 
     if args.json:
         print(json.dumps(findings, indent=2))

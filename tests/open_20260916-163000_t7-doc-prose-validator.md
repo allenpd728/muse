@@ -73,3 +73,41 @@ their pre-rename `open_*` name; 3 path-depth errors (`FORMAT_SPEC.md`,
 `docs/audio-convention` reference; and one **non-UTF-8 doc**
 (`docs/design/r1-rehearsal-directives.md`, a mangled em-dash from #283).
 Repo now lints clean.
+## Follow-up coverage landed 2026-09-16 (#311, run=20260916-1525-8d06)
+
+The deferred gaps above were implemented, and writing them up found a real
+hole in the linter.
+
+### Found: titled and reference-style links were silently unchecked
+The inline pattern could not match `[x](dest "Title")` (nor `[x][label]`
++ `[label]: dest`), so a broken link written in either form linted
+**clean** — a hole, not just missing tests. Fixed by replacing the single
+regex with `extract_link_targets()`, covering inline, inline+title,
+angle-bracketed, and reference-style forms, plus flagging a reference use
+with no matching definition. Each form now has a broken-target test; a
+naive-pattern revert fails three of them.
+
+### Added
+- `tests/test_cli.py` (new, 14 tests): exit codes (clean 0 / findings 1 /
+  `--quiet` silent on both), `--kind` filtering, `--json` shape,
+  `--report` structure (header, total, kind table, per-file grouping),
+  and the budget error on **stderr** with the findings list still on stdout.
+- Link-form coverage (parametrized broken-target per form; titled link with
+  a real target is clean; missing reference definition is flagged).
+- Resolution semantics pinned: relative-to-document, case-sensitive
+  (a wrong-case link is flagged — it would 404 on a case-sensitive host),
+  symlinks followed.
+- `FINDING_BUDGET` (25) with `check_budget()` and `--max-findings`:
+  above the ceiling the CLI names the budget on stderr, because a rule that
+  suddenly flags hundreds of things is a mis-firing linter, not hundreds of
+  defects. `test_repo_corpus_is_far_below_budget` keeps the real tree
+  well clear of it.
+
+### Still open (deliberately)
+- **Opt-in status-claim mode.** Comparing `**done**` claims against the
+  issue queue needs a GitHub call the no-spend constraint forbids by
+  default. Unchanged: the AGENTS.md checklist step 3 covers it by hand.
+  A future `--check-issues` flag (network, off by default, never in CI)
+  would close the last DoD gap — that is a design decision, not a test gap.
+
+Suite: 57 tests (was 29). `muse_docs` still sub-second; fast tier green.
