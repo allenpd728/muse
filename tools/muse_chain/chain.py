@@ -39,12 +39,17 @@ REGISTRY = [
     ("beethoven-sym9", "beethoven/beethoven-sym9.xml"),
 ]
 
-# W4 pairwise diff is quadratic; above this many events the chain proves
-# losslessness structurally (canonical compare) instead.
-DIFF_BUDGET_NOTES = 30000
+# W4 pairwise diff was quadratic and gated above this many notes; as of #317
+# the tolerance-0 path is O(n_a + n_b) (B9's 239,459 notes diff in ~1s), so
+# there is no longer a compute reason to skip. Kept as a *safety* ceiling well
+# above the corpus (largest is 239k) so a pathological input still cannot hang
+# the chain — not as a gate on any real work.
+DIFF_BUDGET_NOTES = 2_000_000
 
-# P2 render allocates a 44.1kHz mono buffer for the whole work; above this
-# many notes the render stage is skipped (B9 ≈ 239k notes ≈ 65 min of audio).
+# P2 render allocates the whole work's PCM buffer: schubert (24,772 notes,
+# 28 min) already writes a 151 MB WAV, and B9 is ~65 min of audio. This gate
+# is about output size, not algorithm, so it stays — B9's render remains a
+# deliberate, separate decision (see #317's out-of-scope note).
 RENDER_BUDGET_NOTES = 30000
 
 

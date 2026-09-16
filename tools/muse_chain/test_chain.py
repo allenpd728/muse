@@ -35,16 +35,37 @@ class TestStagesCompose:
         assert r.artifacts["roll.bin"].startswith(b"MUR1")
         assert r.artifacts["manifest.json"].startswith(b"{")
 
-    def test_verify_skips_over_budget(self):
+    def test_verify_now_covers_beethoven9(self):
+        """Issue #317: B9 (the v1.0 conformance target) used to SKIP verify
+        because the diff was O(n_a × n_b) and exceeded 15 minutes. The
+        tolerance-0 path is now keyed, so the largest work in the corpus is
+        actually verified — this assertion is the point of that task.
+
+        It ran as `test_verify_skips_over_budget` asserting SKIP before the
+        fix; flipping it is the deliverable, not a regression."""
         r = run_work("beethoven-sym9", "beethoven/beethoven-sym9.xml")
         assert r.ok
         verify = next(s for s in r.stages if s.stage.startswith("verify"))
-        assert verify.status == "SKIP"
+        assert verify.status == "PASS", verify.detail
+        assert "recall=precision=1.0" in verify.detail
         decode = next(s for s in r.stages if s.stage.startswith("decode"))
-        assert decode.status == "PASS"  # structural check carries the load
+        assert decode.status == "PASS"
+
+    def test_diff_budget_does_not_gate_any_corpus_work(self):
+        """The diff gate is a safety ceiling now, not a gate: every registry
+        entry must be under it, so no real work silently skips verify."""
+        import muse_chain.chain as chain
+
+        assert chain.DIFF_BUDGET_NOTES > 239_459, (
+            "DIFF_BUDGET_NOTES is below B9's note count — verify would skip the "
+            "v1.0 conformance target again"
+        )
 
     def test_render_skips_over_budget(self):
-        """B9 ≈ 239k notes ≈ 65 min of 44.1kHz audio — render budget gates it."""
+        """B9 ≈ 239k notes ≈ 65 min of 44.1kHz audio — render budget gates it.
+
+        Unchanged by #317: this is an output-size limit, not an algorithm one
+        (schubert at 24,772 notes already writes a 151 MB WAV)."""
         r = run_work("beethoven-sym9", "beethoven/beethoven-sym9.xml")
         assert r.ok
         render = next(s for s in r.stages if s.stage.startswith("render"))

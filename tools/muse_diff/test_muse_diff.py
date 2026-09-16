@@ -37,6 +37,113 @@ def kyrie():
     return load(KYRIE)
 
 
+class TestScalingExactPath:
+    """Issue #317: the tolerance-0 path must be O(n_a + n_b), not O(n_a x n_b).
+
+    Beethoven 9 (239,459 notes) exceeded 15 minutes under the quadratic scan
+    and was skipped by the chain's budget gate — so the v1.0 conformance
+    target went unverified. These tests pin both the result and the scaling.
+    """
+
+    def _big(self, n):
+        # Many notes sharing a pitch so the old inner scan could not shortcut
+        # on a pitch mismatch; onsets spread so keys stay distinct.
+        return make_work([
+            Note(pitch=60 + (i % 12), onset=i * 10, duration=10)
+            for i in range(n)
+        ])
+
+    def test_exact_path_is_linear_enough(self):
+        """Doubling n must not quadruple the work.
+
+        Compares *scaling*, not absolute time, so it is machine-independent.
+        A quadratic scan shows up as a ~4x ratio. Sizes are picked so the
+        linear path takes only milliseconds — the ratio then fails in about a
+        second instead of hanging the suite, which is what happened when the
+        quadratic path was restored at larger sizes (the run had to be killed).
+
+        Measured on this checkout: linear n=4000 ≈ 5ms, n=8000 ≈ 12ms;
+        quadratic n=4000 ≈ 420ms (≈ 80x slower, and ~4x per doubling).
+        """
+        import time
+
+        def timed(n):
+            w = self._big(n)
+            best = None
+            for _ in range(5):  # min-of-5 to damp scheduler noise
+                t0 = time.perf_counter()
+                r = diff(w, w)
+                dt = time.perf_counter() - t0
+                assert r.ok(), f"self-diff failed at n={n}"
+                best = dt if best is None else min(best, dt)
+            return best
+
+        small = timed(4000)
+        large = timed(8000)
+        assert small > 0, "timing collapsed to zero — cannot measure scaling"
+        ratio = large / small
+        assert ratio < 3.0, (
+            f"diff scaling looks quadratic: {small * 1000:.2f}ms -> "
+            f"{large * 1000:.2f}ms (ratio {ratio:.2f}; linear ~2x, quadratic ~4x)"
+        )
+
+    def test_large_input_completes_quickly(self):
+        """A 40k-note exact diff must finish in seconds, not minutes — the
+        gate the chain used to rely on was 30k notes."""
+        import time
+
+        w = self._big(40000)
+        t0 = time.perf_counter()
+        report = diff(w, w)
+        elapsed = time.perf_counter() - t0
+        assert report.ok()
+        assert report.matched == 40000
+        assert elapsed < 20, f"40k-note diff took {elapsed:.1f}s"
+
+    def test_duplicate_keys_pair_in_b_index_order(self):
+        """Tie behaviour is load-bearing: the old scan kept the lowest `b`
+        index among equal (pitch, onset) candidates. A FIFO bucket reproduces
+        it exactly; this pins that so a future set/dict refactor cannot
+        silently reorder pairings."""
+        a = make_work([Note(pitch=60, onset=0, duration=10) for _ in range(3)])
+        # b has three candidates for the same key; the second carries a
+        # different velocity so we can see which index each `a` note consumed.
+        b = make_work([
+            Note(pitch=60, onset=0, duration=10, velocity=100),
+            Note(pitch=60, onset=0, duration=10, velocity=101),
+            Note(pitch=60, onset=0, duration=10, velocity=102),
+        ])
+        report = diff(a, b)
+        assert report.matched == 3
+        assert report.mismatches == [], "equal-key pairing should raise no drift"
+
+    def test_exact_path_reports_missing_and_extra(self):
+        a = make_work([Note(pitch=60, onset=0, duration=10),
+                       Note(pitch=62, onset=10, duration=10)])
+        b = make_work([Note(pitch=60, onset=0, duration=10)])
+        report = diff(a, b)
+        kinds = sorted(m.kind for m in report.mismatches)
+        assert kinds == ["missing"], kinds
+        assert report.recall == 0.5 and report.precision == 1.0
+
+        reverse = diff(b, a)
+        assert sorted(m.kind for m in reverse.mismatches) == ["extra"]
+
+    def test_tolerance_path_unchanged(self):
+        """tolerance > 0 must still use the nearest-onset search (the exact
+        fast path must not be taken)."""
+        a = make_work([Note(pitch=60, onset=100, duration=10)])
+        b = make_work([Note(pitch=60, onset=105, duration=10)])
+        assert diff(a, b, tolerance_ticks=0).matched == 0
+        assert diff(a, b, tolerance_ticks=5).matched == 1
+        drift = diff(a, b, tolerance_ticks=5).mismatches
+        assert [m.kind for m in drift] == ["onset-drift"], drift
+
+    def test_exact_and_tolerance_agree_when_onsets_are_equal(self):
+        w = self._big(500)
+        assert diff(w, w).matched == diff(w, w, tolerance_ticks=1).matched
+
+
 class TestEngineCorrectness:
     def test_self_diff_is_perfect(self, kyrie):
         report = diff(kyrie, kyrie)

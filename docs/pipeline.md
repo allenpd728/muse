@@ -111,7 +111,7 @@ that prove too large"). Each has a design-doc scaffold in
 
 | Sub-task | Parent barrier | What it does | Unblocks |
 |---|---|---|---|
-| **W6 — B9 compute scaling** | Beethoven 9 (239k notes) through pattern analysis | Profiles W3's SIATEC pass; chooses suffix-array/SIATEC-C or sampling; pins per-tier compute budgets | W3 full-corpus pass |
+| **W6 — B9 compute scaling** | Beethoven 9 (239k notes) through pattern analysis | Profiled the real blocker: W4's diff was O(n_a × n_b), so B9 exceeded 15 min and the chain SKIPped `verify`. Fixed at tolerance 0 with a keyed lookup (#317) — **B9 now verifies at recall=precision=1.0 in ~1s** | done (#317) |
 | **W7 — Mockup schema v0** | L1's unwritten intermediate artifact | Drafts the mockup session-file schema from delta-analysis evidence + spike JSONs; validate via W4 | L1 harness |
 | **C5 — Baroque delta measurement** | C3's unmeasured Baroque budget gap | Runs delta-analysis vocabulary on Baroque corpora (chorales + polyphony); feeds era budgets | C3 (and W3's per-phrase curves) |
 | **L5 — Sample-quality waiver** | L2's unresolved "convincing vs. concert" ceiling | Triggered only if L2 fails the founder's ear despite maximal mockup: either commercial-library contract or revised event bar | E1 (event quality) |

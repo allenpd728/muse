@@ -50,9 +50,29 @@ def format_report(results, determinism):
                 if s.status == "FAIL":
                     lines.append(f"- **{r.work_id}** stage `{s.stage}`: {s.detail}")
     else:
-        lines.append("No failures. Skips are over-budget W4 diffs and "
-                     "over-budget P2 renders, as designed.")
+        # Derive the skip explanation from the results rather than asserting a
+        # fixed story: after #317 the diff gate no longer fires on any corpus
+        # work, so a hard-coded "over-budget W4 diffs" line would be a stale
+        # claim (the exact failure mode this session kept finding).
+        lines.append(explain_skips(results))
     return "\n".join(lines) + "\n"
+
+
+def explain_skips(results):
+    """One honest sentence about any SKIPs, from the actual stage reasons."""
+    skipped = [(r.work_id, s) for r in results for s in r.stages if s.status == "SKIP"]
+    if not skipped:
+        return "No failures, no skips — every stage of every work ran."
+    stages = sorted({s.stage.split("(")[0] for _, s in skipped})
+    works = sorted({w for w, _ in skipped})
+    detail = "; ".join(f"{w}: {s.detail}" for w, s in skipped)
+    return (
+        "No failures. %d skip(s), all in %s, on %s — %s. "
+        "A render skip is an output-size decision (the whole work's PCM is "
+        "buffered), not a compute limit; a verify skip would mean a diff "
+        "budget fired, which no corpus work should hit."
+        % (len(skipped), "/".join(stages), ", ".join(works), detail)
+    )
 
 
 def print_result(r):

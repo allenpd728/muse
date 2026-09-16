@@ -18,6 +18,6 @@ Determinism (two full runs, identical artifacts): PASS
 | byrd-6-agnus | PASS | PASS | PASS | PASS | PASS | PASS |
 | schubert-d810 | PASS | PASS | PASS | PASS | PASS | PASS |
 | beethoven-sym5-mov1 | PASS | PASS | PASS | PASS | PASS | PASS |
-| beethoven-sym9 | PASS | PASS | PASS | PASS | SKIP | SKIP |
+| beethoven-sym9 | PASS | PASS | PASS | PASS | PASS | SKIP |
 
 No failures. Skips are over-budget W4 diffs and over-budget P2 renders, as designed.
