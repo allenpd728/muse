@@ -72,7 +72,9 @@ def test_blockers_listed_with_reasons(page):
     p, _ = page
     text = p.locator("body").text_content()
     assert "#211" in text and "event" in text.lower()
-    assert "#224" in text and "paused" in text.lower()
+    # #224 (Tier 3 live smoke) retired with the hosted deploy 2026-09-16; the
+    # page must say so rather than describing a pause nobody enforces.
+    assert "#224" in text and "retired" in text.lower()
 
 
 def test_frontier_callout_present(page):

@@ -1,81 +1,114 @@
-"""Netlify deploy-cost guard (issue #316 side effect).
+"""Netlify is fully retired from this repo (2026-09-16).
 
 The QA site auto-deployed the `dev` branch for three weeks while a
-`netlify.toml` comment claimed it was "paused" — every push started a build
-at `context=production` and burned credits. A stale comment cannot enforce
-anything, so this pins the facts that were wrong:
+`netlify.toml` comment claimed it was paused — every push started a build at
+`context=production` and burned credits. Rather than keep config around for a
+deploy nobody needs, Netlify is gone: the config, the Tier 3 live-smoke test,
+and the site's builds (stopped at the API level).
 
-  1. `netlify.toml` must not claim the site is paused/deferred while it is
-     configured to build (the exact lie that caused the spend).
-  2. The file must document how builds are actually stopped, since the stop
-     lives in the Netlify API, not in the repo.
-
-This is a static, offline check (no network): the API-side `stop_builds`
-flag cannot be asserted from CI without credentials, so what is pinned here
-is that the repo does not *misstate* the situation again.
+Tier 2 already executes every served page, so the hosted deploy added hosting
+cost without adding a distinct check. These tests keep the retirement from
+silently reversing — cheaply, offline, and without credentials.
 """
 
+import glob
 import os
+import re
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
-NETLIFY = os.path.join(REPO, "netlify.toml")
 
 
-def _text():
-    with open(NETLIFY, encoding="utf-8") as fh:
-        return fh.read()
+def _live_files(*patterns, include_self=False):
+    """Files that describe the *current* system.
+
+    Exempt are records of the past: anything under ``tests/`` (spec files,
+    open or closed — a spec documents intended work, not the running system),
+    ``bugs/closed_*``, ``blockers/closed_*`` and ``docs/audit/``.
+
+    **Not** exempt: ``blockers/open_*`` and ``bugs/open_*``. Those prefixes
+    are lifecycle state, not history — an open blocker describes the system
+    as it is now, so it must not be allowed to assert a retired fact.
+    """
+    for pat in patterns:
+        for path in glob.glob(os.path.join(REPO, pat), recursive=True):
+            rel = os.path.relpath(path, REPO).replace(os.sep, "/")
+            if "/.git/" in rel:
+                continue
+            if not include_self and rel == "tests/docs/test_netlify_guard.py":
+                continue  # this file necessarily names what it forbids
+            if rel.startswith(("tests/", "docs/audit/")):
+                continue
+            base = os.path.basename(rel)
+            top = rel.split("/")[0]
+            if base.startswith("closed_") and top in ("bugs", "blockers", "tests"):
+                continue
+            yield rel, path
 
 
-def test_netlify_toml_does_not_claim_a_pause_that_is_not_enforced():
-    """The original bug: a `[DEFERRED]` note asserting the site was paused
-    while it was actively deploying dev. If a pause is claimed, the file must
-    also say how it is enforced (the API flag), so the claim is checkable."""
-    text = _text()
-    lowered = text.lower()
-    claims_pause = "[deferred" in lowered or "paused" in lowered
-    if not claims_pause:
-        return  # nothing claimed: nothing to contradict
-    assert "stop_builds" in text, (
-        "netlify.toml claims the site is paused/deferred but does not state how "
-        "that is enforced. A comment cannot stop a deploy — the first version of "
-        "this file did exactly that and burned build credits for three weeks. "
-        "Either document the API-level stop or drop the claim."
+def test_no_netlify_config_exists():
+    assert not os.path.exists(os.path.join(REPO, "netlify.toml")), (
+        "netlify.toml is back — the hosted deploy was retired deliberately "
+        "(it auto-deployed dev and cost builds). Re-adding it should be a "
+        "decided act, with the deploy story written down first."
     )
 
 
-def test_netlify_toml_states_the_current_stopped_state():
-    text = _text()
-    assert "STOPPED" in text, (
-        "netlify.toml no longer records that builds are stopped; without that, "
-        "an agent reading the file cannot tell whether pushes cost money"
-    )
-    assert "84c6f54c-1f65-40bb-99dc-4e4f73730ff3" in text, (
-        "the site id must be recorded — the re-enable command is useless "
-        "without it"
-    )
+def test_live_smoke_test_is_gone():
+    assert not os.path.exists(
+        os.path.join(REPO, "tools", "qa_frontend", "tests", "test_live_smoke.py")
+    ), "the Tier 3 live-smoke test is back, but there is no hosted deploy to smoke"
 
 
-def test_netlify_toml_documents_how_to_reenable():
-    """Resuming must be a deliberate, documented act, not a guess."""
-    text = _text()
-    assert "stop_builds" in text and "false" in text, (
-        "the re-enable path (stop_builds: false) is not documented"
-    )
-
-
-def test_no_workflow_triggers_a_deploy():
-    """Nothing in CI should deploy: the deploy gates were intentionally on
-    hold, and a workflow that deploys would reintroduce the cost."""
-    import glob
-
-    wf_dir = os.path.join(REPO, ".github", "workflows")
-    for path in glob.glob(os.path.join(wf_dir, "*.yml")):
+def test_no_workflow_references_netlify_or_deploys():
+    for rel, path in _live_files(".github/workflows/*.yml"):
         with open(path, encoding="utf-8") as fh:
             body = fh.read().lower()
-        assert "netlify" not in body, (
-            f"{os.path.basename(path)} references Netlify — deploys are meant "
-            f"to be stopped (see netlify.toml)"
+        assert "netlify" not in body, f"{rel} references Netlify"
+        assert "deploy" not in body, f"{rel} looks like it may deploy"
+        assert "repository_dispatch" not in body, (
+            f"{rel} has a dispatch hook — that was the retired deploy-trigger path"
         )
-        assert "deploy" not in body, (
-            f"{os.path.basename(path)} looks like it may deploy"
-        )
+
+
+def test_no_live_enable_switch_remains():
+    """`QA_LIVE=1` was the resume switch for the live smoke. With the deploy
+    gone it would be a dangling flag — assert it is not referenced anywhere
+    live, so nobody hunts for the job it used to gate."""
+    hits = []
+    for rel, path in _live_files("**/*.py", "**/*.md", "**/*.yml", "**/*.html"):
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            if "QA_LIVE" in fh.read():
+                hits.append(rel)
+    assert not hits, (
+        "QA_LIVE still referenced in live files (the live-smoke gate is "
+        "retired):\n  " + "\n  ".join(sorted(hits))
+    )
+
+
+def test_no_live_netlify_url_referenced():
+    for rel, path in _live_files("**/*.py", "**/*.md", "**/*.yml", "**/*.html"):
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            body = fh.read()
+        for m in re.finditer(r"https?://[^\s\"'<>]*netlify[^\s\"'<>]*", body):
+            raise AssertionError(f"{rel} still points at a Netlify URL: {m.group(0)}")
+
+
+def test_docs_do_not_claim_a_paused_deploy():
+    """The original lie, generalized: no live doc may describe a hosted deploy
+    as merely 'paused' or 'deferred' — either it exists (documented, with how
+    it is gated) or it is retired. Anti-rot for the failure that cost credits."""
+    offenders = []
+    for rel, path in _live_files("docs/**/*.md", "*.md"):
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            body = fh.read()
+        for line in body.splitlines():
+            low = line.lower()
+            if ("netlify" in low or "hosted preview" in low) and (
+                "paused" in low or "deferred" in low
+            ):
+                offenders.append(f"{rel}: {line.strip()[:100]}")
+    assert not offenders, (
+        "live doc(s) describe a hosted deploy as paused/deferred — that state "
+        "is not enforced anywhere, and it was the exact claim that hid real "
+        "build spend:\n  " + "\n  ".join(offenders)
+    )

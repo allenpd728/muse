@@ -4,7 +4,7 @@
 
 ## Purpose
 
-A read-only web explorer for the corpus and its artifacts: browse the five works, inspect IR summaries (parts, maps, dynamics, hairpins), run the analyzer's pattern inventory (W3), view W5 piano-roll visualizations, inspect pack stats (S2 ratios), play rendered audio when P2 lands. W5's "human evaluation aid" and the founder's "the ear gates" — made explorable. Deployed via the existing Netlify QA site (`docs/spike` publisher), never production.
+A read-only web explorer for the corpus and its artifacts: browse the five works, inspect IR summaries (parts, maps, dynamics, hairpins), run the analyzer's pattern inventory (W3), view W5 piano-roll visualizations, inspect pack stats (S2 ratios), play rendered audio when P2 lands. W5's "human evaluation aid" and the founder's "the ear gates" — made explorable. Served locally from `docs/` (a hosted preview was retired 2026-09-16).
 
 ## Dependencies
 
@@ -14,7 +14,7 @@ A read-only web explorer for the corpus and its artifacts: browse the five works
 ## Scope (pin in draft)
 
 - **Inputs:** corpus + generated artifacts (analyzed report, renders).
-- **Outputs:** static site under docs/spike/ or a sibling directory; Netlify QA deploy.
+- **Outputs:** static site under docs/ (explorer/ + spike/), served locally.
 - **Non-goals:** authoring (C-series UI — proprietary, separate), live LLM harness (L-series), anything user-account or dynamic (static only).
 
 ## Open questions (draft-level)

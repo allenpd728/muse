@@ -93,3 +93,41 @@ Recommendation: take the narrow option now (it is inert and makes the spec's
 work resume-able in one edit), and leave retire-vs-suspend for whenever the
 deploy question is revisited. Not taken unilaterally here because it is
 #224's own deliverable, not this blocker's, and #224 is `blocked-needs-input`.
+
+
+## RESOLVED 2026-09-16 (run=20260916-1525-8d06): #224 retired, Netlify removed
+
+This blocker asked whether to retire or suspend #224. Both options assumed a
+hosted deploy would exist again. The founder's decision was to remove Netlify
+from the project entirely, which settles it: **#224 is retired, not
+suspended.**
+
+Retired, concretely:
+
+| Removed | Note |
+|---|---|
+| `netlify.toml` | deleted |
+| `tools/qa_frontend/tests/test_live_smoke.py` | deleted (the Tier 3 test) |
+| Netlify site builds | stopped at the API (`stop_builds = true`, `muse-qa-58fd708e`) |
+| Tier 3 references in live docs | rewritten as retired (`docs/design/frontend-qa.md`, `docs/pipeline.md`, the boardroom status page) |
+| `QA_LIVE` gate | gone with the test; a `tests/docs` guard now fails if it reappears |
+
+`tests/open_20260824-003200_frontend-qa-tier3.md` is kept as the design record
+of what Tier 3 would have been, marked RETIRED, and now points at what covers
+its intent instead (the expanded Tier 2 suite: site links, anchor fragments,
+mobile widths).
+
+The blocker's own "side note" is also closed: `.github/workflows/live-smoke.yml`
+never landed and no longer should — a guard test asserts no workflow references
+Netlify, deploys, or `repository_dispatch`.
+
+Why retiring rather than reviving: the deploy only published `docs/` so a human
+could look at it. It cost a build on every push to `dev` for three weeks while
+`netlify.toml` claimed the site was paused — measured at ten pushes, ten
+deploys, `context=production`. Tier 2 already executes every served page, so
+the hosted deploy added cost without adding a distinct check. If a hosted
+preview is ever wanted, stand it up deliberately on its own branch and add the
+smoke then.
+
+This is a **blocker-resolution**: the issue (#224) is closed and the file is
+renamed `closed_`.
