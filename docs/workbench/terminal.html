@@ -70,7 +70,23 @@
 </div>
 
 <script>
-const RUNNER_URL = 'http://127.0.0.1:9145';
+// Runner origin (issue #305). Origin-relative by default: the same host
+// that serves this page serves /api (muse_workbench_runner/server.py --docs).
+// A hardcoded 127.0.0.1 here resolved to the *visitor's* machine over the
+// hosted site — nothing listening — so every call 404'd.
+//
+// Override without editing this file:
+//   * <meta name="muse-runner-url" content="http://host:port"> in the head, or
+//   * ?runner=http://host:port on the URL, or
+//   * window.MUSE_RUNNER_URL set by an earlier script.
+function resolveRunnerUrl() {
+  const meta = document.querySelector('meta[name="muse-runner-url"]');
+  const fromMeta = meta && meta.getAttribute('content');
+  const fromQuery = new URLSearchParams(location.search).get('runner');
+  // '' means "same origin" — fetch() resolves a leading-slash path against it.
+  return fromQuery || window.MUSE_RUNNER_URL || fromMeta || '';
+}
+const RUNNER_URL = resolveRunnerUrl();
 
 const DRAWER = [
   { name:'analyze', cmd:'muse_analyze.run', args:['--all'] },
@@ -99,7 +115,12 @@ async function runCmd(cmd, args=[], env=[], stdin=null) {
     out.textContent = `${j.name} [rc:${j.rc}] ${err}stdout:\n${j.stdout||''}\nstderr:\n${j.stderr||''}`;
   } catch (e) {
     out.className = 'fail';
-    out.textContent = `runner unreachable — start with: python3 tools/muse_workbench_runner/server.py\n(hosted on ${RUNNER_URL})`;
+    const where = RUNNER_URL || location.origin;
+    out.textContent = `runner unreachable — start it with:\n` +
+      `  python3 tools/muse_workbench_runner/server.py --docs\n` +
+      `then open the page from the runner's own origin (it serves both the\n` +
+      `static site and /api). Tried: ${where}/api/run\n` +
+      `If the runner is on another host, append ?runner=http://host:port.`;
   }
 }
 
