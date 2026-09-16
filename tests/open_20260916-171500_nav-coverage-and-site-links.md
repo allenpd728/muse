@@ -72,3 +72,31 @@ anchor form fails the corpus-tree contract test.
 
 17 new/updated tests. `qa_frontend` 141 passed / 5 skipped (was 128/5);
 fast tier all 35 suites green; `muse_docs` lint 0 findings.
+## Follow-up coverage landed 2026-09-16 (#313, run=20260916-1525-8d06)
+
+### The fragment gap, closed
+The item-1 gap was the one that mattered: the sweep checked link *paths*, so
+#310 bug 2 (corpus-tree anchors matching no element) got through — every href
+resolved to a real file while the fragment went nowhere. The new
+`test_anchor_fragments.py` resolves fragments against **rendered** pages, so
+runtime-built anchors are covered; a static scan cannot see those. Re-injecting
+the #310 bug fails it plus two sibling tests.
+
+### Added (7 tests)
+- Every rendered `path#fragment` link finds its anchor on the target page.
+- The corpus-tree deep-link contract end to end (navigate, then assert the
+  element exists).
+- `slug()` drift guard: the two implementations are extracted and compared,
+  since divergence breaks deep links silently.
+- Every rendered anchor id is CSS-selector-safe.
+- A jump link still opens its target after an era-filter re-render (#310
+  pinned the nav surviving, not the click).
+- The spike listener mounts and lists artifacts (it had no DOM test).
+
+### Still open (deliberately)
+- **External links** — no network by design; unchanged.
+- **Generic fragment checking on non-rendered pages** — the parametrization
+  covers the two JS-anchor pages; extending to every page is cheap but those
+  pages' fragments are static and already swept.
+
+Suite: qa_frontend 157 passed / 5 skipped (was 150/5).
