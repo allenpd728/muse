@@ -63,9 +63,9 @@ traversal probes.
 ## Known gaps (acceptable)
 
 - **The hosted/proxied path itself is not exercised.** These tests drive a
-  locally served origin; the real proxy is the paused Netlify deploy (Tier 3
-  live smoke, #224, blocked). What is pinned here is the property that makes
-  the proxied case work: one origin, no hardcoded host.
+  locally served origin. The real proxy (the Netlify QA deploy) was retired
+  2026-09-16. What is pinned here is the property that makes a proxied case
+  work if one returns: one origin, no hardcoded host.
 - **`--docs` on a non-localhost bind is untested and not offered.** Exposing
   the runner beyond the machine needs an auth decision first (the pane has no
   token concept); `127.0.0.1` binding is unchanged, and AGENTS.md's sandbox
@@ -117,7 +117,9 @@ offered the overrides as a working escape hatch. Filed as a decision.
   the no-CORS posture.
 
 ### Still open (deliberately)
-- **Live/proxied path** — Tier 3 (#224) remains blocked on the Netlify pause.
+- **Live/proxied path** — moot: Tier 3 retired 2026-09-16 with the hosted
+  deploy. There is no proxied origin to test against; the same-origin property
+  above is what makes a proxy work if one is ever added.
 - **Cross-origin support** — needs the topology decision in the CORS issue.
 
 Suite: `muse_workbench_runner` 31 tests (was 21); the reachability file 15

@@ -15,7 +15,7 @@ A CI job (GitHub Actions) that runs the known-answer gates: W2 corpus-loader pin
 
 - **Inputs:** dev/main pushes, PRs.
 - **Outputs:** pass/fail per gate; branch protection once stable.
-- **Non-goals:** Netlify QA frontend serving (existing docs/spike publisher); release/deployment (not yet public).
+- **Non-goals:** frontend serving (the static site is local-only; a hosted preview was retired 2026-09-16); release/deployment (not yet public).
 
 ## Open questions (draft-level)
 
