@@ -36,6 +36,12 @@ def make_handler(runner: Runner, docs_dir=None):
             self.end_headers()
             self.wfile.write(body)
 
+        # Static responses are streamed in chunks rather than read whole: the
+        # spike listener ships multi-MB WAVs (the largest is ~11MB), and
+        # ThreadingHTTPServer serves concurrent requests, so buffering each
+        # file entirely would multiply memory by the number of live requests.
+        CHUNK = 64 * 1024
+
         def _static(self):
             """Serve the docs/ tree, or 404 when static serving is off."""
             if not docs_dir:
@@ -49,8 +55,6 @@ def make_handler(runner: Runner, docs_dir=None):
             if not target.startswith(os.path.abspath(docs_dir) + os.sep) or not os.path.isfile(target):
                 self._json({"error": "not found"}, 404)
                 return
-            with open(target, "rb") as fh:
-                body = fh.read()
             ctype = {
                 ".html": "text/html; charset=utf-8",
                 ".json": "application/json",
@@ -61,11 +65,22 @@ def make_handler(runner: Runner, docs_dir=None):
                 ".svg": "image/svg+xml",
                 ".md": "text/markdown; charset=utf-8",
             }.get(os.path.splitext(target)[1], "application/octet-stream")
-            self.send_response(200)
-            self.send_header("Content-Type", ctype)
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            try:
+                size = os.path.getsize(target)
+                with open(target, "rb") as fh:
+                    self.send_response(200)
+                    self.send_header("Content-Type", ctype)
+                    self.send_header("Content-Length", str(size))
+                    self.end_headers()
+                    while True:
+                        chunk = fh.read(self.CHUNK)
+                        if not chunk:
+                            break
+                        self.wfile.write(chunk)
+            except (BrokenPipeError, ConnectionResetError):
+                # The client navigated away mid-download; not an error worth
+                # a stack trace, and the handler must not die.
+                pass
 
         def do_GET(self):
             if self.path == "/api/commands":
