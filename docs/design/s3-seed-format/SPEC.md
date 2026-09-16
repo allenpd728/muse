@@ -2,7 +2,7 @@
 
 **Status: draft.** The prompt: sanctioned parameter ranges, performance
 philosophy, variation points, and assertions. Calibrated from
-[delta-analysis](../delta-analysis-plan.md) evidence. Human-authored or
+[delta-analysis](../../delta-analysis-plan.md) evidence. Human-authored or
 human-approved; never machine-invented without review.
 
 ## 0. Domain

@@ -65,4 +65,4 @@ cd tools && python -m pytest muse_ci/tests -q
 containers), tamper detection (corrupted pin, flipped roll byte, missing
 .mu, missing pin), decode determinism, CLI behavior, corpus coverage, and
 regeneration fidelity. Test spec:
-[tests/open_20260824-104500_p3-conformance-suite.md](../../tests/open_20260824-104500_p3-conformance-suite.md).
+[tests/closed_20260824-104500_p3-conformance-suite.md](../../tests/closed_20260824-104500_p3-conformance-suite.md).

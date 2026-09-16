@@ -68,6 +68,10 @@ SUITES+=("muse_budgets:muse_budgets")
 SUITES+=("muse_event:muse_event/tests")
 # Docs coherence (fast tier): design-doc/status-cache pins (E2 venue plan #230).
 SUITES+=("docs:../tests/docs")
+# Doc-prose lint (fast tier, T7 #299): offline mechanical doc checks
+# (broken relative links, unresolvable backticked paths, open_ refs whose
+# record closed, unfilled templates, non-UTF-8 docs).
+SUITES+=("muse_docs:muse_docs/tests")
 # F1 form curve (fast tier): windowed detector-quantize on corpus file.
 SUITES+=("muse_form:muse_form/tests")
 # Workbench audio bridge (fast tier): stand-in renders + manifest + live-path

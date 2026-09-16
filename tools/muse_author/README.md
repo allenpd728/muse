@@ -21,4 +21,4 @@ assertions wrapped into C1's validator (schema → assertions → budgets → ex
 
 ## Tests
 
-Test spec: [tests/open_20260823-223000_c2-authoring.md](../../tests/open_20260823-223000_c2-authoring.md).
+Test spec: [tests/closed_20260823-223000_c2-authoring.md](../../tests/closed_20260823-223000_c2-authoring.md).

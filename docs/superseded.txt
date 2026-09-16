@@ -1,0 +1,11 @@
+# Superseded docs — exempt from the doc-prose lint (tools/muse_docs)
+#
+# A doc listed here is retained as *design history*. Its dead links and
+# renamed paths are intentional: it records the state of the world at the
+# time it was written, so "fixing" it would rewrite history. Keep this list
+# tiny and justified — every entry needs the doc itself to say it is
+# superseded, so a reader is never misled.
+#
+# One repo-relative path per line; blank lines and # comments ignored.
+
+SCHEMA_SPEC.md

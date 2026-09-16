@@ -55,4 +55,4 @@ schemas evolve.
 
 ## Tests
 
-Spec: [tests/open_20260826-002500_s3-8a-chain-walk.md](../../tests/open_20260826-002500_s3-8a-chain-walk.md).
+Spec: [tests/closed_20260826-002500_s3-8a-chain-walk.md](../../tests/closed_20260826-002500_s3-8a-chain-walk.md).

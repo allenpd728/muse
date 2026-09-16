@@ -77,7 +77,7 @@ regressing (red). Legends at column header, not raw numbers.
 
 Audio placeholder shows "audio arrives with P2 — `muse play
 seeds/<work>.seed.yaml`" when no file. Session-local Renders
-per `docs/audio-convention` (rendered WAV is session-local, not
+per `docs/audio/README.md` (rendered WAV is session-local, not
 committed).
 
 ### 6. Command runner (top-right — NEW)

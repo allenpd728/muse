@@ -34,6 +34,6 @@ by part-id hash. Zero-duration notes clamped to width=1.
 
 11 tests: chorale/Byrd render, Beethoven 9 subset, None-pitch robustness,
 zero-duration clamp, part selection. Test spec:
-[tests/open_20260823-192000_w5-visualizer.md](../../tests/open_20260823-192000_w5-visualizer.md).
+[tests/closed_20260823-192000_w5-visualizer.md](../../tests/closed_20260823-192000_w5-visualizer.md).
 
 Dependencies: `pip install matplotlib`.

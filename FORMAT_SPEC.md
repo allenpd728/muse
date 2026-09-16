@@ -152,7 +152,7 @@ entities.
 ### 4.4 Golden vectors (conformance)
 
 Per task: (source → canonical JSON dump) pairs pinned by W4's diff tool.
-Generators/verifiers: [`tools/s1_stream/muse_stream`](../tools/s1_stream/).
+Generators/verifiers: [`tools/s1_stream/muse_stream`](tools/s1_stream/).
 JSON is the human-readable interchange encoding only; the binary layout
 belongs to S2. Canonical form: `json.dumps(sort_keys=True,
 separators) + "\n"`; integers only.
