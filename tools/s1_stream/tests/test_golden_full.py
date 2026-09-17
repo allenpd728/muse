@@ -20,11 +20,15 @@ from conftest import corpus_path
 GOLDEN = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "golden"))
 
 # (source parts, vector filename, pinned size in bytes) — measured 2026-08-23
+# Sizes amended 2026-09-16 for S6/#318: vocal text is now part of the
+# canonical surface. Only the three texted works moved; the ten
+# instrumental vectors are byte-identical, which is the evidence that
+# the change is additive rather than a re-encoding.
 VECTORS = {
     ("bach", "bwv227.1.mxl"): ("bach_bwv227.1.json", 40189),
     ("bach", "bwv227.3.mxl"): ("bach_bwv227.3.json", 54480),
-    ("bach", "bwv227.7.mxl"): ("bach_bwv227.7.json", 46363),
-    ("bach", "bwv227.11.mxl"): ("bach_bwv227.11.json", 29020),
+    ("bach", "bwv227.7.mxl"): ("bach_bwv227.7.json", 48846),
+    ("bach", "bwv227.11.mxl"): ("bach_bwv227.11.json", 31502),
     ("byrd", "1-Kyrie.mid"): ("byrd_1-kyrie.json", 11794),
     ("byrd", "2-Gloria.mid"): ("byrd_2-gloria.json", 139429),
     ("byrd", "3-Credo.mid"): ("byrd_3-credo.json", 215026),
@@ -33,7 +37,7 @@ VECTORS = {
     ("byrd", "6-Agnus.mid"): ("byrd_6-agnus.json", 57520),
     ("schubert", "death-and-the-maiden.mxl"): ("schubert_d810.json", 3809779),
     ("beethoven", "beethoven-sym5-mov1.xml"): ("beethoven_sym5_mov1.json", 2013010),
-    ("beethoven", "beethoven-sym9.xml"): ("beethoven_sym9.json", 35858004),
+    ("beethoven", "beethoven-sym9.xml"): ("beethoven_sym9.json", 35982766),
 }
 
 

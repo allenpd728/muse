@@ -41,7 +41,22 @@ def test_beethoven9_roundtrip_budget():
     assert [len(p.notes) for p in restored.parts] == [
         len(p.notes) for p in work.parts
     ]
-    assert len(payload) == 168281  # measured 2026-08-23; drift is a review
+    # Known-answer pin. Amended 2026-09-16 (#318): 168281 -> 177088 (+8807
+    # bytes, +5.2%) because the roll now carries B9's vocal text — 3,587
+    # lyrics + 405 melisma flags, interned through the existing string table.
+    # Non-texted works are byte-identical (the new presence bits were unused,
+    # so the golden fixtures did not move); only B9 pays. Source amendment:
+    # FORMAT_SPEC.md §4.6 + §8 and docs/pipeline.md S6.
+    assert len(payload) == 177088, (
+        f"B9 roll is {len(payload)} bytes, pinned at 177088 — drift is a review"
+    )
+
+    # The text is actually in the payload, not merely tolerated by the codec.
+    lyrics_in = sum(1 for p in work.parts for n in p.notes if n.lyric is not None)
+    lyrics_out = sum(1 for p in restored.parts for n in p.notes if n.lyric is not None)
+    extends_out = sum(1 for p in restored.parts for n in p.notes if n.extend)
+    assert lyrics_in == lyrics_out == 3587, (lyrics_in, lyrics_out)
+    assert extends_out == 405, extends_out
 
 
 # --- Gap 2: golden roll vectors ---

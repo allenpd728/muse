@@ -23,6 +23,12 @@ KNOWN_NOTATIONS = frozenset(
     {TIE_START, TIE_STOP, SLUR_START, SLUR_STOP, FERMATA, HAIRPIN, GRACE, CHORD, UNPITCHED}
 )
 
+# MusicXML <syllabic> values (S6, #318). "single" is a whole word on one note;
+# begin/middle/end split a word across notes. Extra values a source might
+# carry (e.g. "composite") are out of scope for the carrier and are dropped
+# with a warning rather than accepted silently.
+KNOWN_SYLLABIC = frozenset({"single", "begin", "middle", "end"})
+
 # Articulations preserved as expressed (MusicXML articulation tag names);
 # validated only syntactically (non-empty strings) — the vocabulary is open.
 ARTICULATION_ENUM = frozenset(
@@ -77,6 +83,20 @@ class Note:
     articulations: tuple = ()
     notations: frozenset = frozenset()
     source_id: Optional[str] = None  # upstream id (MusicXML id attr), if any
+    # Vocal text (S6, issue #318). A texted work's words are part of the
+    # score, so they live on the note rather than in a side channel — the
+    # presence-bitmap packing in tools/muse_roll carries them like any other
+    # optional field. All are None/False for instrumental notes.
+    #
+    # `lyric`/`syllabic`/`extend` describe **verse 1** so the common case
+    # needs no nesting, and `verses` carries the rest. Multi-verse is real
+    # corpus evidence, not a hypothetical: the Bach chorales bwv227.7 and
+    # bwv227.11 set two verses per note (a Lutheran chorale sings the same
+    # tune to different words), so dropping verse 2 would lose half the text.
+    lyric: Optional[str] = None  # verse 1 syllable as written, e.g. "Freu"
+    syllabic: Optional[str] = None  # "single" | "begin" | "middle" | "end"
+    extend: bool = False  # melisma: this syllable continues over later notes
+    verses: tuple = ()  # (Verse,) for verses 2..n; verse 1 is above
 
     @property
     def is_rest(self) -> bool:
@@ -84,7 +104,10 @@ class Note:
 
     def sort_key(self):
         # Deterministic: (onset, pitch, velocity, lexicographic notation),
-        # then voice and source id to fully break ties.
+        # then voice and source id to fully break ties. Lyric is last — it is
+        # not part of a note's musical identity, but two notes identical in
+        # every other respect (e.g. a repeated syllable at one onset) must
+        # still order deterministically.
         return (
             self.onset,
             -1 if self.pitch is None else self.pitch,
@@ -92,7 +115,25 @@ class Note:
             ",".join(sorted(self.notations)),
             self.voice,
             "" if self.source_id is None else self.source_id,
+            "" if self.lyric is None else self.lyric,
+            tuple((v.number, v.lyric or "", v.syllabic or "", v.extend)
+                  for v in self.verses),
         )
+
+
+@dataclass
+class Verse:
+    """Additional lyrics on a note (S6, #318) — verses 2..n.
+
+    Verse 1 lives directly on Note (lyric/syllabic/extend) so the common case
+    needs no nesting. A Lutheran chorale sings one tune to several texts, so
+    a note legitimately carries more than one; the corpus's bwv227.7 and
+    bwv227.11 each set two.
+    """
+    number: int  # the source's `number` attribute (2, 3, ...)
+    lyric: Optional[str] = None
+    syllabic: Optional[str] = None
+    extend: bool = False
 
 
 @dataclass
@@ -197,6 +238,44 @@ class Work:
                     raise IRValidationError(
                         f"part {part.id}: unknown notations {sorted(unknown)}"
                     )
+                if n.syllabic is not None and n.syllabic not in KNOWN_SYLLABIC:
+                    raise IRValidationError(
+                        f"part {part.id}: unknown syllabic {n.syllabic!r}; "
+                        f"expected one of {sorted(KNOWN_SYLLABIC)}"
+                    )
+                if n.lyric == "":
+                    # A bare <extend/> is represented as lyric=None (the
+                    # parser guarantees this), so an empty string here means
+                    # a writer violated the contract. An empty lyric would
+                    # also count as a texted note and corrupt word
+                    # reconstruction, so fail loudly rather than store it.
+                    raise IRValidationError(
+                        f"part {part.id}: empty-string lyric — an absent "
+                        f"syllable must be None, never ''"
+                    )
+                seen_verse_numbers = set()
+                for v in n.verses:
+                    if v.number < 2:
+                        raise IRValidationError(
+                            f"part {part.id}: Verse.number {v.number} — verse 1 "
+                            f"belongs on the note's own lyric fields, and "
+                            f"verses are numbered from 2"
+                        )
+                    if v.number in seen_verse_numbers:
+                        raise IRValidationError(
+                            f"part {part.id}: duplicate Verse.number {v.number}"
+                        )
+                    seen_verse_numbers.add(v.number)
+                    if v.syllabic is not None and v.syllabic not in KNOWN_SYLLABIC:
+                        raise IRValidationError(
+                            f"part {part.id}: unknown syllabic {v.syllabic!r} "
+                            f"on verse {v.number}"
+                        )
+                    if v.lyric == "":
+                        raise IRValidationError(
+                            f"part {part.id}: empty-string lyric on verse "
+                            f"{v.number} — an absent syllable must be None"
+                        )
             keys = [n.sort_key() for n in part.notes]
             if keys != sorted(keys):
                 raise IRValidationError(

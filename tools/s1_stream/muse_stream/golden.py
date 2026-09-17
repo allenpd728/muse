@@ -59,6 +59,19 @@ def work_to_canonical(work: Work) -> dict:
                         "articulations": list(n.articulations),
                         "notations": sorted(n.notations),
                         "unpitched": UNPITCHED in n.notations,
+                        # Vocal text (S6, #318), emitted only when present so
+                        # the vectors stay a faithful minimal surface: an
+                        # instrumental work's canonical JSON is byte-identical
+                        # to before this change. Emitting "lyric": null on
+                        # every note grew every vector ~38% for no signal.
+                        **({"lyric": n.lyric} if n.lyric is not None else {}),
+                        **({"syllabic": n.syllabic} if n.syllabic is not None else {}),
+                        **({"extend": True} if n.extend else {}),
+                        **({"verses": [
+                            {"number": v.number, "lyric": v.lyric,
+                             "syllabic": v.syllabic, "extend": v.extend}
+                            for v in n.verses
+                        ]} if n.verses else {}),
                     }
                     for n in p.notes
                 ],

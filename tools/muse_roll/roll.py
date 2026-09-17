@@ -23,6 +23,7 @@ from muse_ir.model import (
     Meta,
     Note,
     Part,
+    Verse,
     Work,
 )
 
@@ -169,13 +170,18 @@ def _pack_part(part: Part, S) -> bytes:
     for n in part.notes:
         out += _sv(n.onset - prev_onset)
         prev_onset = n.onset
-        # presence bitmap: pitch, velocity, articulations, notations, source_id
+        # presence bitmap: pitch, velocity, articulations, notations,
+        # source_id, lyric, syllabic, extend, verses (S6, #318)
         pres = (
             (n.pitch is not None)
             | ((n.velocity is not None) << 1)
             | (bool(n.articulations) << 2)
             | (bool(n.notations) << 3)
             | ((n.source_id is not None) << 4)
+            | ((n.lyric is not None) << 5)
+            | ((n.syllabic is not None) << 6)
+            | (bool(n.extend) << 7)
+            | (bool(n.verses) << 8)
         )
         out += _uv(pres)
         if n.pitch is not None:
@@ -195,6 +201,29 @@ def _pack_part(part: Part, S) -> bytes:
                 out += _uv(S(f))
         if n.source_id is not None:
             out += _pack_str(n.source_id)
+        if n.lyric is not None:
+            # Syllables repeat heavily ("der", "und", "-en"), so they go
+            # through the same intern table as dynamics and notation names.
+            out += _uv(S(n.lyric))
+        if n.syllabic is not None:
+            out += _uv(S(n.syllabic))
+        if n.verses:
+            out += _uv(len(n.verses))
+            for v in n.verses:
+                out += _uv(v.number)
+                # per-verse flags, so the record is self-describing: a verse
+                # may carry a syllable, a syllabic class, neither (an
+                # extend-only continuation), or any combination.
+                vflags = (
+                    (1 if v.lyric is not None else 0)
+                    | (2 if v.syllabic is not None else 0)
+                    | (4 if v.extend else 0)
+                )
+                out += _uv(vflags)
+                if v.lyric is not None:
+                    out += _uv(S(v.lyric))
+                if v.syllabic is not None:
+                    out += _uv(S(v.syllabic))
 
     out += _uv(len(part.dynamics))
     prev = 0
@@ -297,10 +326,23 @@ def _read_part(pr: _Reader, S) -> Part:
         articulations = tuple(S(pr.uv()) for _ in range(pr.uv())) if pres & 4 else ()
         notations = frozenset(S(pr.uv()) for _ in range(pr.uv())) if pres & 8 else frozenset()
         source_id = _read_str(pr) if pres & 16 else None
+        lyric = S(pr.uv()) if pres & 32 else None
+        syllabic = S(pr.uv()) if pres & 64 else None
+        extend = bool(pres & 128)
+        verses = []
+        if pres & 256:
+            for _ in range(pr.uv()):
+                number = pr.uv()
+                vflags = pr.uv()
+                v_lyric = S(pr.uv()) if vflags & 1 else None
+                v_syllabic = S(pr.uv()) if vflags & 2 else None
+                verses.append(Verse(number=number, lyric=v_lyric,
+                                    syllabic=v_syllabic, extend=bool(vflags & 4)))
         notes.append(Note(
             pitch=pitch, onset=onset, duration=duration, voice=voice,
             velocity=velocity, velocity_inferred=velocity_inferred,
             articulations=articulations, notations=notations, source_id=source_id,
+            lyric=lyric, syllabic=syllabic, extend=extend, verses=tuple(verses),
         ))
 
     dynamics = []
@@ -339,7 +381,10 @@ def _canonical(work: Work) -> dict:
              p.inferred_voice,
              tuple((n.pitch, n.onset, n.duration, n.voice, n.velocity,
                     n.velocity_inferred, tuple(n.articulations),
-                    tuple(sorted(n.notations)), n.source_id) for n in p.notes),
+                    tuple(sorted(n.notations)), n.source_id,
+                    n.lyric, n.syllabic, n.extend,
+                    tuple((v.number, v.lyric, v.syllabic, v.extend)
+                          for v in n.verses)) for n in p.notes),
              tuple((d.tick, d.text) for d in p.dynamics),
              tuple((h.kind, h.start_tick, h.end_tick) for h in p.hairpins))
             for p in work.parts

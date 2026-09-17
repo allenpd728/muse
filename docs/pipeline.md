@@ -54,6 +54,22 @@ a pattern-frequency report that drives Phase 1 language decisions.
 **Phase 1 done when:** FORMAT_SPEC.md v1.0 is written, with every construct
 justified by Phase 0 evidence (a construct without corpus evidence doesn't ship).
 
+**What "losslessly" means here — stated, not implied (amended 2026-09-16,
+S6/#318).** The chain proves **IR → `.mu` → IR**: it parses the source into
+the IR, packs from the IR, and verifies the decoded stream against that IR.
+It does not re-read the source XML/MIDI and compare. So the gate holds over
+what the IR carries, and its strength is bounded by parser coverage — a field
+the parser never reads cannot fail the check.
+
+That gap was real and is now closed for the one case that mattered: the
+Ninth's 3,588 `<lyric>` elements were outside the IR entirely (#318), so
+"source lossless" was unprovable for the v1.0 target. Vocal text now
+round-trips (3,587 lyrics + 405 melismas) and is part of the canonical
+comparison the chain diffs on, so a dropped lyric **fails** the chain.
+
+Treat parser coverage as part of this gate: when a new source construct is
+found, ask whether the IR reads it, not only whether the chain is green.
+
 ## Phase 2 — Deterministic player (the baseline)
 
 | Task | What it is | Status |
@@ -115,7 +131,7 @@ that prove too large"). Each has a design-doc scaffold in
 | **W7 — Mockup schema v0** | L1's unwritten intermediate artifact | Drafts the mockup session-file schema from delta-analysis evidence + spike JSONs; validate via W4 | L1 harness |
 | **C5 — Baroque delta measurement** | C3's unmeasured Baroque budget gap | Runs delta-analysis vocabulary on Baroque corpora (chorales + polyphony); feeds era budgets | C3 (and W3's per-phrase curves) |
 | **L5 — Sample-quality waiver** | L2's unresolved "convincing vs. concert" ceiling | Triggered only if L2 fails the founder's ear despite maximal mockup: either commercial-library contract or revised event bar | E1 (event quality) |
-| **S6 — Vocal text schema** | Vocal/choral text (Ninth 52 staves, FORMAT_SPEC §8) | Extends S1 with interleaved lyrics/syllables; verified against Beethoven 9 finale | S1 closure, v1.0 |
+| **S6 — Vocal text schema** | Vocal/choral text (Ninth 52 staves, FORMAT_SPEC §8) | Done: `lyric`/`syllabic`/`extend` on the note, presence-bitmap bits 5–7 + string-table intern (#318). B9 round-trips 3,587 lyrics + 405 melismas; the Ode text reconstructs. Single verse in v0 | done (#318) |
 | **E4 — Extension decision** | `.mu` extension collision (Kerbal/Lisp) | Pick final file extension before spec publication (`.mu`, `.muse`, `.muw`, …); update spec + corpus + tooling | S5, publication |
 
 Design docs: [design/w6-b9-scaling.md](design/w6-b9-scaling.md),

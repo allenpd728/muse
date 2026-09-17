@@ -79,8 +79,8 @@
     "Tenor",
     "Bass"
    ],
-   "roll_bytes": 692,
-   "pack_ratio": 0.1229,
+   "roll_bytes": 1060,
+   "pack_ratio": 0.1882,
    "piano_roll": "img/bach_bwv227.7.png",
    "patterns": {
     "exact repeats": 52,
@@ -108,8 +108,8 @@
     "Tenor",
     "Bass"
    ],
-   "roll_bytes": 524,
-   "pack_ratio": 0.1182,
+   "roll_bytes": 891,
+   "pack_ratio": 0.201,
    "piano_roll": "img/bach_bwv227.11.png",
    "patterns": {
     "exact repeats": 8,
@@ -419,8 +419,8 @@
     "Violoncelli",
     "Contrabbassi"
    ],
-   "roll_bytes": 168281,
-   "pack_ratio": 0.0024,
+   "roll_bytes": 177088,
+   "pack_ratio": 0.0026,
    "piano_roll": "img/beethoven_beethoven-sym9.png",
    "patterns": {
     "exact repeats": 252643,

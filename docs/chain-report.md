@@ -20,4 +20,4 @@ Determinism (two full runs, identical artifacts): PASS
 | beethoven-sym5-mov1 | PASS | PASS | PASS | PASS | PASS | PASS |
 | beethoven-sym9 | PASS | PASS | PASS | PASS | PASS | SKIP |
 
-No failures. Skips are over-budget W4 diffs and over-budget P2 renders, as designed.
+No failures. 1 skip(s), all in render, on beethoven-sym9 — beethoven-sym9: 239459 notes > 30000 budget. A render skip is an output-size decision (the whole work's PCM is buffered), not a compute limit; a verify skip would mean a diff budget fired, which no corpus work should hit.

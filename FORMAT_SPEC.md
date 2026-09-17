@@ -184,18 +184,26 @@ MUR1 | varint(compressed_length) | zlib(payload)
   warnings) → maps (delta-encoded ticks: tempo, meter, key) → parts.
 - **Parts**: id/name (string table), instrument flags, per-note columnar
   stream — onset deltas (zigzag), presence bitmap for optional fields
-  (pitch, velocity, articulations, notations, source_id), duration, voice.
-  Dynamics delta-encoded with dictionary-coded text; hairpins
-  start-delta + optional end + dictionary-coded kind.
+  (pitch, velocity, articulations, notations, source_id, **lyric,
+  syllabic, extend, verses** — bits 5–8, added 2026-09-16 for S6/#318),
+  duration, voice. Dynamics delta-encoded with dictionary-coded text;
+  hairpins start-delta + optional end + dictionary-coded kind. Lyric and
+  syllabic go through the same string table as dynamics and notation names,
+  so repeated syllables ("der", "und", "-en") cost one entry each. An
+  additional verse carries its own flags byte (lyric present / syllabic
+  present / extend), so a verse record is self-describing.
 - **Entropy coding**: zlib level 9 over the whole payload (stdlib; an
   off-the-shelf coder, per the design doc's open question — a custom
   coder is a post-v1 optimization, never a correctness issue).
 - **Lossless by construction and by proof**: every corpus file
   round-trips losslessly (W4 recall = precision = 1.0 through the
-  `tools/muse_roll/cli.py verify` gate; B9 verified structurally
-  encode→decode→canonical-compare). Ratios vs. source: Bach ~10–12% of
+  `tools/muse_roll/cli.py verify` gate; B9 verified by W4 as of #317,
+  plus encode→decode→canonical-compare). Ratios vs. source: Bach ~10–12% of
   .mxl, Byrd MIDI ~14–22%, Schubert 9.6%, Beethoven 5 0.26%,
-  Beethoven 9 0.24% (68.8 MB → 168 KB).
+  Beethoven 9 0.24% (68.8 MB → 177 KB; was 168 KB before vocal text
+  landed — +5.2% for 3,587 lyrics + 405 melisma flags). The ten
+  instrumental works are byte-identical to before that change, which is
+  the evidence the extension is additive.
 
 ## 5. The prompt (model)
 
@@ -356,4 +364,14 @@ members: `manifest.json`, `roll.bin`, `seed.bin`. Reference validator:
 - Whether the executable layer needs a general operator set (transpose/
   invert/retro/aug/dim) or the corpus demands more.
 - Performance-file encoding details.
-- How vocal/choral text is carried (the Ninth's finale forces this).
+
+**Closed 2026-09-16 (S6, #318):** "How vocal/choral text is carried" — as
+first-class optional fields on the note (`lyric`, `syllabic`, `extend`, and
+`verses` for 2..n), packed in presence-bitmap bits 5–8 (§4.6) with syllables
+interned in the string table. Verse 1 lives directly on the note so the common
+case needs no nesting; `verses` carries the rest, because the corpus settles it
+— `bwv227.7` and `bwv227.11` each set two texts per note, a chorale singing one
+tune to several verses. Unknown `<syllabic>` values and non-numeric verse
+numbers are reported with a warning rather than silently dropped. The Ninth's
+finale round-trips: 3,587 lyrics and 405 melisma flags; both chorale movements
+round-trip both verses.
