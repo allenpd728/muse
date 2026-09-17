@@ -24,11 +24,13 @@ from .model import (
     FERMATA,
     GRACE,
     HAIRPIN,
+    KNOWN_SYLLABIC,
     SLUR_START,
     SLUR_STOP,
     TIE_START,
     TIE_STOP,
     UNPITCHED,
+    Verse,
     DynamicMarking,
     Hairpin,
     Instrument,
@@ -316,7 +318,9 @@ def _parse_part(part_el, pid, name, instrument, ppq, maps_acc, warnings, origin)
                     raise IRParseError(
                         f"{origin}: part {pid}: note before any <divisions> declaration"
                     )
-                note, advance, onset = _parse_note(el, cursor, last_onset, to_ticks, origin, pid)
+                note, advance, onset = _parse_note(
+                    el, cursor, last_onset, to_ticks, origin, pid, warnings
+                )
                 if open_wedges:
                     note.notations = note.notations | {HAIRPIN}
                 if not _has(el, "chord"):
@@ -356,7 +360,80 @@ def _has(el, name: str) -> bool:
     return _child(el, name) is not None
 
 
-def _parse_note(el, cursor, last_onset, to_ticks, origin, pid):
+def _parse_lyric(el, warnings=None, pid=""):
+    """Extract (lyric, syllabic, extend, verses) from a MusicXML note (#318).
+
+    Verse 1 is returned directly (the common case needs no nesting); verses
+    2..n come back as ``Verse`` objects. Multi-verse is real corpus evidence:
+    bwv227.7 and bwv227.11 set two texts per note, because a Lutheran chorale
+    sings one tune to several verses. Dropping them would lose half the words,
+    so they are carried rather than warned about.
+
+    A ``<syllabic>`` value outside KNOWN_SYLLABIC is carried as text with no
+    syllabic marker, **with a warning** — silently discarding it would be the
+    invisible loss this issue exists to remove.
+    """
+    lyrics = _children(el, "lyric")
+    if not lyrics:
+        return None, None, False, ()
+
+    def parse_one(ly):
+        text = _text(ly, "text")
+        text = "" if text is None else text
+        syllabic = _text(ly, "syllabic") or None
+        if syllabic is not None and syllabic not in KNOWN_SYLLABIC:
+            if warnings is not None:
+                warnings.append(
+                    f"part {pid}: unsupported syllabic {syllabic!r} on lyric "
+                    f"{text!r}; carrying the text without a syllabic marker"
+                )
+            syllabic = None
+        # <extend> marks a melisma: the syllable holds through later notes.
+        extend = _child(ly, "extend") is not None
+        if text == "":
+            # A bare <extend/> carries no syllable of its own — it continues
+            # the previous one. Represent as no lyric with extend set, never
+            # as an empty string (an empty lyric would count as texted and
+            # corrupt word reconstruction).
+            return None, None, extend
+        return text, syllabic, extend
+
+    by_number = {}
+    for ly in lyrics:
+        raw = ly.attrib.get("number", "1")
+        try:
+            num = int(raw)
+        except (TypeError, ValueError):
+            if warnings is not None:
+                warnings.append(
+                    f"part {pid}: non-numeric lyric number {raw!r}; treating "
+                    f"it as verse 1"
+                )
+            num = 1
+        by_number.setdefault(num, ly)
+
+    first = by_number.get(1)
+    if first is not None:
+        lyric, syllabic, extend = parse_one(first)
+    elif by_number:
+        # No verse 1 declared: promote the lowest numbered verse so the note
+        # still carries its text rather than losing it entirely.
+        lowest = min(by_number)
+        lyric, syllabic, extend = parse_one(by_number[lowest])
+        by_number.pop(lowest)
+    else:
+        lyric, syllabic, extend = None, None, False
+
+    verses = tuple(
+        Verse(number=num, lyric=ly, syllabic=sy, extend=ex)
+        for num in sorted(by_number)
+        if num != 1
+        for ly, sy, ex in [parse_one(by_number[num])]
+    )
+    return lyric, syllabic, extend, verses
+
+
+def _parse_note(el, cursor, last_onset, to_ticks, origin, pid, warnings=None):
     is_chord = _has(el, "chord")
     is_grace = _has(el, "grace")
     onset = last_onset if is_chord else cursor
@@ -423,6 +500,8 @@ def _parse_note(el, cursor, last_onset, to_ticks, origin, pid):
         if _child(not_el, "fermata") is not None:
             notations.add(FERMATA)
 
+    lyric, syllabic, extend, verses = _parse_lyric(el, warnings, pid)
+
     note = Note(
         pitch=pitch,
         onset=onset,
@@ -431,6 +510,10 @@ def _parse_note(el, cursor, last_onset, to_ticks, origin, pid):
         articulations=tuple(articulations),
         notations=frozenset(notations),
         source_id=el.attrib.get("id"),
+        lyric=lyric,
+        syllabic=syllabic,
+        extend=extend,
+        verses=verses,
     )
     advance = 0 if is_chord else duration
     return note, advance, onset

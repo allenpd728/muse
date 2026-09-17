@@ -70,13 +70,15 @@ def generate(explorer_dir=EXPLORER, quick=False):
                 print(f"warning: piano-roll render failed for {relpath}: {e}")
         else:
             png_rel = f"img/{slug}.png"  # contract path without the render
-        if quick and "sym9" in relpath:
-            payload = b""  # B9 pack skipped in quick mode; size pinned below
-            roll_bytes, pack_ratio = 168281, 0.0024  # measured 2026-08-23
-        else:
-            payload = encode(w)
-            src = os.path.getsize(os.path.join(muse_corpus.CORPUS_ROOT, relpath))
-            roll_bytes, pack_ratio = len(payload), round(len(payload) / src, 4)
+        # Quick mode exists to skip the *piano-roll* rendering and the B9
+        # parse/pack wall-clock, but the reported size must still be real:
+        # it used to be a hardcoded pair (168281, 0.0024) that silently went
+        # stale when #318 changed the encoding. Encoding here is the cheap
+        # part; derive the numbers so a future change cannot diverge.
+        payload = encode(w)
+        roll_bytes = len(payload)
+        src_size = os.path.getsize(os.path.join(muse_corpus.CORPUS_ROOT, relpath))
+        pack_ratio = round(roll_bytes / src_size, 4)
         works.append({
             "id": work_id,
             "title": title,
