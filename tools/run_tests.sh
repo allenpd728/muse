@@ -72,6 +72,8 @@ SUITES+=("docs:../tests/docs")
 # (broken relative links, unresolvable backticked paths, open_ refs whose
 # record closed, unfilled templates, non-UTF-8 docs).
 SUITES+=("muse_docs:muse_docs/tests")
+# HuB status-log sweep (fast tier): offline sweep tests.
+SUITES+=("hub_sweep:hub_sweep/tests")
 # F1 form curve (fast tier): windowed detector-quantize on corpus file.
 SUITES+=("muse_form:muse_form/tests")
 # Workbench audio bridge (fast tier): stand-in renders + manifest + live-path
