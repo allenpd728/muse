@@ -43,15 +43,23 @@ player never changes; the rolls keep getting better.
 | **Prompt** | Interpretive space: sanctioned ranges, performance philosophy, what may vary. Authored from any source (MusicXML, DAW session, MIDI) via the shared IR. | LLM player |
 | **Manifest** | License, provenance, AI disclosure, hashes | Anyone — plaintext |
 
-## Components
+## Component status
+
+Phases 0–4 of the build plan ([docs/pipeline.md](docs/pipeline.md)) are
+complete; Phase 5 (the unveiling) is partly landed and the public publication
+step is deliberately deferred.
 
 | Component | Status | Visibility |
 |---|---|---|
-| Format spec ([FORMAT_SPEC.md](FORMAT_SPEC.md)) | Design draft | Public at launch |
+| Format spec ([FORMAT_SPEC.md](FORMAT_SPEC.md)) | v0 design draft; the encoding and language sections are pinned by Phase 0/1 evidence | Public at launch |
 | Reference corpus ([corpus/](corpus/)) | **Acquired** — Bach, Byrd, Schubert, Beethoven 5, Beethoven 9 complete | Public domain sources |
-| Compressor (MusicXML → `.mu`) | **Landed** (S2 [tools/muse_roll](tools/muse_roll/); container S5 [tools/muse_mu](tools/muse_mu/); seed S3 series through #147) | Proprietary |
-| Deterministic player | **Landed** (P1 [tools/muse_decode](tools/muse_decode/); renderer P2 [tools/muse_play](tools/muse_play/)) | Public at launch |
-| LLM player | In progress — session-file harness L1 [tools/muse_mockup](tools/muse_mockup/), renderer L2 [tools/muse_render](tools/muse_render/), A/B rig L3 [tools/muse_compare](tools/muse_compare/), distiller L4 [tools/muse_distill](tools/muse_distill/) | **The product — proprietary** |
+| Workbench + analyzer (W-series) | **Landed** — event IR, corpus loader, analyzer, diff tool, visualizer, B9 scaling fix | Internal |
+| Compressor (MusicXML → `.mu`) | **Landed** — score S2 [tools/muse_roll](tools/muse_roll/), language S4 [tools/muse_ops](tools/muse_ops/), container S5 [tools/muse_mu](tools/muse_mu/), seed S3 series [tools/muse_seed](tools/muse_seed/) | Proprietary |
+| Deterministic player | **Landed** — decoder P1 [tools/muse_decode](tools/muse_decode/), renderer P2 [tools/muse_play](tools/muse_play/), conformance suite P3 [tools/muse_ci](tools/muse_ci/) | Public at launch |
+| E2E chain gate | **Landed** — source → IR → pack → container → decode → render, determinism-checked; B9 verifies at recall=precision=1.0 ([tools/muse_chain](tools/muse_chain/)) | Internal |
+| Seed authoring (C-series) | **Landed** — format impl, AI-assisted authoring, budget calibration, assertion authoring | Proprietary |
+| LLM player (L-series) | **Landed** — mockup harness L1 [tools/muse_mockup](tools/muse_mockup/), renderer L2 [tools/muse_render](tools/muse_render/), A/B rig L3 [tools/muse_compare](tools/muse_compare/), distiller L4 [tools/muse_distill](tools/muse_distill/) | **The product — proprietary** |
+| Event (E-series) | E1 work + E2 venue **done**; E3 recording plan drafted, **publication blocked** on a concert-worthy Phase-4 result | At launch |
 
 ## The corpus
 
