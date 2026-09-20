@@ -74,6 +74,9 @@ SUITES+=("docs:../tests/docs")
 SUITES+=("muse_docs:muse_docs/tests")
 # HuB status-log sweep (fast tier): offline sweep tests.
 SUITES+=("hub_sweep:hub_sweep/tests")
+# Auditor (fast tier): offline drift/health checks. tools/test_runner_meta.py
+# enforces that any test_ file under tools/ is registered here.
+SUITES+=("auditor:auditor/tests")
 # F1 form curve (fast tier): windowed detector-quantize on corpus file.
 SUITES+=("muse_form:muse_form/tests")
 # Workbench audio bridge (fast tier): stand-in renders + manifest + live-path
