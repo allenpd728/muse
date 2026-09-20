@@ -62,6 +62,16 @@ One JSON object per line; append-only; never rewritten. See HuB's
   - **Toolchain (W/S/C series)** — `tools/` — analysis workbench, seed workbench. Phase 0 items W1-W5 are done (`docs/pipeline.md`).
   - **Corpus / ratchet** — `corpus/` — Bach to Beethoven 9 (`corpus/README.md`).
 
+  **How to arrive at a level for this repo.** The level is not a vibe — it is read off a
+  structure this repo already maintains:
+
+  Derive levels from **`docs/pipeline.md`** — the phase tables and their explicit
+  'done when' criteria. Concretely: a task marked **done** and covered by the conformance
+  runner (`tools/run_tests.sh`, CI) is level 4; a phase whose **done-when** criterion is met
+  is level 6. Muse's own own-vs-product split is relevant: the deterministic player
+  (`P-series`) is the free baseline and the LLM player (`L-series`) is the product, so they
+  should be rated separately, not averaged.
+
   Muse's build status lives in `docs/pipeline.md` (the W/S/P/C/L task series) and is the authoritative work plan. TRL here should describe how *usable* a piece is, which for muse can differ sharply from whether it is done — the deterministic player may be usable well before the LLM player is.
 
   **Do not name a component after an internal task or issue.** Name the capability you would
