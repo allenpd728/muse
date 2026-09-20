@@ -36,11 +36,36 @@ One JSON object per line; append-only; never rewritten. See HuB's
   `MULTI_AGENT_WORKFLOW.md`: claim comment older than 1 hour with no activity
   since).
 - `notes` — the same counts as a one-line human-readable summary.
-- `trl` — *only present if* `status/trl.json` exists. TRL is a human judgement
-  about this project's components and cannot be derived from issue counts, so
-  it is never guessed here: absent file means the field is omitted and HuB
-  shows its "no TRL entries" message. To publish TRL, commit
-  `status/trl.json` as `{"components": {"<name>": <0-9>, ...}}`.
+- `trl` — *only present if* `status/trl.json` exists at the repo root. TRL is a human
+  judgement about a component's readiness and cannot be derived from issue counts, so it is
+  never guessed: an absent file means the field is omitted and HuB shows its
+  "No TRL entries" message. **That is the correct state until someone sets real levels**, not
+  a bug to work around.
+
+  What each level means is defined once, for all repos, in HuB's
+  [`PM_STATUS_FRAMEWORK.md`](https://github.com/allenpd728/HuB/blob/main/PM_STATUS_FRAMEWORK.md)
+  §"What TRL means here". Read it before setting a number — in particular: rate the weakest
+  real capability, a component can move *down*, and TRL measures readiness of the *piece*, not
+  confidence in the research hypothesis.
+
+  **To publish:** copy `status/trl.json.template` to `status/trl.json`, replace the `null`s
+  with integers 0–9, and commit on this repo's tracked branch. It appears on the dashboard
+  after the next sweep (up to 30 min, plus ~5 min CDN lag). Existing characters in the log are
+  never rewritten; only new snapshots carry the values.
+
+  **Candidate components for muse** — drawn from this repo's own docs, not invented.
+  Rename, merge, or drop any of these; the list is a starting point, not a contract:
+
+  - **Format spec v1.0** — `.mu` = score + prompt + manifest (`FORMAT_SPEC.md`). Not frozen yet — "tools before spec freeze".
+  - **Deterministic player** — P-series — "our MIDI player", the free baseline.
+  - **LLM player** — L-series — the product. Proprietary.
+  - **Toolchain (W/S/C series)** — `tools/` — analysis workbench, seed workbench. Phase 0 items W1-W5 are done (`docs/pipeline.md`).
+  - **Corpus / ratchet** — `corpus/` — Bach to Beethoven 9 (`corpus/README.md`).
+
+  Muse's build status lives in `docs/pipeline.md` (the W/S/P/C/L task series) and is the authoritative work plan. TRL here should describe how *usable* a piece is, which for muse can differ sharply from whether it is done — the deterministic player may be usable well before the LLM player is.
+
+  **Do not name a component after an internal task or issue.** Name the capability you would
+  hand to someone else — that is what makes the level meaningful to a reader outside this repo.
 
 ## Tests
 
