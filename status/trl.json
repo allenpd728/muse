@@ -1,0 +1,16 @@
+{
+  "components": {
+    "Format spec v1.0": 2,
+    "Deterministic player": 6,
+    "LLM player": 3,
+    "Toolchain (W/S/C series)": 5,
+    "Corpus / ratchet": 6
+  },
+  "_rationale": {
+    "Format spec v1.0": "FORMAT_SPEC.md self-describes as 'Design draft, pre-evidence' and Phase 1's done-when is 'v1.0 written' -- not yet reached. Specified with structure = level 2.",
+    "Deterministic player": "Phase 2 done-when is satisfied: every corpus work round-trips and W6 confirms Beethoven 9 (239k notes) verifies at recall=precision=1.0 in ~1s; P1/P2/P3 all done and covered by the conformance runner = level 6.",
+    "LLM player": "L1 mockup harness and the L1.11 stand-in swap are done, so it runs on real corpus inputs, but Phase 4's done-when (one work performed end-to-end by the LLM player) is not met = level 3.",
+    "Toolchain (W/S/C series)": "W1-W5, S1-S5, C1-C4 all done and all covered by tools/run_tests.sh (23 registered suites) and the conformance CI = level 5.",
+    "Corpus / ratchet": "All five works including Beethoven 9 are loaded, analysed and verified end-to-end -- the full ratchet = level 6."
+  }
+}
