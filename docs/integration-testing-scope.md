@@ -1,5 +1,11 @@
 # Integration testing — scope (2026-08-23 audit)
 
+> **Snapshot, not current state.** This document records the integration-testing
+> gap as it stood on 2026-08-23. Parts of the "What is missing" section below
+> have since been closed — `tools/run_tests.sh` now provides a unified runner,
+> `.github/workflows/` holds CI, and the chain test landed. Read the gap list as
+> history; the per-task status table at the end is maintained and current.
+
 ## What exists today
 
 ~259 unit tests across 12 tool packages. All green. Each tool is tested in
