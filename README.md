@@ -7,10 +7,10 @@ Any conforming player reads the score for exact mechanical playback; an LLM
 player reads score + prompt and brings the work to life — slowly,
 deliberately. A performance is an event, not a render.
 
-> **Status: private development.** Format spec, tooling, and corpus live on
-> `dev`; deterministic player (P1/P2) and LLM-side harnesses are landed and
-> tested. Nothing here is public-ready; the format spec will be published at
-> launch, not before.
+> **Status: pre-launch development.** The repo is public; the work inside it is
+> not finished. Format spec, tooling, and corpus live on `dev`; deterministic
+> player (P1/P2) and LLM-side harnesses are landed and tested. Nothing here is
+> launch-ready, and the format spec will not be announced before it is.
 
 ## The product model
 
