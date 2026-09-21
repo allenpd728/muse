@@ -2,7 +2,7 @@
 
 **Found by:** run=20260916-1525-8d06 (TASK_WORKFLOW §1c in-flight defect log)
 at 2026-09-16 ~16:02Z, while working #304 (workbench site navigation).
-**Issue:** [#309](https://github.com/allenpd728/muse/issues/309) `status:done`.
+**Issue:** [#309](https://github.com/philipdallen/rubato/issues/309) `status:done`.
 
 ## Symptom
 

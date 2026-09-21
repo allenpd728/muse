@@ -47,8 +47,8 @@ python3 -m pytest tests/docs -q
 
 Live verification (after a real push: 
 ```bash
-gh run list --repo allenpd728/muse --workflow retry-flaky.yml
-gh run view <retry-run-id> --repo allenpd728/muse --log
+gh run list --repo philipdallen/rubato --workflow retry-flaky.yml
+gh run view <retry-run-id> --repo philipdallen/rubato --log
 # confirm: (a) it fired for a conformance failure, (b) its step ran
 # 'gh run rerun <conformance-id> --failed', (c) the conformance run's
 # attempt became 2.

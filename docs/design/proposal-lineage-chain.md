@@ -1,13 +1,13 @@
 # Lineage chain, growth measurement, and workbench trust surface — consolidated proposal
 
 **Status:** tasks filed (2026-08-25, run=20260825-2247-qogi): S3.7
-[#248](https://github.com/allenpd728/muse/issues/248), S5.1
-[#249](https://github.com/allenpd728/muse/issues/249), L1.10
-[#250](https://github.com/allenpd728/muse/issues/250), S3.8a
-[#251](https://github.com/allenpd728/muse/issues/251), S3.8b
-[#254](https://github.com/allenpd728/muse/issues/254), G4
-[#252](https://github.com/allenpd728/muse/issues/252), W-B9
-[#253](https://github.com/allenpd728/muse/issues/253). Native blocked-by
+[#248](https://github.com/philipdallen/rubato/issues/248), S5.1
+[#249](https://github.com/philipdallen/rubato/issues/249), L1.10
+[#250](https://github.com/philipdallen/rubato/issues/250), S3.8a
+[#251](https://github.com/philipdallen/rubato/issues/251), S3.8b
+[#254](https://github.com/philipdallen/rubato/issues/254), G4
+[#252](https://github.com/philipdallen/rubato/issues/252), W-B9
+[#253](https://github.com/philipdallen/rubato/issues/253). Native blocked-by
 relationships set per the table in §3. (The original S3.8 was split into
 S3.8a walker + S3.8b mockup persistence/distiller stamping — the combined
 scope was over the one-agent-run sizing rule.)
@@ -259,13 +259,13 @@ that gives the hash something to point at.
 
 | Task | Issue | Scope | Blocked by | Blocks | Size |
 |---|---|---|---|---|---|
-| **S3.7 — Lineage fields on seed provenance** | [#248](https://github.com/allenpd728/muse/issues/248) | `extends`/`operation` decisions-log entry in `s3-seed-format/SPEC.md` + C1 validator acceptance, per §1 hash convention | none | #249, #250, #251, #252 | S |
-| **S5.1 — Manifest provenance lineage fields** | [#249](https://github.com/allenpd728/muse/issues/249) | `PROVENANCE_KEYS` += `extends`, `operation`; digest validation shared with `_validate_hashes`; pack-time copy sentence in `s5-container-manifest.md` | #248 | #251 | S |
-| **S3.8a — Chain-walk/verify helper** | [#251](https://github.com/allenpd728/muse/issues/251) | walk `extends` across committed seed revision files; three-state per-hop report (verified / mismatch / missing); mockup hops report `parent missing` until #254 lands | #248, #249 | #253, #254 | S–M |
-| **S3.8b — Mockup persistence + distiller stamping** | [#254](https://github.com/allenpd728/muse/issues/254) | growth loop commits the producing mockup next to each seed revision; `muse_distill.seed_revision()` emits `extends` (hash of that mockup) + `operation` | #250, #251 | — | M |
-| **L1.10 — Mockup `provenance.seed_hash`** | [#250](https://github.com/allenpd728/muse/issues/250) | optional `provenance` object in mockup schema v1 with `seed_hash` only (run-metadata fields stay with the unfiled typed-provider series); delete vestigial optional `"seed"` property (zero consumers — verified) | #248 | #254 | S |
-| **G4 — Growth harness expansion-time logging** | [#252](https://github.com/allenpd728/muse/issues/252) | `expansion_time_ms` keyed by `operation` against `(variation_point_count, note_count)` in the growth report JSON | #248 | corpus-ladder cost report (future, not yet scoped) | S |
-| **W-B9 — Workbench lineage probe** | [#253](https://github.com/allenpd728/muse/issues/253) | "Lineage check" row in the probe table; verified/broken/missing surfaced per revision in iteration history | #251 (walker only) | none | S |
+| **S3.7 — Lineage fields on seed provenance** | [#248](https://github.com/philipdallen/rubato/issues/248) | `extends`/`operation` decisions-log entry in `s3-seed-format/SPEC.md` + C1 validator acceptance, per §1 hash convention | none | #249, #250, #251, #252 | S |
+| **S5.1 — Manifest provenance lineage fields** | [#249](https://github.com/philipdallen/rubato/issues/249) | `PROVENANCE_KEYS` += `extends`, `operation`; digest validation shared with `_validate_hashes`; pack-time copy sentence in `s5-container-manifest.md` | #248 | #251 | S |
+| **S3.8a — Chain-walk/verify helper** | [#251](https://github.com/philipdallen/rubato/issues/251) | walk `extends` across committed seed revision files; three-state per-hop report (verified / mismatch / missing); mockup hops report `parent missing` until #254 lands | #248, #249 | #253, #254 | S–M |
+| **S3.8b — Mockup persistence + distiller stamping** | [#254](https://github.com/philipdallen/rubato/issues/254) | growth loop commits the producing mockup next to each seed revision; `muse_distill.seed_revision()` emits `extends` (hash of that mockup) + `operation` | #250, #251 | — | M |
+| **L1.10 — Mockup `provenance.seed_hash`** | [#250](https://github.com/philipdallen/rubato/issues/250) | optional `provenance` object in mockup schema v1 with `seed_hash` only (run-metadata fields stay with the unfiled typed-provider series); delete vestigial optional `"seed"` property (zero consumers — verified) | #248 | #254 | S |
+| **G4 — Growth harness expansion-time logging** | [#252](https://github.com/philipdallen/rubato/issues/252) | `expansion_time_ms` keyed by `operation` against `(variation_point_count, note_count)` in the growth report JSON | #248 | corpus-ladder cost report (future, not yet scoped) | S |
+| **W-B9 — Workbench lineage probe** | [#253](https://github.com/philipdallen/rubato/issues/253) | "Lineage check" row in the probe table; verified/broken/missing surfaced per revision in iteration history | #251 (walker only) | none | S |
 
 Numbering notes (why not the numbers in earlier drafts of this doc):
 **S3.6** was already taken ("Example seed", #147, closed); **W-B5**

@@ -39,7 +39,7 @@ workflow_dispatch-only after live verification showed a self-trigger loop.
    - `docs/pipeline.md` retry row tracks both #293/#300|.
 5. **Live behavior** (real gate; manual/opportunistic, depends on the
    runner issue #194):
-   - `gh workflow run retry-flaky.yml -f run_id=<ID> --repo allenpd728/muse`
+   - `gh workflow run retry-flaky.yml -f run_id=<ID> --repo philipdallen/rubato`
      triggers exactly one run that re-runs only the named run's failed jobs.
    - A second invocation re-runs again (each explicit invocation
      one-shot); no run can trigger another run itself..
@@ -61,9 +61,9 @@ pins in tests/docs/test_ci_retry.py pass;. YAML parses via
 
 Live verification ((after a real manual dispatch:
 ```bash
-gh workflow run retry-flaky.yml -f run_id=<RUN_ID> --repo allenpd728/muse
-gh run list --repo allenpd728/muse --workflow retry-flaky.yml
-gh run view <retry-run-id> --repo allenpd728/muse --log
+gh workflow run retry-flaky.yml -f run_id=<RUN_ID> --repo philipdallen/rubato
+gh run list --repo philipdallen/rubato --workflow retry-flaky.yml
+gh run view <retry-run-id> --repo philipdallen/rubato --log
 # confirm:the step ran 'gh run rerun <conformance-id> --failed' and
 #only failed jobs of the named run were re-run; no new runs fire beyond
 #the invoked one..
@@ -84,7 +84,7 @@ Live dispatch verification deferred: Actions runner not yet healthy (5 consecuti
 
 Per when-not-to matrix (>24h straight, donot mask outage) + #295 precedent (live deferred until runner healthy), no bounded dispatch fired this session.
 
-Follow-up: fire `gh workflow run retry-flaky.yml -f run_id=<ID> --repo allenpd728/muse` when a conformance run fails but runner logs are healthy; confirm one-shot rerun of failed jobs only, no self-triggered retry runs.
+Follow-up: fire `gh workflow run retry-flaky.yml -f run_id=<ID> --repo philipdallen/rubato` when a conformance run fails but runner logs are healthy; confirm one-shot rerun of failed jobs only, no self-triggered retry runs.
 
 
 

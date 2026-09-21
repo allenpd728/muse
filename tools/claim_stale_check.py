@@ -12,7 +12,7 @@ import datetime
 import json
 import subprocess
 
-REPO = "allenpd728/muse"
+REPO = "philipdallen/rubato"
 
 
 def _gh_json(*args):

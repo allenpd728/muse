@@ -10,13 +10,13 @@ class of failure that deserves a retry before a human looks.
 ## Manual trigger: a human decides a failure is flaky
 
 ```bash
-gh workflow run retry-flaky.yml -f run_id=<RUN_ID> --repo allenpd728/muse
+gh workflow run retry-flaky.yml -f run_id=<RUN_ID> --repo philipdallen/rubato
 ```
 
 or, equivalently, rerun directly:
 
 ```bash
-gh run rerun <RUN_ID> --repo allenpd728/muse --failed
+gh run rerun <RUN_ID> --repo philipdallen/rubato --failed
 ```
 
 The workflow's single job validates that `run_id` is a numeric run ID,
@@ -78,7 +78,7 @@ manual dispatch model already prevents automation loops;the rule is about
 
 
 - **Usage from a workflow/agent:**`gh workflow run retry-flaky.yml -f
-  run_id=<ID> --repo allenpd728/muse` needs a token with `repo` scope
+  run_id=<ID> --repo philipdallen/rubato` needs a token with `repo` scope
   (the agent token works. The dispatch input guard only accepts
   numeric run IDs;anything else fails before any rerun is issued.
 

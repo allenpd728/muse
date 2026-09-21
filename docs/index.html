@@ -80,50 +80,50 @@
       <tr>
         <td>package</td>
         <td class="io">source (MusicXML/MIDI) → .mu container</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_mu">muse_mu</a> (S5)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_mu">muse_mu</a> (S5)</td>
         <td class="status-done">done (#141)</td>
         <td>zip + plaintext rights manifest, member hashes</td>
       </tr>
       <tr>
         <td>unzip / decode</td>
         <td class="io">.mu → event stream (IR)</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_decode">muse_decode</a> (P1)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_decode">muse_decode</a> (P1)</td>
         <td class="status-done">done (#197)</td>
-        <td>P3 golden vectors <a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_ci">tools/muse_ci</a></td>
+        <td>P3 golden vectors <a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_ci">tools/muse_ci</a></td>
       </tr>
       <tr>
         <td>deterministic baseline</td>
         <td class="io">event stream → audio (soundfont tier)</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_play">muse_play</a> (P2)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_play">muse_play</a> (P2)</td>
         <td class="status-done">done (#198)</td>
         <td>free baseline — the score plays identically everywhere</td>
       </tr>
       <tr>
         <td>grow</td>
         <td class="io">score + seed → mockup (LLM)</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_generate">muse_generate</a> (L1)</td>
-        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/206">#206</a>–<a href="https://github.com/allenpd728/muse/issues/209">#209</a>)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_generate">muse_generate</a> (L1)</td>
+        <td class="status-done">done (<a href="https://github.com/philipdallen/rubato/issues/206">#206</a>–<a href="https://github.com/philipdallen/rubato/issues/209">#209</a>)</td>
         <td>generate → validate → fix loop; intelligence lives here, math lives in the score</td>
       </tr>
       <tr>
         <td>validate</td>
         <td class="io">seed/mockup → pass/fail</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_seed_cli">muse_seed_cli</a> (C1) + <a href="https://github.com/allenpd728/muse/tree/dev/tools/assertions">assertions</a> (C4)</td>
-        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/148">#148</a> / <a href="https://github.com/allenpd728/muse/issues/182">#182</a>)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_seed_cli">muse_seed_cli</a> (C1) + <a href="https://github.com/philipdallen/rubato/tree/dev/tools/assertions">assertions</a> (C4)</td>
+        <td class="status-done">done (<a href="https://github.com/philipdallen/rubato/issues/148">#148</a> / <a href="https://github.com/philipdallen/rubato/issues/182">#182</a>)</td>
         <td>schema check + per-work assertion sets</td>
       </tr>
       <tr>
         <td>render</td>
         <td class="io">mockup → audio (sfizz/SFZ tier)</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_render">muse_render</a> (L2)</td>
-        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/193">#193</a>)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_render">muse_render</a> (L2)</td>
+        <td class="status-done">done (<a href="https://github.com/philipdallen/rubato/issues/193">#193</a>)</td>
         <td>the "worth listening to" bar</td>
       </tr>
       <tr>
         <td>distill</td>
         <td class="io">mockup → seed revision</td>
-        <td><a href="https://github.com/allenpd728/muse/tree/dev/tools/muse_distill">muse_distill</a> (L4)</td>
-        <td class="status-done">done (<a href="https://github.com/allenpd728/muse/issues/196">#196</a>)</td>
+        <td><a href="https://github.com/philipdallen/rubato/tree/dev/tools/muse_distill">muse_distill</a> (L4)</td>
+        <td class="status-done">done (<a href="https://github.com/philipdallen/rubato/issues/196">#196</a>)</td>
         <td>the learning loop — prompt accumulates interpretive craft</td>
       </tr>
     </tbody>

@@ -1,7 +1,7 @@
 # Bug — workbench h2 revision tag renders empty (DoD test fails on dev)
 
 **Found by:** run=20260829-1513-09an (TASK_WORKFLOW §1c in-flight defect log) at 2026-08-29 ~15:33Z.
-**Issue:** [#306](https://github.com/allenpd728/muse/issues/306) `status:done`; root cause found and fixed by run=20260916-1525-8d06 on 2026-09-16.
+**Issue:** [#306](https://github.com/philipdallen/rubato/issues/306) `status:done`; root cause found and fixed by run=20260916-1525-8d06 on 2026-09-16.
 
 ## Symptom
 

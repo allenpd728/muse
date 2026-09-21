@@ -90,7 +90,7 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 ## Session lessons (2026-08-23, run=20260823-1945-c7d3)
 
 - **Check for the repo's AGENTS.md before working.** The first session tried
-  to act on an empty repo (clone fixed it: allenpd728/muse).
+  to act on an empty repo (clone fixed it: philipdallen/rubato).
 - **The rebase-dedup rule proved itself twice this session** — an S2 codec
   rebase aborted cleanly when a sibling landed first, and seam tests were
   dropped when #165 got claimed by a sibling mid-build.
