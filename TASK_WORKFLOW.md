@@ -193,7 +193,7 @@ the queue and must be swept (its older claim is void on the next sweep).
 2. **Pick work.** Any `status:available` issue the agent has enough context to
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue. Before concluding any work item is undone, check
-   `git log origin/dev` and the issue queue — docs tables lag (§System of record);
+   `git log origin/main` and the issue queue — docs tables lag (§System of record);
    dev history does not.
 2a. **Filing is not atomic — search, file, search again.** Before filing a new
    task, search open issues for its slug. After filing, search again: if a twin
