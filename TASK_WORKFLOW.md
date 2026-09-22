@@ -236,7 +236,7 @@ the queue and must be swept (its older claim is void on the next sweep).
 
    **Concurrent-work rules** (agents run in parallel against `dev`):
    - Pull before you start, and again before you push.
-   - On push rejection (non-fast-forward): `git pull --rebase origin dev`, resolve
+   - On push rejection (non-fast-forward): `git pull --rebase origin main`, resolve
      any conflicts, push again. Repeat as needed.
    - **Rebase revealed a sibling landed the same work?** Compare the two
      implementations: if yours adds nothing, drop it and (if the landed work
