@@ -28,6 +28,7 @@ gets a tracking slot. Sources: `docs/pipeline.md` locked decisions,
 | D18 | Container: SHA-256 member hashes; HMAC-SHA256 signature; PKI deferred | locked | FORMAT_SPEC §7.1 (#141) |
 | D19 | S2 packing: varint columnar + zlib (stdlib, off-the-shelf); custom entropy coder is post-v1 | locked | FORMAT_SPEC §4.6 (#138) |
 | D20 | The mockup is confidential pipeline state — never published, never exported by default; public surfaces are the `.mu` and rendered audio. DAWproject export is founder-gated. D4's open-at-launch plan stands; the private repo is the lock-down during development | locked | founder, 2026-08-24 session |
+| D21 | `muse_docs` may make network calls, but only via the explicit `refresh-issues` command; `lint --check-issues` reads a local cache and stays offline. The lint's default path and the fast test tier never touch the network. Issues absent from the cache are unknown, not stale — never flagged | locked | #315 + tools/muse_docs/README.md §Status claims |
 
 ## Open decision points (tracking)
 

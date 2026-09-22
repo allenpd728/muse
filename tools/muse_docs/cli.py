@@ -20,7 +20,12 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from muse_docs.lint import (  # noqa: E402
-    FINDING_BUDGET, check_budget, format_findings, lint_repo, summarize,
+    FINDING_BUDGET, check_budget, format_findings, iter_markdown, lint_repo,
+    read_text_checked, repo_root, summarize,
+)
+from muse_docs.issue_claims import (  # noqa: E402
+    DEFAULT_CACHE, DEFAULT_REPO, check_status_claims, load_cache,
+    parse_status_claims, refresh_cache,
 )
 
 KIND_HELP = {
@@ -29,6 +34,7 @@ KIND_HELP = {
     "stale-open-ref": "an open_* record that has since been renamed closed_",
     "unfilled-template": "a raw [TODO]/TBD placeholder left in a doc",
     "encoding": "a markdown file that is not valid UTF-8",
+    "stale-status": "a doc says an issue is done but the queue has it open",
 }
 
 
@@ -66,6 +72,24 @@ def _report(findings, root):
     return "\n".join(lines)
 
 
+def _check_issue_claims(root, cache_path, warnings):
+    """Offline status-claim findings, or ``None`` when the cache is missing.
+
+    Reads a local cache only — the network lives in ``refresh-issues``, so
+    ``lint --check-issues`` stays offline (the tool's whole premise).
+    """
+    issues, err = load_cache(cache_path)
+    if err:
+        # Offline: report the missing cache as a warning, not a finding.
+        warnings.append(err)
+        return None
+    claims = []
+    for relpath, path in iter_markdown(root):
+        text, _ = read_text_checked(path)
+        claims.extend(parse_status_claims(text, relpath))
+    return check_status_claims(claims, issues)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="muse-docs", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -78,23 +102,57 @@ def main(argv=None):
     p.add_argument("--kind", default=None,
                    help="only findings of this kind (see README)")
     p.add_argument("--quiet", action="store_true", help="no output; exit code only")
+    p.add_argument("--check-issues", action="store_true",
+                   help="also compare doc status claims against a local issue "
+                        "cache (offline; populate it with `refresh-issues`)")
+    p.add_argument("--issue-cache", default=None,
+                   help="path to the issue-state cache "
+                        "(default: tools/muse_docs/issue_cache.json)")
     p.add_argument("--max-findings", type=int, default=FINDING_BUDGET,
                    help="fail loudly above this many findings (default %d); "
                         "guards against a mis-firing rule flooding the queue "
                         "rather than reporting real drift" % FINDING_BUDGET)
 
+    r = sub.add_parser(
+        "refresh-issues",
+        help="populate the issue-state cache from GitHub (network; explicit only)")
+    r.add_argument("--root", default=None, help="repo root (default: auto)")
+    r.add_argument("--issue-cache", default=None, help="cache path to write")
+    r.add_argument("--repo", default=DEFAULT_REPO, help="owner/name to query")
+
     args = ap.parse_args(argv)
 
-    if args.cmd != "lint":  # pragma: no cover - argparse enforces the set
-        ap.error("unknown command")
+    root = os.path.abspath(args.root or repo_root())
+
+    if args.cmd == "refresh-issues":
+        cache = args.issue_cache or os.path.join(root, DEFAULT_CACHE)
+        count, err = refresh_cache(cache, repo=args.repo)
+        if err:
+            print("ERROR: " + err, file=sys.stderr)
+            return 1
+        print("wrote %d issue states to %s" % (count, cache))
+        return 0
 
     findings = lint_repo(args.root)
+    warnings = []
+    if args.check_issues:
+        cache = args.issue_cache or os.path.join(root, DEFAULT_CACHE)
+        extra = _check_issue_claims(root, cache, warnings)
+        if extra is not None:
+            findings.extend(extra)
+            findings.sort(key=lambda f: (f["file"], f["kind"], f["ref"]))
+
     budget_error = check_budget(findings, args.max_findings)
     if args.kind:
         findings = [f for f in findings if f["kind"] == args.kind]
 
     if args.quiet:
         return 1 if findings else 0
+
+    for w in warnings:
+        # The check was requested but could not run — say so on stderr, since
+        # a silently skipped check is indistinguishable from a passing one.
+        print("WARNING: " + w, file=sys.stderr)
 
     if budget_error:
         # Printed before the findings: a flood is the headline, not the list.
@@ -105,7 +163,6 @@ def main(argv=None):
     elif args.report:
         print(_report(findings, args.root))
     else:
-        root = args.root or os.path.join(os.path.dirname(__file__), "..", "..")
         print("doc-prose lint — %d finding(s)%s" % (
             len(findings),
             "" if not findings else " (%s)" % ", ".join(

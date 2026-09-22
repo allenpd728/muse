@@ -4,4 +4,8 @@ __pycache__/
 *.pyc
 .github/README.md
 
+# Local snapshot of the issue queue for `muse_docs lint --check-issues`;
+# a cache, not source. Refresh with `cli.py refresh-issues`.
+tools/muse_docs/issue_cache.json
+
 docs/audio/*.wav

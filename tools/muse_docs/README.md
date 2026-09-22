@@ -120,12 +120,47 @@ python3 tools/muse_docs/cli.py lint --report > docs/audit/$(date +%F)-doc-prose.
 
 ## Dependencies
 
-Stdlib only (`glob`, `os`, `re`). No network, no model, no third-party
-packages.
+Stdlib only (`glob`, `os`, `re`, plus `json`/`urllib` for the opt-in status
+check). No model, no third-party packages. The default lint path makes **no
+network calls**; see below.
+
+## Status claims vs the issue queue (opt-in, #315)
+
+The lint's four local kinds stop at mechanically decidable facts. The one
+check that needs the issue queue — whether a doc's `**done**` claims about
+issue numbers match the live queue — is available behind a flag that keeps
+the tool offline by default.
+
+The network is split out into a separate, explicitly-run command:
+
+```bash
+# 1. populate the local cache (network; run by hand when the queue moves)
+python3 tools/muse_docs/cli.py refresh-issues       # writes tools/muse_docs/issue_cache.json
+
+# 2. check claims against the cache (offline; zero API calls)
+python3 tools/muse_docs/cli.py lint --check-issues
+python3 tools/muse_docs/cli.py lint --check-issues --kind stale-status
+```
+
+- `--check-issues` is **off by default**, never invoked by the fast tier or
+  the test suite, and reads only the local cache.
+- The cache (`tools/muse_docs/issue_cache.json`) is gitignored — it is a
+  snapshot, not source.
+- A **`done`-claim** is a bold `**done` run or a table status cell beginning
+  `done`, followed by `#N` issue references; its expected state is *closed*.
+- A **`filed`**-claim (`... filed [#N]`) is not reportable: filing an issue
+  and later closing it is the normal lifecycle, so "filed" is a timestamp,
+  not a state assertion. Neither are bare `status:done` / `status:available`
+  label *strings*, which describe the vocabulary rather than an issue.
+- An issue **absent from the cache is skipped**, not flagged — the honest
+  statement is "unknown", and a false positive here fails the queue for no
+  reason.
+
+Recorded as decision D21 in `docs/decision-log.md`.
 
 ## Tests
 
-`cd tools && python3 -m pytest muse_docs -q` — 57 tests, sub-second.
+`cd tools && python3 -m pytest muse_docs -q` — 78 tests, sub-second.
 
 - `tests/test_lint.py` — every check exercised against a synthetic repo in
   `tmp_path` so it is proven to *catch* its drift class; each link form has a
@@ -136,3 +171,9 @@ packages.
 - `tests/test_cli.py` — the CLI surface: exit codes (clean 0 / findings 1 /
   `--quiet` silent), `--kind` filtering, `--json` shape, `--report`
   structure, and the budget error landing on stderr rather than stdout.
+- `tests/test_issue_claims.py` — the opt-in status check: claim parsing
+  (bold done, cell-leading done, the `decomposed`/`filed` false-positive
+  guards), comparison (open contradiction flagged, closed clean, unknown
+  skipped), cache loading errors, and the offline guard — `urlopen` and
+  `refresh_cache` are monkeypatched to raise, so a stray network call fails
+  the suite.
