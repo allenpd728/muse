@@ -138,3 +138,32 @@ derived value; both paths now compute the same expression.
 Suite counts at close: `ir` 121, `muse_roll` 58, `s1_stream` 45, `muse_mu` 52,
 `muse_decode` 18, `corpus_loader` 16, `muse_explorer` 12 — `--full` all 35
 suites green.
+
+## Closed as a follow-up — see #319
+
+The gaps listed above were worked as `rubato` issue **#319** (`Tests: S6 vocal
+text follow-ups (#318)`), run=20260922-0014-a7k3. Coverage added to
+`tools/ir/tests/test_vocal_text.py` (24 tests, up from 12 at #318) and
+`tools/muse_roll/tests/test_vocal_text_roll.py` (9 tests, up from 7):
+
+- **n > 2 verses**: synthetic three-verse note — parser order/numbering
+  (`test_three_verses_preserve_order_and_number`) and encode-decode +
+  `_canonical` (`test_three_verses_round_trip_and_canonical`). Only the
+  two-verse corpus case existed before.
+- **Verse-2-only promotion** and **non-numeric `number`** warn paths.
+- **Elision** in both child positions; the parser reads only `<text>`.
+- **Non-text markers** (`<humming/>`, `<laughing/>`) pinned as carrying no
+  lyric and no warning.
+- **Interning at scale**: B9's 3,587 lyrics reduce to 231 distinct syllables,
+  and the text-attributable payload delta is pinned at 8,807 bytes, so a
+  regression that stopped interning fails independently of the total budget.
+- **MIDI lyric meta (`0x05`)** pinned as deliberately unread (no corpus
+  evidence); `docs/pipeline.md` Phase 1 records it as the one known remaining
+  parser-coverage instance.
+
+Gate evidence (fast tier, `./tools/run_tests.sh`): `ir` 131 passed (24 in
+`test_vocal_text.py`), `muse_roll` 59 passed (9 in
+`test_vocal_text_roll.py`). One transient `muse_diff` failure in the parallel
+run passed on re-run serial and standalone (21 passed) — unrelated to these
+files.
+

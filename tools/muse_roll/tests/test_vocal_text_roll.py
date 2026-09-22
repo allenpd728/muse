@@ -167,3 +167,57 @@ def test_beethoven9_text_round_trips():
         elif syl == "single":
             words.append(ly)
     assert " ".join(words[:4]) == "Wer ein holdes Weib"
+
+
+def test_three_verses_round_trip_and_canonical():
+    """The encoding supports n verses, but only the corpus's two are tested.
+    Pin a synthetic three-verse note through encode→decode and the canonical
+    comparison, so a regression in the verse loop fails here and not only at
+    the (two-verse) corpus."""
+    from muse_ir.model import Verse
+
+    src = Work(
+        parts=[Part(id="P1", name="P1", notes=[
+            Note(pitch=60, onset=0, duration=480, lyric="Freude", syllabic="single",
+                 verses=(Verse(number=2, lyric="Joy", syllabic="single"),
+                         Verse(number=3, lyric="Göt", syllabic="begin"))),
+        ])],
+        meta=Meta(source_format="musicxml", ppq=480),
+    )
+    out = roundtrip(src)
+    n = out.parts[0].notes[0]
+    assert n.lyric == "Freude" and n.syllabic == "single"
+    assert [(v.number, v.lyric, v.syllabic) for v in n.verses] == [
+        (2, "Joy", "single"),
+        (3, "Göt", "begin"),
+    ]
+    assert _canonical(out) == _canonical(src)
+
+
+def test_b9_per_lyric_byte_cost_is_interning_bounded():
+    """Item 7 of #319: at scale, pin both the distinct-syllable count and the
+    per-lyric byte cost. B9's 3,587 texted notes carry only 231 distinct
+    syllables, so removing all text must shrink the payload by far less than
+    a naive fixed cost per note would imply. The 8,807-byte delta (≈2.45
+    bytes/lyric) is the amendment already pinned in test_roll_gaps.py; this
+    asserts the *mechanism* — a small distinct set — directly, so a change
+    that stopped interning (making the delta grow with note count) fails
+    here even if the total stays under the budget."""
+    work = load(corpus_path("beethoven", "beethoven-sym9.xml"))
+    lyrics = [n.lyric for p in work.parts for n in p.notes if n.lyric is not None]
+    assert len(lyrics) == 3587
+    assert len(set(lyrics)) == 231, "distinct-syllable count changed"
+
+    stripped = decode(encode(work))
+    for p in stripped.parts:
+        for n in p.notes:
+            n.lyric = None
+            n.syllabic = None
+            n.extend = False
+            n.verses = ()
+    delta = len(encode(work)) - len(encode(stripped))
+    assert delta == 8807, (
+        f"B9 text costs {delta} bytes; pinned at 8807 (3,587 lyrics + 405 "
+        "melismas, interned). Drift means either the corpus or the encoding "
+        "changed — review, then amend this pin and test_roll_gaps.py together"
+    )
