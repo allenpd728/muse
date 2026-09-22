@@ -1,5 +1,25 @@
 # AGENTS.md — Muse
 
+
+## Portfolio front door — read this before you start work
+
+This repository is one part of a wider portfolio. Before you claim or start work
+here, spend five minutes in **`philipdallen/portfolio-ops`** (private), in this order:
+
+1. `HANDOFF.md` — current portfolio state, what is blocked and on whom.
+2. `EXECUTION_PLAN.md` — the week's priorities and the sequencing principles.
+3. `RISK_REGISTER.md` and `AGENTS.md` — open risks, and the rules that apply to you.
+
+Why this is worth five minutes: it is the only place that records **decisions already
+made** and **work already owned by a human**. Skipping it is how a session redoes
+someone else's work, contradicts a recorded decision, or spends its run on something
+a human must do anyway.
+
+**Do not confuse the two queues.** Work here is claimed and executed locally. Janitorial
+work — lint sweeps, stale references, mechanical hygiene — is deliberately tracked
+privately in `portfolio-ops`, not filed here. If you find mechanical work, do not file
+it publicly; note it in your run output so it can be routed.
+
 Context and conventions for AI agents (and humans) working in this repository.
 
 ## What this project is
