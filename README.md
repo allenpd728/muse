@@ -12,6 +12,16 @@ deliberately. A performance is an event, not a render.
 > player (P1/P2) and LLM-side harnesses are landed and tested. Nothing here is
 > launch-ready, and the format spec will not be announced before it is.
 
+## At a glance
+
+- **An executable music format**: a `.mu` file packages score + interpretive prompt + plaintext rights, so a work is portable and provably renderable — not just a static file.
+- **AI-native playback coaching**: an LLM player reads score + prompt and *performs* the work, sculpting tempo, balance, and articulation inside the authored interpretive space — a performance is an event, not a render.
+- **Reference corpus acquired**: five public-domain masterworks (Bach chorales through complete Beethoven 9) already corpus'd as the v1.0 conformance target.
+
+> Full background below, or jump to [the product model](#the-product-model).
+>> **Built with agentic AI tooling.** The author designed the format spec and directed AI-assisted tooling development; agent-based coding workflows implemented and tested the reference components.
+
+
 ## The product model
 
 MusicXML is the existing roll — the full score, uncompressed. Muse compresses
