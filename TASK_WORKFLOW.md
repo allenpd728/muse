@@ -4,7 +4,7 @@ How agents find, claim, and complete work on Muse. One task = one GitHub issue.
 Agents read this document once; everything else they learn from the issues and the
 `blockers/` directory.
 
-> **System of record:** the issue queue plus `git log origin/dev`. Status tables in
+> **System of record:** the issue queue plus `git log origin/main`. Status tables in
 > docs (pipeline.md etc.) are caches updated by sweeps and may lag — check the queue
 > and dev history before concluding work is undone.
 
@@ -36,7 +36,7 @@ No `BLOCKERS.md`/`BUGS.md` index file — the directory listing is the index.
 |---|---|
 | `status:available` | Ready to be claimed. All blockers are `done`. |
 | `status:claimed` | An agent has claimed it. Claim comment is the heartbeat. |
-| `status:done` | Work committed to `dev`. The human reviews on `dev` at leisure; anything needing changes spawns a follow-up task. |
+| `status:done` | Work committed to `main`. The human reviews on `dev` at leisure; anything needing changes spawns a follow-up task. |
 | `status:blocked-needs-input` | Agent could not start or finish; needs human input. |
 
 ## Task definition
@@ -222,8 +222,8 @@ the queue and must be swept (its older claim is void on the next sweep).
    yours, a sibling won — back off and pick a different item. Under a shared
    GitHub identity the label/assignee check cannot decide this (both agents set
    the same values); the run-id in the newest claim comment is the tiebreaker.
-5. **Do the work; prove the done.** Commit directly to `dev` (no PR — review
-   happens retrospectively on `dev`). Swap `status:claimed` → `status:done` and
+5. **Do the work; prove the done.** Commit directly to `main`, the working
+   branch and GitHub default (no PR — review happens retrospectively on `main`). Swap `status:claimed` → `status:done` and
    close the issue with a comment linking the commits. **Tasks with known-answer
    criteria (conformance counts, golden commands) close only when the done
    comment includes the gate command and its output** — a done claim without
