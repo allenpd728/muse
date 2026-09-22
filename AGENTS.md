@@ -26,19 +26,15 @@ it publicly; note it in your run output so it can be routed.
 
 ## Branches
 
-`dev` is the working branch — every commit lands there. `main` is a **milestone
-marker**: promoted from `dev` deliberately at milestones, then left to sit still. It is
-not a working branch. Commit to `dev`, never to `main` directly.
+`main` is the working branch and the GitHub default — every commit lands here, and it is
+the branch visitors and all tooling read. `dev` also exists and is kept level with `main`;
+it is a legacy name, and nothing should be committed to it. If the two ever differ, treat
+`main` as authoritative.
 
-If the two ever differ, **`dev` is current.** Everything that reads these repos reads
-`dev`: the claim tooling, the status sweeps, and the HuB dashboard.
-
-**Edit workflows on `dev`.** GitHub fires a `schedule:` trigger only from the default
-branch, and the default branch is `dev` — a workflow edited only on `main` will not run.
-
-
-Context and conventions for AI agents (and humans) working in this repository.
-
+**Edit workflows on `main`.** A `schedule:` trigger fires only from the default branch, so
+a workflow that exists only on `dev` will not run. The sweep and audit workflows check out
+`main` and push there for the same reason — the status snapshot must land where the default
+branch points, or the dashboard reads a stale log.
 ## What this project is
 
 Muse is an **executable music format**. A `.mu` file carries three components:
