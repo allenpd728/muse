@@ -1,5 +1,7 @@
 # Muse
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **An executable music format.** A `.mu` file packages a musical work as three
 components: the **score** (the fixed work — our compressed MusicXML), the
 **prompt** (the interpretive space), and the **manifest** (plaintext rights).
