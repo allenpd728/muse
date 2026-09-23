@@ -94,10 +94,11 @@ exits without creating anything** — no issue, no comment, no status line.
 - **`stale-owner-ref`** — references to the retired account slug `allenpd728`
   surviving outside the frozen record. A clone URL, `--repo` example, or prose
   sentence that still names the old slug tells a reader or an agent to use an
-  address that no longer resolves. `docs/decisions/` and `docs/history/` are
+  address that no longer resolves. The frozen decision and history logs are
   exempt by design: those files record the slug as it was at the time, and
   rewriting them would make the record false — a worse defect than the stale
-  reference.
+  reference. The exemption is a path prefix, so a repo that does not keep those
+  directories simply has nothing to exempt.
 
 ### Catch-all
 
