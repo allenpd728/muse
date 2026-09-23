@@ -39,6 +39,37 @@ No `BLOCKERS.md`/`BUGS.md` index file — the directory listing is the index.
 | `status:done` | Work committed to `main`. The human reviews on `dev` at leisure; anything needing changes spawns a follow-up task. |
 | `status:blocked-needs-input` | Agent could not start or finish; needs human input. |
 
+```mermaid
+stateDiagram-v2
+    state "status:available" as available
+    state "status:claimed" as claimed
+    state "status:done" as done
+    state "status:blocked-needs-input" as blocked
+
+    [*] --> available: filed / unblocked
+
+    available --> claimed: claim<br/>(atomic label swap + self-assign +<br/>claim comment with run-id, then re-fetch<br/>and confirm the newest run-id is yours)
+    claimed --> available: stale-claim sweep<br/>(claim > 1h, no activity)
+    claimed --> done: work committed to main<br/>+ done evidence + issue closed
+    claimed --> blocked: spec ambiguity<br/>(blocker file + NEEDS line)
+    blocked --> available: human resolves<br/>(spec amended)
+    blocked --> claimed: agent resolves blocker<br/>(claim from blocked state)
+    done --> [*]
+
+    note right of available
+        blockers must all be status:done
+        before a task becomes available
+    end note
+    note right of claimed
+        one claim per agent at a time
+        run-id is the heartbeat
+    end note
+    note right of blocked
+        on-hold / auditor:* items are the
+        human's, never claimed by an agent
+    end note
+```
+
 ## Task definition
 
 Each issue contains:
