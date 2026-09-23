@@ -65,6 +65,41 @@ exits without creating anything** — no issue, no comment, no status line.
   local test run is deliberately ignored: it is noise, and reporting it would
   make this check cry wolf.
 
+### Security
+
+- **`committed-secret`** — credential-shaped strings in files git tracks. High
+  confidence shapes only (private keys, AWS/GitHub/Slack/Google/Stripe/Anthropic/
+  OpenAI/HuggingFace tokens); a scanner that fires on prose or on the example keys
+  vendored into a lockfile produces findings a human learns to skip. The matched
+  value is **never reproduced in the finding**, which is filed on a public tracker:
+  echoing a live credential would complete the leak the check exists to catch.
+- **`workflow-hardening`** — three mechanical checks on `.github/workflows/*`:
+  a missing top-level `permissions:` block (the workflow then runs with the
+  repository's default token scope); untrusted `${{ github.event.* }}` /
+  `inputs.*` interpolation directly into a `run:` block on a write-capable
+  trigger (the script-injection path); and a privileged checkout of a PR head ref
+  (the `pull_request_target` anti-pattern). Interpolation through `env:` is the
+  documented remedy and is deliberately *not* flagged.
+- **`dependency-advisory`** — known advisories against pinned requirements, via
+  the public OSV.dev API. Free, no auth, no GHAS entitlement (the GitHub advisory
+  APIs are entitlement-gated and return 403 for these repos). Requirements are
+  discovered by git across the tree rather than read from a hard-wired root file,
+  because this repo pins under `tools/`. Three outcomes are distinguished: an
+  advisory found; queried with none found (silent — a clean result); and the
+  lookup unavailable, which is reported as a **catch-all** finding, since a check
+  that silently stops running looks exactly like a clean repo.
+
+### Architecture & drift, continued
+
+- **`stale-owner-ref`** — references to the retired account slug `allenpd728`
+  surviving outside the frozen record. A clone URL, `--repo` example, or prose
+  sentence that still names the old slug tells a reader or an agent to use an
+  address that no longer resolves. The frozen decision and history logs are
+  exempt by design: those files record the slug as it was at the time, and
+  rewriting them would make the record false — a worse defect than the stale
+  reference. The exemption is a path prefix, so a repo that does not keep those
+  directories simply has nothing to exempt.
+
 ### Catch-all
 
 Anything that fits none of the above, plus a `check-crashed` finding when a check

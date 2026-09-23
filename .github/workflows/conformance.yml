@@ -5,6 +5,12 @@ name: conformance
     branches: [main]
   pull_request:
 
+# Least privilege: both jobs only read the checkout to run the suite. Declared
+# explicitly rather than inherited, so the token's reach is a reviewable line
+# instead of a repository default that changes when GitHub changes it.
+permissions:
+  contents: read
+
 jobs:
   fast:
     runs-on: ubuntu-latest

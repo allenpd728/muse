@@ -463,6 +463,199 @@ def test_placeholder_refs_ignored(tmp_path):
     assert aud.check_dangling_doc_refs(root) == []
 
 
+# --- security checks -------------------------------------------------------
+
+
+def test_committed_secret_detected(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "conf.py").write_text("KEY = \"AKIAIOSFODNN7EXAMPLE\"\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "oops"], cwd=root, check=True)
+    findings = aud.check_committed_secrets(root)
+    assert any("aws-access-key-id" in f.title for f in findings), findings
+
+
+def test_committed_secret_value_is_never_reproduced(tmp_path):
+    """The finding is filed publicly, so the credential must not appear in it."""
+    root = init_repo(tmp_path)
+    secret = "AKIAIOSFODNN7EXAMPLE"
+    (root / "conf.py").write_text(f'KEY = "{secret}"\n')
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "oops"], cwd=root, check=True)
+    findings = aud.check_committed_secrets(root)
+    assert findings
+    for f in findings:
+        assert secret not in f.title and secret not in f.body
+
+
+def test_untracked_secret_is_not_reported(tmp_path):
+    """Only tracked files are published; an untracked scratch file is not."""
+    root = init_repo(tmp_path)
+    (root / "scratch.py").write_text('KEY = "AKIAIOSFODNN7EXAMPLE"\n')
+    assert aud.check_committed_secrets(root) == []
+
+
+def test_clean_tree_has_no_secret_findings(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "conf.py").write_text("TIMEOUT = 30\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "clean"], cwd=root, check=True)
+    assert aud.check_committed_secrets(root) == []
+
+
+def test_workflow_without_permissions_detected(tmp_path):
+    root = init_repo(tmp_path)
+    wf = root / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text("on:\n  push:\n    branches: [main]\n\njobs:\n  a:\n    runs-on: ubuntu-latest\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "wf"], cwd=root, check=True)
+    findings = aud.check_workflow_hardening(root)
+    assert any("permissions" in f.title for f in findings), findings
+
+
+def test_workflow_with_permissions_is_clean(tmp_path):
+    root = init_repo(tmp_path)
+    wf = root / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "on:\n  push:\n\npermissions:\n  contents: read\n\njobs:\n  a:\n    runs-on: ubuntu-latest\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "wf"], cwd=root, check=True)
+    assert aud.check_workflow_hardening(root) == []
+
+
+def test_untrusted_interpolation_into_run_detected(tmp_path):
+    root = init_repo(tmp_path)
+    wf = root / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "on:\n  pull_request_target:\n\npermissions:\n  contents: read\n\njobs:\n  a:\n"
+        "    runs-on: ubuntu-latest\n    steps:\n"
+        "      - run: echo ${{ github.event.pull_request.title }}\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "wf"], cwd=root, check=True)
+    findings = aud.check_workflow_hardening(root)
+    assert any("interpolated" in f.title for f in findings), findings
+
+
+def test_interpolation_through_env_is_not_flagged(tmp_path):
+    """env: is the documented remedy, not a finding -- flagging it buries the real one."""
+    root = init_repo(tmp_path)
+    wf = root / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "on:\n  pull_request_target:\n\npermissions:\n  contents: read\n\njobs:\n  a:\n"
+        "    runs-on: ubuntu-latest\n    steps:\n"
+        "      - env:\n          TITLE: ${{ github.event.pull_request.title }}\n"
+        "        run: echo \"$TITLE\"\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "wf"], cwd=root, check=True)
+    assert aud.check_workflow_hardening(root) == []
+
+
+def test_privileged_pr_head_checkout_detected(tmp_path):
+    root = init_repo(tmp_path)
+    wf = root / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "on:\n  pull_request_target:\n\npermissions:\n  contents: read\n\njobs:\n  a:\n"
+        "    runs-on: ubuntu-latest\n    steps:\n"
+        "      - uses: actions/checkout@v7\n        with:\n"
+        "          ref: ${{ github.event.pull_request.head.sha }}\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "wf"], cwd=root, check=True)
+    findings = aud.check_workflow_hardening(root)
+    assert any("PR head" in f.title for f in findings), findings
+
+
+def test_stale_owner_slug_detected(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "README.md").write_text("clone https://github.com/allenpd728/rubato.git\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "doc"], cwd=root, check=True)
+    findings = aud.check_stale_owner_refs(root)
+    assert findings and "allenpd728" in findings[0].body
+
+
+def test_frozen_logs_are_exempt_from_slug_check(tmp_path):
+    """Frozen logs record the slug as it was; rewriting them would make them false."""
+    root = init_repo(tmp_path)
+    d = root / "docs" / "decisions"
+    d.mkdir(parents=True)
+    (d / "LOG.md").write_text("moved from allenpd728 to philipdallen\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "log"], cwd=root, check=True)
+    assert aud.check_stale_owner_refs(root) == []
+
+
+def test_clean_tree_has_no_slug_findings(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "README.md").write_text("clone https://github.com/philipdallen/rubato.git\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "doc"], cwd=root, check=True)
+    assert aud.check_stale_owner_refs(root) == []
+
+
+def test_advisory_lookup_reports_advisory(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "requirements.txt").write_text("jinja2==2.11.2\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "req"], cwd=root, check=True)
+    fake = lambda pkgs: {"results": [{"vulns": [{"id": "GHSA-test-0000", "summary": "bad"}]}]}
+    findings = aud.check_dependency_advisories(root, query=fake)
+    assert findings and "GHSA-test-0000" in findings[0].body, findings
+
+
+def test_advisory_clean_result_is_silent(tmp_path):
+    root = init_repo(tmp_path)
+    (root / "requirements.txt").write_text("jinja2==3.1.4\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "req"], cwd=root, check=True)
+    assert aud.check_dependency_advisories(root, query=lambda pkgs: {"results": [{}]}) == []
+
+
+def test_advisory_lookup_failure_is_reported_not_skipped(tmp_path):
+    """An unavailable check and a clean result must not look the same."""
+    root = init_repo(tmp_path)
+    (root / "requirements.txt").write_text("jinja2==2.11.2\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "req"], cwd=root, check=True)
+
+    def boom(pkgs):
+        raise OSError("no network")
+
+    findings = aud.check_dependency_advisories(root, query=boom)
+    assert findings and findings[0].category == aud.CATEGORY_CATCHALL, findings
+
+
+def test_requirements_discovered_outside_repo_root(tmp_path):
+    """This repo pins under tools/; a root-only check would silently find nothing."""
+    root = init_repo(tmp_path)
+    d = root / "tools" / "ir"
+    d.mkdir(parents=True)
+    (d / "requirements.txt").write_text("jinja2==2.11.2\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "req"], cwd=root, check=True)
+    assert aud.parse_requirements(root) == [("jinja2", "2.11.2", "tools/ir/requirements.txt")]
+
+
+def test_unpinned_requirements_are_reported_as_absent_coverage(tmp_path):
+    """A check that cannot run must not be indistinguishable from a clean repo."""
+    root = init_repo(tmp_path)
+    (root / "requirements.txt").write_text("jinja2>=3\n")
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "req"], cwd=root, check=True)
+    findings = aud.check_dependency_advisories(root, query=lambda pkgs: {"results": []})
+    assert findings and findings[0].category == aud.CATEGORY_CATCHALL, findings
+
+
+def test_registry_includes_the_security_checks():
+    names = {fn.__name__ for fn in aud.REGISTRY}
+    assert {"check_stale_owner_refs", "check_committed_secrets",
+            "check_workflow_hardening", "check_dependency_advisories"} <= names, names
+
+
 if __name__ == "__main__":
     fails = 0
     for name, fn in sorted(globals().items()):
