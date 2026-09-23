@@ -1,4 +1,4 @@
-# Muse
+# Rubato
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -26,7 +26,7 @@ deliberately. A performance is an event, not a render.
 
 ## The product model
 
-MusicXML is the existing roll — the full score, uncompressed. Muse compresses
+MusicXML is the existing roll — the full score, uncompressed. Rubato compresses
 and adapts it into `.mu`: portable, executable, and carrying the interpretive
 space alongside the notes.
 
@@ -92,4 +92,4 @@ lives in [docs/pipeline.md](docs/pipeline.md).
 3. **The prompt is the product.** The LLM player grows what the score fixes.
 4. **Composer-owned, rights-carrying.** Plaintext manifest: license,
    provenance, AI disclosure. No artist lookalikes without license.
-5. **Own the format, not the models.** LLMs are the utility; Muse is the radio.
+5. **Own the format, not the models.** LLMs are the utility; Rubato is the radio.

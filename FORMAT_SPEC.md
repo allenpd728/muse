@@ -1,4 +1,4 @@
-# Muse Format Specification — v0 (Design Draft)
+# Rubato Format Specification — v0 (Design Draft)
 
 **Status:** Design draft, pre-evidence. The language and encoding details are
 pinned by Phase 0/1 work (see [docs/pipeline.md](docs/pipeline.md)); this

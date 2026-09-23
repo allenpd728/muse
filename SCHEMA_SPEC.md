@@ -1,4 +1,4 @@
-# Muse Schema Specification — v0 (Draft)
+# Rubato Schema Specification — v0 (Draft)
 
 > **SUPERSEDED — design history only.** The project pivoted from a JSON schema
 > to an executable format. The normative design now lives in
@@ -11,14 +11,14 @@
 **Status:** Draft. Normative language and validation rules will tighten in later versions.
 **Goal:** Define a JSON-native document that captures a musical composition as a *space of valid renditions* rather than a single fixed performance — the difference between a score and a score plus its orchestration rules.
 
-A Muse schema document answers two questions:
+A Rubato schema document answers two questions:
 
 1. **What is the composition?** — themes, motifs, rhythms, harmony, form, and the constraints that make it *this* piece and not another.
 2. **What may vary?** — the sanctioned degrees of freedom (tempo range, instrumentation, genre treatment, density, energy) that a rendition may explore while remaining a rendition of the same work.
 
 ## 1. Design goals
 
-- **JSON-native.** Web-friendly, diffable, schema-validatable, LLM-legible. Prior art: JAMS (annotations), MEI (semantic rigor), MusicXML (interchange — Muse schemas must round-trip import from MusicXML/MIDI where possible).
+- **JSON-native.** Web-friendly, diffable, schema-validatable, LLM-legible. Prior art: JAMS (annotations), MEI (semantic rigor), MusicXML (interchange — Rubato schemas must round-trip import from MusicXML/MIDI where possible).
 - **Semantics over engraving.** The schema describes musical *intent* (motif, theme, variation, function of a section), not visual layout. It is closer to MEI's philosophy than MusicXML's.
 - **Two-population authoring.** Hand-authorable by a composer in a node-based editor, and generatable/editable by an agent from natural-language direction.
 - **Engine-agnostic.** Any conforming generative engine must be able to render any conforming schema. Rendering fidelity is measured against the schema's constraints, not against a reference recording.
@@ -26,7 +26,7 @@ A Muse schema document answers two questions:
 
 ## 2. Document structure
 
-A Muse schema is a single JSON object with these top-level members:
+A Rubato schema is a single JSON object with these top-level members:
 
 ```jsonc
 {
@@ -260,7 +260,7 @@ Two identifier families exist, with different grammars:
 
 ## 3. Conformance
 
-A renderer is **Muse-conforming** if it:
+A renderer is **Rubato-conforming** if it:
 
 1. Produces audio satisfying every entry in `constraints`.
 2. Realizes every `must_contain` motif recognizably (motif recall is the primary fidelity metric).
