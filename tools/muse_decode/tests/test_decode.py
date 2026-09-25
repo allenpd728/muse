@@ -37,7 +37,7 @@ def _build_container(tmp_path, relpath, work_id="t"):
         license={"renditions": "closed", "attribution": "tests", "commercial": False},
         provenance={"source": relpath, "author": "tests", "ai_involvement": "none"},
         members=members)
-    path = str(tmp_path / f"{work_id}.mu")
+    path = str(tmp_path / f"{work_id}.ru")
     write_mu(path, manifest, members)
     return path, work
 
@@ -61,23 +61,23 @@ class TestContainerDecode:
 class TestFailurePaths:
     def test_missing_container(self, tmp_path):
         with pytest.raises(DecodeError, match="container not found"):
-            decode(str(tmp_path / "absent.mu"))
+            decode(str(tmp_path / "absent.ru"))
 
     def test_bad_zip(self, tmp_path):
-        bad = tmp_path / "bad.mu"
+        bad = tmp_path / "bad.ru"
         bad.write_bytes(b"not a zip container")
         with pytest.raises(DecodeError, match="bad zip container"):
             decode(str(bad))
 
     def test_missing_manifest_member(self, tmp_path):
-        path = tmp_path / "no-manifest.mu"
+        path = tmp_path / "no-manifest.ru"
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("roll.bin", b"x")
         with pytest.raises(DecodeError, match="manifest.json or roll.bin"):
             decode(str(path))
 
     def test_missing_roll_member(self, tmp_path):
-        path = tmp_path / "no-roll.mu"
+        path = tmp_path / "no-roll.ru"
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("manifest.json", b"{}")
         with pytest.raises(DecodeError, match="manifest.json or roll.bin"):

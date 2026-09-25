@@ -44,7 +44,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     if args.cmd == "dump":
-        mu = os.path.join(args.vectors, f"{args.work_id}.mu")
+        mu = os.path.join(args.vectors, f"{args.work_id}.ru")
         with open(args.output, "wb") as fh:
             fh.write(decoded_canonical(mu))
         print(f"wrote {args.output}")

@@ -1,5 +1,5 @@
 """P3 negative-vector tier (issue #231, spec follow-up): deliberately
-malformed .mu inputs with pinned DecodeError classes.
+malformed .ru inputs with pinned DecodeError classes.
 
 The positive store proves good vectors decode to pinned bytes; this tier
 pins the *failure* surface — a conformance gate that can't name its error
@@ -22,7 +22,7 @@ from muse_decode import DecodeError, decode
 from muse_ci import PINS_NAME, VECTORS_DIR, verify
 from muse_ci.cli import main as cli_main
 
-POSITIVE = os.path.join(VECTORS_DIR, "bach-bwv227.1.mu")
+POSITIVE = os.path.join(VECTORS_DIR, "bach-bwv227.1.ru")
 WORK_ID = "bach-bwv227.1"
 RELPATH = "bach/bwv227.1.mxl"
 
@@ -72,7 +72,7 @@ NEGATIVE_VECTORS = {
 @pytest.fixture(params=sorted(NEGATIVE_VECTORS), ids=sorted(NEGATIVE_VECTORS))
 def negative_mu(request, tmp_path):
     build, pinned_fragment = NEGATIVE_VECTORS[request.param]
-    mu = tmp_path / f"{request.param}.mu"
+    mu = tmp_path / f"{request.param}.ru"
     build(mu)
     return request.param, mu, pinned_fragment
 
@@ -105,7 +105,7 @@ class TestNegativeVectorsFailTheGate:
         store = tmp_path / "vectors"
         store.mkdir()
         shutil.copy(os.path.join(VECTORS_DIR, PINS_NAME), store / PINS_NAME)
-        shutil.copy(mu, store / f"{WORK_ID}.mu")
+        shutil.copy(mu, store / f"{WORK_ID}.ru")
         return store
 
     def test_verify_fails_without_raising(self, negative_mu, tmp_path):

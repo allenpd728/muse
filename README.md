@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**An executable music format.** A `.mu` file packages a musical work as three
+**An executable music format.** A `.ru` file packages a musical work as three
 components: the **score** (the fixed work — our compressed MusicXML), the
 **prompt** (the interpretive space), and the **manifest** (plaintext rights).
 Any conforming player reads the score for exact mechanical playback; an LLM
@@ -16,7 +16,7 @@ deliberately. A performance is an event, not a render.
 
 ## At a glance
 
-- **An executable music format**: a `.mu` file packages score + interpretive prompt + plaintext rights, so a work is portable and provably renderable — not just a static file.
+- **An executable music format**: a `.ru` file packages score + interpretive prompt + plaintext rights, so a work is portable and provably renderable — not just a static file.
 - **AI-native playback coaching**: an LLM player reads score + prompt and *performs* the work, sculpting tempo, balance, and articulation inside the authored interpretive space — a performance is an event, not a render.
 - **Reference corpus acquired**: five public-domain masterworks (Bach chorales through complete Beethoven 9) already corpus'd as the v1.0 conformance target.
 
@@ -27,14 +27,14 @@ deliberately. A performance is an event, not a render.
 ## The product model
 
 MusicXML is the existing roll — the full score, uncompressed. Rubato compresses
-and adapts it into `.mu`: portable, executable, and carrying the interpretive
+and adapts it into `.ru`: portable, executable, and carrying the interpretive
 space alongside the notes.
 
 ```
 MusicXML (the existing roll)
     │
     ▼  compressor (proprietary, AI-assisted)
-.mu file = score + prompt + manifest
+.ru file = score + prompt + manifest
     │
     ├─▶ deterministic player (free, reference) — reads the score.
     │    "Our MIDI player." Proves the format, verifies encodings.
@@ -66,7 +66,7 @@ step is deliberately deferred.
 | Format spec ([FORMAT_SPEC.md](FORMAT_SPEC.md)) | v0 design draft; the encoding and language sections are pinned by Phase 0/1 evidence | Public at launch |
 | Reference corpus ([corpus/](corpus/)) | **Acquired** — Bach, Byrd, Schubert, Beethoven 5, Beethoven 9 complete | Public domain sources |
 | Workbench + analyzer (W-series) | **Landed** — event IR, corpus loader, analyzer, diff tool, visualizer, B9 scaling fix | Internal |
-| Compressor (MusicXML → `.mu`) | **Landed** — score S2 [tools/muse_roll](tools/muse_roll/), language S4 [tools/muse_ops](tools/muse_ops/), container S5 [tools/muse_mu](tools/muse_mu/), seed S3 series [tools/muse_seed](tools/muse_seed/) | Proprietary |
+| Compressor (MusicXML → `.ru`) | **Landed** — score S2 [tools/muse_roll](tools/muse_roll/), language S4 [tools/muse_ops](tools/muse_ops/), container S5 [tools/muse_mu](tools/muse_mu/), seed S3 series [tools/muse_seed](tools/muse_seed/) | Proprietary |
 | Deterministic player | **Landed** — decoder P1 [tools/muse_decode](tools/muse_decode/), renderer P2 [tools/muse_play](tools/muse_play/), conformance suite P3 [tools/muse_ci](tools/muse_ci/) | Public at launch |
 | E2E chain gate | **Landed** — source → IR → pack → container → decode → render, determinism-checked; B9 verifies at recall=precision=1.0 ([tools/muse_chain](tools/muse_chain/)) | Internal |
 | Seed authoring (C-series) | **Landed** — format impl, AI-assisted authoring, budget calibration, assertion authoring | Proprietary |

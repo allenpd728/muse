@@ -86,7 +86,7 @@ def test_sub_sample_note_renders(tmp_path):
     assert meta["duration_sec"] > 0
 
 
-# --- .mu container input (issue #225, spec gap 1): the CLI's format list
+# --- .ru container input (issue #225, spec gap 1): the CLI's format list
 # now matches P1's acceptance — containers decode via muse_decode.
 
 import os
@@ -95,7 +95,7 @@ import sys
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 TOOLS = os.path.join(REPO, "tools")
-VECTOR = os.path.join(TOOLS, "muse_ci", "vectors", "bach-bwv227.1.mu")
+VECTOR = os.path.join(TOOLS, "muse_ci", "vectors", "bach-bwv227.1.ru")
 
 
 def test_cli_mu_container_renders(tmp_path):
@@ -114,7 +114,7 @@ def test_cli_mu_container_renders(tmp_path):
 
 
 def test_mu_matches_source_render(tmp_path):
-    """The .mu container and its corpus source decode to the same render
+    """The .ru container and its corpus source decode to the same render
     bytes — the S1 contract through two input paths."""
     sys.path.insert(0, os.path.join(TOOLS, "muse_decode"))
     sys.path.insert(0, os.path.join(TOOLS, "muse_mu"))

@@ -4,9 +4,9 @@ Golden vectors pinning the reference decoder: the objective definition of
 "conforming decoder." Design doc:
 [docs/design/p3-conformance-suite.md](../../docs/design/p3-conformance-suite.md).
 
-A vector is a (`.mu` container → decoded event stream) pair:
+A vector is a (`.ru` container → decoded event stream) pair:
 
-- **Input:** `vectors/<work-id>.mu` — committed binary container (S5:
+- **Input:** `vectors/<work-id>.ru` — committed binary container (S5:
   manifest.json + roll.bin + seed.bin), built from the corpus via W1 → S2
   → S5. Committed, not regenerated at gate time, so the gate pins the
   *decoder* independently of encoder drift.
@@ -39,9 +39,9 @@ the committed pins byte-for-byte is itself tested
 
 ## API
 
-- `build_mu(work_id, relpath, out_path)` — corpus source → `.mu` (fails on
+- `build_mu(work_id, relpath, out_path)` — corpus source → `.ru` (fails on
   non-deterministic S2 pack).
-- `decoded_canonical(mu_path) -> bytes` — `.mu` → P1 decode → S1 canonical
+- `decoded_canonical(mu_path) -> bytes` — `.ru` → P1 decode → S1 canonical
   JSON bytes.
 - `generate(vectors_dir, registry)` / `verify(vectors_dir, registry)` —
   store rebuild / gate. `verify` returns `VectorResult(work_id, status,
@@ -63,6 +63,6 @@ cd tools && python -m pytest muse_ci/tests -q
 
 43 tests: full-registry gate, store integrity (schema, coverage, valid
 containers), tamper detection (corrupted pin, flipped roll byte, missing
-.mu, missing pin), decode determinism, CLI behavior, corpus coverage, and
+.ru, missing pin), decode determinism, CLI behavior, corpus coverage, and
 regeneration fidelity. Test spec:
 [tests/closed_20260824-104500_p3-conformance-suite.md](../../tests/closed_20260824-104500_p3-conformance-suite.md).

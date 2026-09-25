@@ -1,6 +1,6 @@
 # muse_mu — S5 container + manifest
 
-`.mu` zip layout and the plaintext rights manifest, per
+`.ru` zip layout and the plaintext rights manifest, per
 [FORMAT_SPEC §7.1](../../FORMAT_SPEC.md) and
 [docs/design/s5-container-manifest.md](../../docs/design/s5-container-manifest.md).
 
@@ -18,9 +18,9 @@ m = build_manifest(
                 "author": "founder", "ai_involvement": "assisted"},
     members={"roll.bin": roll_bytes, "seed.bin": seed_bytes},
 )
-write_mu("work.mu", m, {"roll.bin": roll_bytes, "seed.bin": seed_bytes})
+write_mu("work.ru", m, {"roll.bin": roll_bytes, "seed.bin": seed_bytes})
 
-manifest, members = read_mu("work.mu")      # verifies hashes by default
+manifest, members = read_mu("work.ru")      # verifies hashes by default
 manifest.sign(b"key"); manifest.verify(b"key")  # optional HMAC signature
 ```
 

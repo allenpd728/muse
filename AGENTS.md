@@ -37,7 +37,7 @@ a workflow that exists only on `dev` will not run. The sweep and audit workflows
 branch points, or the dashboard reads a stale log.
 ## What this project is
 
-Muse is an **executable music format**. A `.mu` file carries three components:
+Muse is an **executable music format**. A `.ru` file carries three components:
 the **score** (the fixed work — our MusicXML-class encoding, packaged), the
 **prompt** (the interpretive space — what may vary), and the **manifest**
 (plaintext rights). The deterministic player reads the score ("our MIDI
@@ -68,7 +68,7 @@ See [FORMAT_SPEC.md](FORMAT_SPEC.md) for the format design,
 - **No artist lookalikes.** Prompt philosophies reference styles and
   practices, never an artist's identity, without an explicit license in the
   manifest.
-- **Provenance is mandatory.** Every `.mu` records source, license, and AI
+- **Provenance is mandatory.** Every `.ru` records source, license, and AI
   involvement in its plaintext manifest.
 - **Human evaluation is constant.** The founder knows these scores; every
   render is evaluated by ear against them. Metrics support judgment, never
@@ -217,8 +217,8 @@ tools/muse_compare/   # L3 model A/B comparison rig
 tools/muse_distill/   # L4 mockup → seed revision distiller
 tools/muse_play/      # P2 reference renderer (soundfont tier)
 tools/muse_event/     # E1 execution scaffold (corpus ladder)
-tools/muse_decode/    # P1 reference decoder (.mu → event stream)
-tools/muse_ci/        # P3 conformance suite (.mu golden vectors + decoder gate)
+tools/muse_decode/    # P1 reference decoder (.ru → event stream)
+tools/muse_ci/        # P3 conformance suite (.ru golden vectors + decoder gate)
 tools/muse_audio/     # workbench render bridge (seed revision → WAV + audio manifest)
 tools/muse_probes/    # W-B1 seed-iteration probe engine
 tools/muse_mockup/    # L1 mockup harness

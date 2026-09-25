@@ -1,4 +1,4 @@
-"""P1 decoder: `.mu` container → event stream (IR Work)."""
+"""P1 decoder: `.ru` container → event stream (IR Work)."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ class DecodeError(Exception):
 
 
 def decode(container_path: str):
-    """Decode a `.mu` container (zip: manifest.json + roll.bin) → Work."""
+    """Decode a `.ru` container (zip: manifest.json + roll.bin) → Work."""
     if not os.path.exists(container_path):
         raise DecodeError(f"container not found: {container_path}")
     try:

@@ -6,7 +6,7 @@ above. Offline playback only — no streaming, no DAW.
 
 Renders via the same envelope-at-pitch path as L2's muse_render, reading
 from the S1 stream (Work) rather than the mockup. CLI exposes
-`muse play <source>` for MusicXML/MIDI corpus sources and `.mu` containers.
+`muse play <source>` for MusicXML/MIDI corpus sources and `.ru` containers.
 
 IR path note: muse_ir is imported lazily inside functions so pytest's
 package-level collection does not require IR path injection before this

@@ -1,4 +1,4 @@
-"""S5 container + manifest — .mu zip layout and the plaintext rights manifest.
+"""S5 container + manifest — .ru zip layout and the plaintext rights manifest.
 
 The manifest is the only human-readable member, by design: a lawyer reads
 it with a text editor. It carries license, provenance (with AI disclosure),
@@ -215,7 +215,7 @@ def build_manifest(work_id, license, provenance, members: dict,
 
 
 def write_mu(path, manifest: Manifest, members: dict):
-    """Write a .mu zip: manifest.json first, then members in sorted order."""
+    """Write a .ru zip: manifest.json first, then members in sorted order."""
     manifest.validate()
     expected = {name: sha256_hex(data) for name, data in members.items()}
     if expected != manifest.hashes:
@@ -227,12 +227,12 @@ def write_mu(path, manifest: Manifest, members: dict):
 
 
 def read_mu(path, verify_hashes=True) -> tuple:
-    """Read a .mu container: (Manifest, {member: bytes}). Fails loudly on
+    """Read a .ru container: (Manifest, {member: bytes}). Fails loudly on
     layout violations and (by default) hash mismatches."""
     try:
         z = zipfile.ZipFile(path)
     except (zipfile.BadZipFile, OSError) as e:
-        raise ManifestError(f"not a .mu zip container: {e}") from e
+        raise ManifestError(f"not a .ru zip container: {e}") from e
     with z:
         names = z.namelist()
         dupes = {n for n in names if names.count(n) > 1}

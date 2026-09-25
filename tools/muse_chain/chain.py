@@ -2,7 +2,7 @@
 
 Each stage is a named function returning StageResult (PASS/FAIL/SKIP);
 a failing stage isolates the owning task by name. Decode runs the real P1
-(tools/muse_decode) against the written .mu container; render runs the real
+(tools/muse_decode) against the written .ru container; render runs the real
 P2 (tools/muse_play) on the P1-decoded Work. Both landed 2026-08-24 (#197,
 #198); this harness is where their seams (S5→P1, P1→P2) are exercised.
 
@@ -98,7 +98,7 @@ def _stage_container(work_id, relpath, roll_bytes, seed_bytes, out_dir):
     members = {"roll.bin": roll_bytes, "seed.bin": seed_bytes}
     manifest = build_manifest(work_id=work_id, license=lic, provenance=prov,
                               members=members)
-    path = os.path.join(out_dir, f"{work_id}.mu")
+    path = os.path.join(out_dir, f"{work_id}.ru")
     write_mu(path, manifest, members)
     back, got = read_mu(path)
     if got != members:
@@ -109,7 +109,7 @@ def _stage_container(work_id, relpath, roll_bytes, seed_bytes, out_dir):
 
 
 def _stage_decode(work, container_path):
-    """S5→P1 seam: the real P1 decoder reads the written .mu container."""
+    """S5→P1 seam: the real P1 decoder reads the written .ru container."""
     from muse_decode import decode as mu_decode
 
     rt = mu_decode(container_path)

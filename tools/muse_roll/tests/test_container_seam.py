@@ -4,7 +4,7 @@ The pack→container seam was untested: S2's tests never wrote a container
 and S5's tests used raw bytes, not packed payloads. This suite covers both
 directions of the contract:
 
-- **S2 → S5**: an S2-packed roll payload writes into a .mu container as
+- **S2 → S5**: an S2-packed roll payload writes into a .ru container as
   ``roll.bin``; the manifest's sha256 of ``roll.bin`` equals the packed
   payload's digest at build time and after read-back.
 - **S5 → S2**: ``read_mu`` returns the payload byte-exact; S2 decodes it;
@@ -93,7 +93,7 @@ class TestPackContainerUnpackRoundTrip:
     @pytest.mark.parametrize("tier", sorted(TIERS))
     def test_container_roundtrip_w4_green(self, tier, tmp_path):
         work = load(os.path.join(CORPUS, TIERS[tier]))
-        path = tmp_path / f"{tier}.mu"
+        path = tmp_path / f"{tier}.ru"
         payload, _ = _pack_into_container(work, tier, TIERS[tier], path)
 
         manifest, members = read_mu(str(path))
@@ -114,7 +114,7 @@ class TestManifestHashPinsPayload:
         """The manifest hash of roll.bin is the packed payload's sha256 —
         at build time and as read back from the container."""
         work = load(os.path.join(CORPUS, TIERS["bach"]))
-        path = tmp_path / "hash.mu"
+        path = tmp_path / "hash.ru"
         payload, written = _pack_into_container(work, "bach", TIERS["bach"], path)
 
         assert written.hashes["roll.bin"] == sha256_hex(payload)
@@ -131,7 +131,7 @@ class TestManifestHashPinsPayload:
         with open(fixture, "rb") as f:
             golden = f.read()
         work = load(os.path.join(CORPUS, TIERS["bach"]))
-        path = tmp_path / "golden.mu"
+        path = tmp_path / "golden.ru"
         payload, _ = _pack_into_container(work, "bach", TIERS["bach"], path)
         assert payload == golden, "packed payload drifted from golden roll vector"
         manifest, _ = read_mu(str(path))
@@ -143,7 +143,7 @@ class TestCorruptionFailsLoudly:
         """Flip a byte in roll.bin (manifest untouched): read_mu must raise
         on the hash mismatch — no silent partial data."""
         work = load(os.path.join(CORPUS, TIERS["bach"]))
-        path = tmp_path / "tampered.mu"
+        path = tmp_path / "tampered.ru"
         payload, _ = _pack_into_container(work, "bach", TIERS["bach"], path)
 
         tampered = payload[:-1] + bytes([payload[-1] ^ 0xFF])
@@ -156,7 +156,7 @@ class TestCorruptionFailsLoudly:
         container read passes, but S2 decode must raise, not return a
         partial/garbage Work."""
         work = load(os.path.join(CORPUS, TIERS["bach"]))
-        path = tmp_path / "rehashed.mu"
+        path = tmp_path / "rehashed.ru"
         payload, _ = _pack_into_container(work, "bach", TIERS["bach"], path)
 
         corrupted = b"XXXX" + payload[4:]
@@ -177,7 +177,7 @@ class TestCorruptionFailsLoudly:
         """A container whose roll.bin was stripped fails at read, listing
         the required member — the unpack stage never sees partial data."""
         work = load(os.path.join(CORPUS, TIERS["bach"]))
-        path = tmp_path / "stripped.mu"
+        path = tmp_path / "stripped.ru"
         _pack_into_container(work, "bach", TIERS["bach"], path)
 
         with zipfile.ZipFile(path) as z:

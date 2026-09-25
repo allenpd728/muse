@@ -15,7 +15,7 @@ python3 tools/muse_chain/cli.py --determinism         # two runs, compare artifa
 - **Stage failure isolates the owner**: stage names carry task nouns
   (`pack(S2)`), so a red stage points at one task.
 - **P1/P2 are real** (#201): decode runs the P1 reference decoder
-  (`tools/muse_decode`) against the written `.mu` container — the S5→P1
+  (`tools/muse_decode`) against the written `.ru` container — the S5→P1
   seam; render runs the P2 reference renderer (`tools/muse_play`) on the
   P1-decoded Work — the P1→P2 seam — with the WAV verified (RIFF header,
   size, duration).

@@ -6,7 +6,7 @@ document defines the model they must serve. Nothing here is implemented.
 
 ## 0. The one-sentence definition
 
-**A `.mu` file is the compressed, executable encoding of a musical work —
+**A `.ru` file is the compressed, executable encoding of a musical work —
 three components in one container.** The **score** is the fixed work: what
 MusicXML already carries, packaged (our MusicXML). The **prompt** is the
 interpretive space: what may vary, and the performance philosophy that guides
@@ -15,7 +15,7 @@ deterministic player reads the score; an LLM player reads score + prompt and
 brings the work to life — slowly, deliberately. A performance is an event,
 not a render.
 
-The metaphor: the `.mu` file is the improved piano roll — re-punched with
+The metaphor: the `.ru` file is the improved piano roll — re-punched with
 modern musical knowledge so the existing player piano produces a better
 performance. Technology advancing hardware by changing the software.
 
@@ -42,7 +42,7 @@ it live." The score constrains the prompt; the prompt never contradicts the scor
 1. **Compression by construction.** The score is MusicXML compressed:
    columnar, delta-encoded, pattern-factored, entropy-coded. Program length
    versus expanded output is a measurable property of the work.
-2. **Determinism at the baseline.** Same `.mu` → identical score playback on
+2. **Determinism at the baseline.** Same `.ru` → identical score playback on
    every conforming player, forever. Conformance is byte-exact.
 3. **Interpretation as data.** The prompt is explicit, inspectable, and
    licensed — interpretive decisions are first-class, declared, and bounded.
@@ -56,10 +56,10 @@ it live." The score constrains the prompt; the prompt never contradicts the scor
 
 ## 3. File anatomy
 
-A `.mu` file is a zip container (the `.mxl` precedent):
+A `.ru` file is a zip container (the `.mxl` precedent):
 
 ```
-work.mu
+work.ru
 ├── manifest.json      ← REQUIRED. Plaintext. Rights + provenance + hashes.
 ├── roll.bin           ← REQUIRED. The fixed score, compressed.
 ├── seed.bin           ← REQUIRED. The interpretive space.
@@ -324,9 +324,9 @@ finished — it is re-authored and revised as tools improve.
 
 ## 7. Conformance and versioning
 
-- **Decoder conformance**: golden vectors — `.mu` → event stream, byte-exact,
+- **Decoder conformance**: golden vectors — `.ru` → event stream, byte-exact,
   including resource-bound behavior. A decoder conforms or it doesn't.
-- **Work conformance**: every corpus work round-trips — source → `.mu` →
+- **Work conformance**: every corpus work round-trips — source → `.ru` →
   event stream, diff green. The corpus ladder gates versions; the complete
   Beethoven 9 is the v1.0 target.
 - **`format_version` is semver.** v0.x may break; v1+ additive only.

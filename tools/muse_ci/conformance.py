@@ -1,6 +1,6 @@
 """P3 conformance suite — golden vectors pinning the reference decoder.
 
-A vector is a (`.mu` container → decoded event stream) pair. The `.mu`
+A vector is a (`.ru` container → decoded event stream) pair. The `.ru`
 inputs are committed binaries (fixed decoder inputs — the gate stays
 meaningful even if the encoder drifts); the expected outputs are pinned
 as sha256 over the S1 canonical JSON of the P1-decoded Work, plus part/
@@ -57,7 +57,7 @@ class VectorResult:
 
 
 def build_mu(work_id, relpath, out_path):
-    """Corpus source → .mu container (W1 parse → S2 pack → S5 container)."""
+    """Corpus source → .ru container (W1 parse → S2 pack → S5 container)."""
     from muse_ir import load
     from muse_mu import build_manifest, write_mu
     from muse_roll import encode as roll_encode
@@ -79,7 +79,7 @@ def build_mu(work_id, relpath, out_path):
 
 
 def decoded_canonical(mu_path):
-    """`.mu` → P1 decode → S1 canonical JSON bytes (FORMAT_SPEC §4.4)."""
+    """`.ru` → P1 decode → S1 canonical JSON bytes (FORMAT_SPEC §4.4)."""
     from muse_decode import decode as mu_decode
     from muse_stream import canonical_json
 
@@ -89,7 +89,7 @@ def decoded_canonical(mu_path):
 def _pin_entry(work_id, relpath, canonical):
     return {
         "source": f"corpus/{relpath}",
-        "mu": f"{work_id}.mu",
+        "ru": f"{work_id}.ru",
         "sha256": hashlib.sha256(canonical).hexdigest(),
         "canonical_bytes": len(canonical),
     }
@@ -104,11 +104,11 @@ def _load_pins(vectors_dir):
 
 
 def generate(vectors_dir=VECTORS_DIR, registry=REGISTRY):
-    """(Re)build the vector store: one .mu per registry work + pins.json."""
+    """(Re)build the vector store: one .ru per registry work + pins.json."""
     os.makedirs(vectors_dir, exist_ok=True)
     vectors = {}
     for work_id, relpath in registry:
-        mu_path = os.path.join(vectors_dir, f"{work_id}.mu")
+        mu_path = os.path.join(vectors_dir, f"{work_id}.ru")
         build_mu(work_id, relpath, mu_path)
         vectors[work_id] = _pin_entry(work_id, relpath, decoded_canonical(mu_path))
     pins = {"format": PINS_FORMAT, "vectors": vectors}
@@ -119,7 +119,7 @@ def generate(vectors_dir=VECTORS_DIR, registry=REGISTRY):
 
 
 def verify(vectors_dir=VECTORS_DIR, registry=FAST_REGISTRY):
-    """Decode each committed .mu through P1; canonical sha256 must match
+    """Decode each committed .ru through P1; canonical sha256 must match
     its pin. Decode errors are FAIL, never exceptions."""
     pins = _load_pins(vectors_dir)
     results = []
@@ -128,9 +128,9 @@ def verify(vectors_dir=VECTORS_DIR, registry=FAST_REGISTRY):
         if entry is None:
             results.append(VectorResult(work_id, "FAIL", "no pin entry"))
             continue
-        mu_path = os.path.join(vectors_dir, entry["mu"])
+        mu_path = os.path.join(vectors_dir, entry["ru"])
         if not os.path.exists(mu_path):
-            results.append(VectorResult(work_id, "FAIL", f"missing {entry['mu']}"))
+            results.append(VectorResult(work_id, "FAIL", f"missing {entry['ru']}"))
             continue
         try:
             canonical = decoded_canonical(mu_path)

@@ -1,4 +1,4 @@
-"""S4 language validator — grammar-only checks for .mu programs.
+"""S4 language validator — grammar-only checks for .ru programs.
 
 The three shipped operators (W3 evidence, FORMAT_SPEC §5.1): ptn_exact,
 ptn_transposed, ptn_ostinato. Invert/retro/imitative deferred — no corpus

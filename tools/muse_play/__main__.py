@@ -3,7 +3,7 @@
     python -m muse_play <source> [-o out.wav]
 
 source: a MusicXML (.xml/.mxl) or MIDI (.mid) corpus file, any path the
-W1 IR loads, or a `.mu` container (decoded via P1's muse_decode — the
+W1 IR loads, or a `.ru` container (decoded via P1's muse_decode — the
 container seam P3 pins).
 """
 
@@ -21,8 +21,8 @@ from .play import PlayError, render_work  # noqa: E402
 
 
 def _load_source(source: str):
-    """`.mu` containers decode via P1; everything else goes to the W1 IR."""
-    if source.endswith(".mu"):
+    """`.ru` containers decode via P1; everything else goes to the W1 IR."""
+    if source.endswith(".ru"):
         here = os.path.dirname(__file__)
         for dep in ("muse_decode", "muse_mu", "muse_roll"):
             sys.path.insert(0, os.path.join(here, "..", dep))
@@ -36,7 +36,7 @@ def _load_source(source: str):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="muse-play")
-    ap.add_argument("source", help="source file: .xml/.mxl/.mid/.mu")
+    ap.add_argument("source", help="source file: .xml/.mxl/.mid/.ru")
     ap.add_argument("-o", "--output", default=None)
     args = ap.parse_args(argv)
 

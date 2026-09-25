@@ -90,7 +90,7 @@ class TestManifestSchema:
 
 class TestContainer:
     def test_write_read_round_trip(self, tmp_path):
-        path = str(tmp_path / "work.mu")
+        path = str(tmp_path / "work.ru")
         write_mu(path, make_manifest(), MEMBERS)
         manifest, members = read_mu(path)
         assert manifest.work_id == "bwv227.1"
@@ -98,13 +98,13 @@ class TestContainer:
 
     def test_performances_dir_accepted(self, tmp_path):
         members = {**MEMBERS, "performances/a.perf": b"perf-bytes"}
-        path = str(tmp_path / "work.mu")
+        path = str(tmp_path / "work.ru")
         write_mu(path, make_manifest(members=members), members)
         _, got = read_mu(path)
         assert got["performances/a.perf"] == b"perf-bytes"
 
     def test_missing_required_member_rejected(self, tmp_path):
-        path = str(tmp_path / "work.mu")
+        path = str(tmp_path / "work.ru")
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("manifest.json", make_manifest().to_json())
             z.writestr("roll.bin", b"x")
@@ -112,7 +112,7 @@ class TestContainer:
             read_mu(path)
 
     def test_unexpected_member_rejected(self, tmp_path):
-        path = str(tmp_path / "work.mu")
+        path = str(tmp_path / "work.ru")
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("manifest.json", make_manifest().to_json())
             z.writestr("roll.bin", MEMBERS["roll.bin"])
@@ -122,14 +122,14 @@ class TestContainer:
             read_mu(path)
 
     def test_not_a_zip_rejected(self, tmp_path):
-        path = tmp_path / "work.mu"
+        path = tmp_path / "work.ru"
         path.write_bytes(b"definitely not a zip")
-        with pytest.raises(ManifestError, match="not a .mu zip"):
+        with pytest.raises(ManifestError, match="not a .ru zip"):
             read_mu(str(path))
 
     def test_hash_mismatch_detected(self, tmp_path):
         # a zip whose roll.bin content differs from the manifest's hash
-        path = str(tmp_path / "work.mu")
+        path = str(tmp_path / "work.ru")
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("manifest.json", make_manifest().to_json())
             z.writestr("roll.bin", b"tampered-content")
@@ -140,7 +140,7 @@ class TestContainer:
     def test_write_rejects_hash_mismatch(self, tmp_path):
         m = make_manifest()
         with pytest.raises(ManifestError, match="do not match"):
-            write_mu(str(tmp_path / "w.mu"), m, {"roll.bin": b"different",
+            write_mu(str(tmp_path / "w.ru"), m, {"roll.bin": b"different",
                                                  "seed.bin": MEMBERS["seed.bin"]})
 
 
@@ -254,7 +254,7 @@ class TestLineageFields:
         with member *content*."""
         prov = dict(PROVENANCE, extends=GOOD_HASH, operation="muse_distill@1")
         m = make_manifest(provenance=prov)
-        mu = tmp_path / "t.mu"
+        mu = tmp_path / "t.ru"
         write_mu(str(mu), m, MEMBERS)
         back, _members = read_mu(str(mu))
         assert back.provenance["extends"] == GOOD_HASH
@@ -276,7 +276,7 @@ class TestLineageFields:
         prov = dict(PROVENANCE, extends=GOOD_HASH)
         m = make_manifest(provenance=prov)
         m.sign(b"k")
-        mu = tmp_path / "s.mu"
+        mu = tmp_path / "s.ru"
         write_mu(str(mu), m, MEMBERS)
         with zipfile.ZipFile(mu) as z:
             members = {n: z.read(n) for n in z.namelist()}

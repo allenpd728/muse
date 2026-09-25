@@ -37,5 +37,5 @@ those works.
 
 All four composers are long public domain (d. 1623–1827). Sources are new
 encodings of public-domain works, freely distributed by their hosts. Record
-provenance in the `.mu` manifest at compression time regardless — the
+provenance in the `.ru` manifest at compression time regardless — the
 format's own rule.

@@ -36,7 +36,7 @@ class TestCorpusCoverage:
 @pytest.mark.parametrize("work_id,relpath", REGISTRY)
 def test_regeneration_reproduces_pin(work_id, relpath, tmp_path):
     pins = _load_pins(VECTORS_DIR)
-    mu = tmp_path / f"{work_id}.mu"
+    mu = tmp_path / f"{work_id}.ru"
     build_mu(work_id, relpath, str(mu))
     canonical = decoded_canonical(str(mu))
     entry = pins[work_id]

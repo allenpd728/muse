@@ -28,7 +28,7 @@ SMALL = ("bach-bwv227.1", "bach/bwv227.1.mxl")
 # --- Gap 1: P1/P2 stage wiring pins (swapped to real stages, #201) ---
 
 def test_decode_stage_is_real_p1():
-    """Decode runs the real P1 (tools/muse_decode) against the written .mu
+    """Decode runs the real P1 (tools/muse_decode) against the written .ru
     container — the S5→P1 seam. If the stage regresses to the S2 stand-in,
     this fails."""
     result = run_work(*SMALL)
@@ -111,7 +111,7 @@ def test_decode_stage_fails_on_tampered_roll(tmp_path):
         license={"renditions": "closed", "attribution": "test", "commercial": False},
         provenance={"source": "test", "author": "test", "ai_involvement": "none"},
         members=members)
-    path = str(tmp_path / "tampered.mu")
+    path = str(tmp_path / "tampered.ru")
     write_mu(path, manifest, members)
     try:
         decoded, result = _stage_decode(work, path)

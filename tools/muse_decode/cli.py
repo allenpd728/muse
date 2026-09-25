@@ -1,7 +1,7 @@
-"""muse-decode CLI: `.mu` container → event stream summary.
+"""muse-decode CLI: `.ru` container → event stream summary.
 
 Usage:
-  python3 tools/muse_decode/cli.py file.mu
+  python3 tools/muse_decode/cli.py file.ru
 """
 
 import argparse
@@ -14,7 +14,7 @@ from muse_decode import decode, DecodeError  # noqa: E402
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("container", help=".mu container path")
+    ap.add_argument("container", help=".ru container path")
     args = ap.parse_args(argv)
     try:
         work = decode(args.container)

@@ -1,9 +1,9 @@
 """Tests: S5 follow-up (issue #152).
 
-1. Golden .mu fixture — committed bytes, verified byte-exact.
+1. Golden .ru fixture — committed bytes, verified byte-exact.
 2. Signature canonicalization adversarial cases.
 3. Zip metadata edge cases (duplicate members, directory entries).
-4. Real-payload shape: .mu built from an actual seed file + corpus-derived bytes.
+4. Real-payload shape: .ru built from an actual seed file + corpus-derived bytes.
 """
 
 import json
@@ -25,7 +25,7 @@ from muse_mu import (  # noqa: E402
 )
 
 FIXTURES = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "tests", "fixtures"))
-GOLDEN = os.path.join(FIXTURES, "bwv227.1.minimal.mu")
+GOLDEN = os.path.join(FIXTURES, "bwv227.1.minimal.ru")
 SEED_YAML = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "seeds", "bwv227.1.seed.yaml"))
 
 LICENSE = {"renditions": "open-within-constraints",
@@ -66,7 +66,7 @@ class TestGoldenFixture:
     def test_fixture_is_reproducible(self, tmp_path):
         # Rebuilding from FIXTURE_INPUTS yields identical members and an
         # identical manifest (zip timestamps may differ — compare payloads).
-        out = str(tmp_path / "re.mu")
+        out = str(tmp_path / "re.ru")
         write_mu(out, build_manifest(**FIXTURE_INPUTS), MEMBERS)
         _, members_a = read_mu(GOLDEN)
         _, members_b = read_mu(out)
@@ -110,7 +110,7 @@ class TestZipMetadata:
     def test_duplicate_member_names_loud(self, tmp_path):
         # Decision pinned: duplicate member names = corrupt container,
         # fail loudly (zipfile.read would silently return the last entry).
-        path = str(tmp_path / "dup.mu")
+        path = str(tmp_path / "dup.ru")
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("manifest.json", make_manifest().to_json())
             z.writestr("roll.bin", b"first")
@@ -122,7 +122,7 @@ class TestZipMetadata:
     def test_directory_entry_noise_accepted(self, tmp_path):
         # tools that write explicit dir entries (e.g. "performances/")
         # must not trip the unexpected-member rule when empty
-        path = str(tmp_path / "dir.mu")
+        path = str(tmp_path / "dir.ru")
         members = {**MEMBERS, "performances/a.perf": b"x"}
         write_mu(path, make_manifest(members=members), members)
         with zipfile.ZipFile(path, "a") as z:
@@ -137,7 +137,7 @@ class TestRealPayloadShape:
         seed = open(SEED_YAML, "rb").read()
         members = {"roll.bin": roll, "seed.bin": seed}
         m = make_manifest(members=members)
-        path = str(tmp_path / "real.mu")
+        path = str(tmp_path / "real.ru")
         write_mu(path, m, members)
         manifest, got = read_mu(path)
         assert sha256_hex(got["roll.bin"]) == sha256_hex(roll)

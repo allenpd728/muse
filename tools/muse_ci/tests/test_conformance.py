@@ -3,7 +3,7 @@
 The full verify runs in ~2s (decode-only — no source re-parse), so the
 fast tier exercises the whole 13-work registry. Vector-store integrity,
 tamper detection, determinism, and CLI behavior live here; regeneration
-fidelity (corpus → .mu) is covered by test_conformance_full.py.
+fidelity (corpus → .ru) is covered by test_conformance_full.py.
 """
 
 import json
@@ -51,23 +51,23 @@ class TestStoreIntegrity:
 
     def test_pin_schema(self):
         for work_id, entry in self._pins()["vectors"].items():
-            assert set(entry) == {"source", "mu", "sha256", "canonical_bytes"}
+            assert set(entry) == {"source", "ru", "sha256", "canonical_bytes"}
             assert len(entry["sha256"]) == 64
             int(entry["sha256"], 16)
             assert entry["canonical_bytes"] > 0
-            assert entry["mu"] == f"{work_id}.mu"
+            assert entry["ru"] == f"{work_id}.ru"
             assert not entry["source"].startswith("/")
             assert "../" not in entry["source"]
 
     def test_every_pin_has_mu_on_disk(self):
         for entry in self._pins()["vectors"].values():
-            assert os.path.exists(os.path.join(VECTORS_DIR, entry["mu"]))
+            assert os.path.exists(os.path.join(VECTORS_DIR, entry["ru"]))
 
     def test_containers_are_valid_mu(self):
         from muse_mu import read_mu
 
         for work_id, _ in FAST_REGISTRY:
-            manifest, members = read_mu(os.path.join(VECTORS_DIR, f"{work_id}.mu"))
+            manifest, members = read_mu(os.path.join(VECTORS_DIR, f"{work_id}.ru"))
             assert set(members) == {"roll.bin", "seed.bin"}
             assert manifest.work_id == work_id
 
@@ -77,7 +77,7 @@ class TestTamperDetection:
         store = tmp_path / "vectors"
         store.mkdir()
         shutil.copy(os.path.join(VECTORS_DIR, PINS_NAME), store / PINS_NAME)
-        shutil.copy(os.path.join(VECTORS_DIR, f"{work_id}.mu"), store / f"{work_id}.mu")
+        shutil.copy(os.path.join(VECTORS_DIR, f"{work_id}.ru"), store / f"{work_id}.ru")
         return store
 
     def test_corrupted_pin_fails(self, tmp_path):
@@ -91,7 +91,7 @@ class TestTamperDetection:
 
     def test_flipped_roll_byte_fails(self, tmp_path):
         store = self._copy_store(tmp_path)
-        mu = store / "bach-bwv227.1.mu"
+        mu = store / "bach-bwv227.1.ru"
         with zipfile.ZipFile(mu) as zf:
             members = {n: zf.read(n) for n in zf.namelist()}
         roll = bytearray(members["roll.bin"])
@@ -105,7 +105,7 @@ class TestTamperDetection:
 
     def test_missing_mu_fails(self, tmp_path):
         store = self._copy_store(tmp_path)
-        os.remove(store / "bach-bwv227.1.mu")
+        os.remove(store / "bach-bwv227.1.ru")
         (r,) = verify(str(store), registry=[("bach-bwv227.1", "bach/bwv227.1.mxl")])
         assert r.status == "FAIL"
         assert "missing" in r.detail
@@ -122,7 +122,7 @@ class TestTamperDetection:
 
 class TestDeterminism:
     def test_decode_is_deterministic(self):
-        mu = os.path.join(VECTORS_DIR, "byrd-2-gloria.mu")
+        mu = os.path.join(VECTORS_DIR, "byrd-2-gloria.ru")
         assert decoded_canonical(mu) == decoded_canonical(mu)
 
 
@@ -138,8 +138,8 @@ class TestCli:
         store = tmp_path / "vectors"
         store.mkdir()
         shutil.copy(os.path.join(VECTORS_DIR, PINS_NAME), store / PINS_NAME)
-        shutil.copy(os.path.join(VECTORS_DIR, "byrd-1-kyrie.mu"),
-                    store / "byrd-1-kyrie.mu")
+        shutil.copy(os.path.join(VECTORS_DIR, "byrd-1-kyrie.ru"),
+                    store / "byrd-1-kyrie.ru")
         pins = json.loads((store / PINS_NAME).read_text())
         pins["vectors"]["byrd-1-kyrie"]["canonical_bytes"] = 1
         pins["vectors"]["byrd-1-kyrie"]["sha256"] = "f" * 64

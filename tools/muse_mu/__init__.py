@@ -1,4 +1,4 @@
-"""muse_mu — S5 container + manifest for .mu files."""
+"""muse_mu — S5 container + manifest for .ru files."""
 
 from .manifest import (
     LICENSE_RENDITIONS,

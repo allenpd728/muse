@@ -1,6 +1,6 @@
 # muse_ops — S4 language validator
 
-Grammar-only validator for `.mu` programs, per
+Grammar-only validator for `.ru` programs, per
 [FORMAT_SPEC §5.1](../../FORMAT_SPEC.md) and
 [docs/design/s4-language-spec.md](../../docs/design/s4-language-spec.md).
 
