@@ -6,7 +6,7 @@ Agents read this document once; everything else they learn from the issues and t
 
 > **System of record:** the issue queue plus `git log origin/main`. Status tables in
 > docs (pipeline.md etc.) are caches updated by sweeps and may lag — check the queue
-> and dev history before concluding work is undone.
+> and `main` history before concluding work is undone.
 
 ## Run-ids
 
@@ -36,7 +36,7 @@ No `BLOCKERS.md`/`BUGS.md` index file — the directory listing is the index.
 |---|---|
 | `status:available` | Ready to be claimed. All blockers are `done`. |
 | `status:claimed` | An agent has claimed it. Claim comment is the heartbeat. |
-| `status:done` | Work committed to `main`. The human reviews on `dev` at leisure; anything needing changes spawns a follow-up task. |
+| `status:done` | Work committed to `main`. The human reviews on `main` at leisure; anything needing changes spawns a follow-up task. |
 | `status:blocked-needs-input` | Agent could not start or finish; needs human input. |
 
 ```mermaid
@@ -217,7 +217,7 @@ the queue and must be swept (its older claim is void on the next sweep).
 1c. **Bug-log sweep.** Review `bugs/` the same way you review `blockers/` and
    the task queue: every `bugs/open_*` file should link a live issue (or a
    comment on the owning in-flight issue). File one if it's missing; if the
-   fix already landed on `dev`, rename the entry `closed_` with the fixing
+   fix already landed on `main`, rename the entry `closed_` with the fixing
    commit. Bugs found during your own session: log `bugs/open_*` +
    file the `status:available` issue, then return to your claimed task —
    don't fix out-of-scope bugs inside an unrelated claim.
@@ -225,7 +225,7 @@ the queue and must be swept (its older claim is void on the next sweep).
    start. Default order: lowest issue number first; issues labeled `priority:high`
    jump the queue. Before concluding any work item is undone, check
    `git log origin/main` and the issue queue — docs tables lag (§System of record);
-   dev history does not.
+   `main` history does not.
 2a. **Filing is not atomic — search, file, search again.** Before filing a new
    task, search open issues for its slug. After filing, search again: if a twin
    with a **lower issue number** now exists, close yours as duplicate with a link
@@ -265,7 +265,7 @@ the queue and must be swept (its older claim is void on the next sweep).
    issue, and return that issue to `status:available` — the blocker itself is a
    means, the goal is unblocking the original task.
 
-   **Concurrent-work rules** (agents run in parallel against `dev`):
+   **Concurrent-work rules** (agents run in parallel against `main`):
    - Pull before you start, and again before you push.
    - On push rejection (non-fast-forward): `git pull --rebase origin main`, resolve
      any conflicts, push again. Repeat as needed.
@@ -274,8 +274,8 @@ the queue and must be swept (its older claim is void on the next sweep).
      has gaps) file a review follow-up instead of reopening; if yours
      genuinely extends it, merge the two in the rebase. Never push a second
      copy of an already-landed tool.
-   - **Never force-push to `dev`** — it can destroy a sibling agent's committed
-     work. This is the one move the direct-to-dev model depends on forbidding.
+   - **Never force-push to `main`** — it can destroy a sibling agent's committed
+     work. This is the one move the direct-to-main model depends on forbidding.
    - A rebase conflict you cannot resolve confidently is a blocker — someone
      else's work changed the ground under your task. Don't guess; file it.
    - Prefer tasks whose touched files don't overlap a sibling's in-flight work;
@@ -309,7 +309,7 @@ Tests are specified per task, not assumed. The lifecycle mirrors blockers:
   what coverage landed (test file paths, command to run).
 
 Test-spec issues are claimed, worked, and closed like any other task: commit the
-tests to `dev`, ensure the repo's test command (stated in `AGENTS.md` →
+tests to `main`, ensure the repo's test command (stated in `AGENTS.md` →
 Build/test, or in the task itself) runs them in CI, then close. A task that
 lands code but whose test follow-up never completes is a process failure to
 surface in the end-of-session report.

@@ -10,7 +10,7 @@ player reads score + prompt and brings the work to life — slowly,
 deliberately. A performance is an event, not a render.
 
 > **Status: pre-launch development.** The repo is public; the work inside it is
-> not finished. Format spec, tooling, and corpus live on `dev`; deterministic
+> not finished. Format spec, tooling, and corpus live on `main`; deterministic
 > player (P1/P2) and LLM-side harnesses are landed and tested. Nothing here is
 > launch-ready, and the format spec will not be announced before it is.
 
